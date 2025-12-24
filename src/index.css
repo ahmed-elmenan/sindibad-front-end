@@ -1,0 +1,354 @@
+/* Optimisation de l'import des fonts */
+@import url("https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;500;600;700;800;900&family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap");
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+:root {
+  --radius: 0.625rem;
+
+  /* Fonts avec fallbacks améliorés */
+  --font-fr: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  --font-ar: "Cairo", "Segoe UI", Tahoma, Arial, sans-serif;
+
+  /* Couleurs principales */
+--background: linear-gradient(135deg, #fffaf5 0%, #f8f5f1 100%);
+  --foreground: #0b0607;
+
+  --card: #ffffff;
+  --card-foreground: #0b0607;
+
+  --popover: #ffffff;
+  --popover-foreground: #0b0607;
+
+  --primary: #e54e1c;
+  --primary-foreground: #ffffff;
+
+  --success: #94bf21;
+  --success-foreground: #ffffff;
+
+  --secondary: #fed315;
+  --secondary-foreground: #0b0607;
+
+  --muted: #e58633;
+  --muted-foreground: #0b0607;
+
+  --accent: #94bf21;
+  --accent-foreground: #ffffff;
+
+  --destructive: #dc2626;
+  --border: #e5e7eb;
+  --input: #e5e7eb;
+  --ring: #94bf21;
+
+  /* Charts */
+  --chart-1: #e58633;
+  --chart-2: #94bf21;
+  --chart-3: #fed315;
+  --chart-4: #e54e1c;
+  --chart-5: #0b0607;
+
+  /* Sidebar */
+  --sidebar: #fdfdfe;
+  --sidebar-foreground: #0b0607;
+  --sidebar-primary: #e54e1c;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #94bf21;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #e5e7eb;
+  --sidebar-ring: #94bf21;
+}
+
+.dark {
+  --background: #0b0607;
+  --foreground: #fdfdfe;
+
+  --card: #1f1f1f;
+  --card-foreground: #fdfdfe;
+
+  --popover: #1f1f1f;
+  --popover-foreground: #fdfdfe;
+
+  --primary: #e54e1c;
+  --primary-foreground: #ffffff;
+
+  --secondary: #fed315;
+  --secondary-foreground: #0b0607;
+
+  --muted: #e58633;
+  --muted-foreground: #fdfdfe;
+
+  --accent: #94bf21;
+  --accent-foreground: #0b0607;
+
+  --destructive: #ef4444;
+  --border: #3f3f46;
+  --input: #3f3f46;
+  --ring: #94bf21;
+
+  --chart-1: #fed315;
+  --chart-2: #94bf21;
+  --chart-3: #e58633;
+  --chart-4: #e54e1c;
+  --chart-5: #fdfdfe;
+
+  --sidebar: #1f1f1f;
+  --sidebar-foreground: #fdfdfe;
+  --sidebar-primary: #e54e1c;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #94bf21;
+  --sidebar-accent-foreground: #0b0607;
+  --sidebar-border: #3f3f46;
+  --sidebar-ring: #94bf21;
+}
+
+.sheet-overlay {
+  background: transparent !important;
+  opacity: 0 !important;
+  backdrop-filter: none !important;
+  pointer-events: none !important;
+}
+
+[data-slot="sheet-overlay"] {
+  display: none !important;
+}
+
+@keyframes partners-scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+.animate-partners-scroll {
+  animation: partners-scroll 30s linear infinite;
+}
+
+@keyframes partners-scroll-rtl {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(50%);
+  }
+}
+.animate-partners-scroll-rtl {
+  animation: partners-scroll-rtl 30s linear infinite;
+}
+
+.sheet-overlay {
+  background: transparent !important;
+  opacity: 0 !important;
+  backdrop-filter: none !important;
+  pointer-events: none !important;
+}
+
+[data-slot="sheet-overlay"] {
+  display: none !important;
+}
+
+@keyframes partners-scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+.animate-partners-scroll {
+  animation: partners-scroll 30s linear infinite;
+}
+
+@keyframes partners-scroll-rtl {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(50%);
+  }
+}
+.animate-partners-scroll-rtl {
+  animation: partners-scroll-rtl 30s linear infinite;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-fr);
+    /* Amélioration de la lisibilité */
+    font-feature-settings: "kern" 1, "liga" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+}
+
+/* Sélecteur plus spécifique pour l'arabe */
+html[lang="ar"] body,
+html[dir="rtl"] body {
+  font-family: var(--font-ar);
+  direction: rtl;
+  text-align: right;
+}
+
+/* Support pour les sous-langues arabes */
+html[lang^="ar"] body {
+  font-family: var(--font-ar);
+}
+
+/* RTL Support */
+[dir="rtl"] {
+  direction: rtl;
+  text-align: right;
+}
+
+[dir="ltr"] {
+  direction: ltr;
+  text-align: left;
+}
+
+/* Ensure proper font rendering for Arabic */
+[dir="rtl"] * {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
+}
+
+/* Style pour les tabs comme dans le screenshot Udemy */
+.tabs-list {
+  @apply border-b border-gray-200 bg-transparent p-0 h-auto;
+}
+
+.tabs-trigger {
+  @apply bg-transparent cursor-pointer border-0 border-b-2 border-transparent rounded-none px-4 py-3 text-sm font-medium text-gray-600 hover:text-gray-900;
+}
+.tabs-trigger[data-state="active"] {
+  border: none;
+  border-bottom: 2px solid #111;
+  color: #111;
+  box-shadow: none;
+}
+
+.rtl-tabs .tabs-list {
+  justify-content: flex-end !important;
+  direction: rtl;
+}
+
+/* Ajout de styles personnalisés pour la page de quiz */
+.quiz-info-card {
+  @apply transition-all duration-200 hover:shadow-lg;
+}
+
+.quiz-status-badge {
+  @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium;
+}
+
+.quiz-detail-item {
+  @apply flex items-center gap-3 p-4 rounded-lg bg-muted/50 transition-colors hover:bg-muted/70;
+}
+
+/* Animation pour le loader */
+@keyframes quiz-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.quiz-loading {
+  animation: quiz-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Animation de soulignement centre */
+.nav-link {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.nav-link::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background-color: var(--primary);
+  transition: all 300ms ease-in-out;
+  transform: translateX(-50%);
+}
+
+.nav-link:hover::after {
+  width: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Masquer la scrollbar tout en gardant le scroll fonctionnel */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;  /* Safari and Chrome */
+}

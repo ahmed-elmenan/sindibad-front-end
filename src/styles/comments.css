@@ -1,0 +1,71 @@
+/* Styles pour les commentaires */
+.comment-truncated {
+  position: relative;
+  overflow: hidden;
+  max-height: 150px;
+  transition: max-height 0.3s ease;
+}
+
+.comment-truncated::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 40px;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.9));
+  pointer-events: none;
+}
+
+.comment-expanded {
+  animation: expandComment 0.3s ease forwards;
+}
+
+@keyframes expandComment {
+  from {
+    opacity: 0.8;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Ajustements RTL */
+[dir="rtl"] .comment-truncated::after {
+  left: auto;
+  right: 0;
+}
+
+/* Assurer la responsivité des commentaires */
+@media (max-width: 640px) {
+  .comment-truncated {
+    max-height: 120px;
+  }
+}
+
+/* Ajustements pour le mode sombre si nécessaire */
+@media (prefers-color-scheme: dark) {
+  .comment-truncated::after {
+    background: linear-gradient(to bottom, rgba(17, 24, 39, 0), rgba(17, 24, 39, 0.9));
+  }
+}
+
+/* Empêcher le débordement de texte et d'image */
+img, video, iframe {
+  max-width: 100%;
+  height: auto;
+}
+
+pre, code {
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
+}
+
+/* Gestion des tableaux pour qu'ils soient responsives */
+table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+}

@@ -1,0 +1,1354 @@
+{
+  "welcome": "Bienvenue",
+  "toggle_language": "Passer en arabe",
+  "increment": "Incrémenter",
+  "contact": {
+    "title": "Contactez-nous",
+    "description": "Envoyez-nous un message pour toute question ou demande",
+    "first_name": "Prénom",
+    "last_name": "Nom",
+    "addReview": "Ajouter un avis",
+    "beFirst": "Soyez le premier à donner votre avis",
+    "yourReview": "Votre avis",
+    "editReview": "Modifier votre avis",
+    "editReviewDescription": "Modifiez votre note et votre commentaire pour ce cours.",
+    "rating": "Note",
+    "comment": "Commentaire",
+    "commentPlaceholder": "Partagez votre expérience avec ce cours...",
+    "characters": "caractères",
+    "commentRequired": "Le commentaire est requis",
+    "saving": "Enregistrement...",
+    "saveChanges": "Enregistrer les modifications",
+    "deleteReview": "Supprimer l'avis",
+    "confirmDelete": "Confirmer la suppression",
+    "confirmDeleteDescription": "Êtes-vous sûr de vouloir supprimer votre avis ? Cette action est irréversible.",
+    "confirmDeleteButton": "Supprimer",
+    "deleting": "Suppression...",
+    "updateSuccess": "Avis mis à jour",
+    "updateSuccessDescription": "Votre avis a été mis à jour avec succès.",
+    "updateError": "Erreur de mise à jour",
+    "updateErrorDescription": "Une erreur est survenue lors de la mise à jour de votre avis.",
+    "deleteSuccess": "Avis supprimé",
+    "deleteSuccessDescription": "Votre avis a été supprimé avec succès.",
+    "deleteError": "Erreur de suppression",
+    "deleteErrorDescription": "Une erreur est survenue lors de la suppression de votre avis.",
+    "email": "Email",
+    "subject": "Sujet",
+    "subject_optional": "Sujet (optionnel)",
+    "message": "Message",
+    "send": "Envoyer",
+    "loading": "Chargement...",
+    "first_name_required": "Le prénom est requis",
+    "last_name_required": "Le nom de famille est requis",
+    "email_required": "L'email est requis",
+    "email_invalid": "Format d'email invalide",
+    "message_required": "Le message est requis",
+    "message_sent": "Message envoyé avec succès",
+    "send_error": "Erreur d'envoi"
+  },
+  "login2": {
+    "title": "Connexion",
+    "description": "Connectez-vous à votre espace personnel",
+    "email": "Email",
+    "password": "Mot de passe",
+    "login_button": "Se connecter",
+    "forgot_password": "Mot de passe oublié ?",
+    "loading": "Chargement...",
+    "account_inactive": "Votre compte est désactivé. Veuillez consulter la boîte de mail pour activer le compte ou contacter l'administrateur.",
+    "email_required": "L'email est requis",
+    "email_invalid": "Format d'email invalide",
+    "password_required": "Le mot de passe est requis",
+    "password_min": "Le mot de passe doit contenir au moins 6 caractères",
+    "login_error": "Identifiants invalides",
+    "login_success": "Connexion réussie",
+    "no_account": "Vous n'avez pas de compte ?",
+    "sign_up": "S'inscrire"
+  },
+  "forgetPassword": {
+    "title": "Mot de passe oublié ?",
+    "step1": {
+      "title": "Mot de passe oublié ?",
+      "description": "Saisissez votre adresse email pour recevoir un code de vérification",
+      "email": "Adresse email",
+      "email_placeholder": "example@email.com",
+      "send_button": "Envoyer le code",
+      "sending": "Envoi en cours...",
+      "back_to_login": "Retour à la connexion",
+      "success_message": "Un code de vérification a été envoyé à {{email}}",
+      "error_message": "Une erreur est survenue. Veuillez réessayer.",
+      "email_required": "L'email est requis",
+      "email_invalid": "Format d'email invalide",
+      "email_sent": "Code de vérification envoyé à votre email"
+    },
+    "step2": {
+      "title": "Vérification",
+      "description": "Saisissez le code à 6 chiffres envoyé à",
+      "otp_label": "Code de vérification",
+      "verify_button": "Vérifier le code",
+      "verifying": "Vérification...",
+      "back_to_email": "Modifier l'email",
+      "success_message": "Code vérifié avec succès !",
+      "error_message": "Code de vérification invalide",
+      "validation_error": "Erreur lors de la vérification. Veuillez réessayer.",
+      "otp_required": "Le code de vérification est requis",
+      "otp_invalid": "Le code doit contenir 6 chiffres"
+    },
+    "step3": {
+      "title": "Nouveau mot de passe",
+      "description": "Créez un nouveau mot de passe sécurisé pour votre compte",
+      "new_password": "Nouveau mot de passe",
+      "confirm_password": "Confirmer le mot de passe",
+      "password_placeholder": "Mot de passe",
+      "confirm_password_placeholder": "Confirmer le mot de passe",
+      "reset_button": "Réinitialiser le mot de passe",
+      "invalid_token": "Le jeton est invalide",
+      "passwords_must_match": "Les mots de passe doivent correspondre",
+      "resetting": "Réinitialisation...",
+      "success_message": "Votre mot de passe a été réinitialisé avec succès !",
+      "error_message": "Erreur lors de la réinitialisation. Veuillez réessayer.",
+      "new_password_required": "Le nouveau mot de passe est requis",
+      "confirm_password_required": "La confirmation est requise",
+      "password_mismatch": "Les mots de passe ne correspondent pas",
+      "password_invalid": "Le mot de passe doit contenir au moins 8 caractères, une majuscule, un chiffre et un caractère spécial",
+      "password_requirements": {
+        "title": "Le mot de passe doit contenir :",
+        "min_length": "Au moins 8 caractères",
+        "uppercase": "Une lettre majuscule",
+        "number": "Un chiffre",
+        "special": "Un caractère spécial (@$!%*?&)"
+      }
+    }
+  },
+  "payment": {
+    "title": "Détails de paiement",
+    "description": "Veuillez suivre les instructions ci-dessous pour effectuer votre paiement",
+    "methods": {
+      "title": "Moyens de paiement disponibles",
+      "bank_transfer": {
+        "title": "Virement bancaire",
+        "description": "Effectuez un virement bancaire vers notre compte",
+        "bank_name": "Nom de la banque",
+        "iban": "IBAN",
+        "rib": "RIB",
+        "account_holder": "Titulaire"
+      },
+      "money_transfer": {
+        "number": "Numéro",
+        "beneficiary": "Bénéficiaire"
+      }
+    },
+    "instructions": {
+      "title": "Instructions de paiement",
+      "step1": "Choisissez votre moyen de paiement préféré",
+      "step2": "Effectuez le paiement en utilisant les coordonnées fournies",
+      "step3": "Téléversez votre reçu de paiement pour validation"
+    },
+    "receipt": {
+      "label": "Reçu de paiement",
+      "help": "Formats acceptés : JPG, PNG, PDF (max 5MB)",
+      "submit": "Envoyer le reçu",
+      "dropzone": "Zone de dépôt",
+      "submitting": "Envoi en cours...",
+      "remove": "Supprimer"
+    },
+    "error": {
+      "invalid_file_type": "Format de fichier non valide. Veuillez utiliser JPG, PNG ou PDF",
+      "file_too_large": "Le fichier est trop volumineux. Taille maximale : 5MB",
+      "no_file": "Veuillez sélectionner un fichier",
+      "submission_failed": "Échec de l'envoi. Veuillez réessayer."
+    },
+    "success": {
+      "receipt_submitted": "Reçu envoyé avec succès ! Nous traiterons votre paiement dans les plus brefs délais."
+    }
+  },
+  "progress": {
+    "step": "Étape",
+    "of": "sur",
+    "choose": "Choisir",
+    "pay": "Payer",
+    "confirm": "Confirmer"
+  },
+  "account": {
+    "logout": {
+      "description": "Cliquez sur le bouton ci-dessous pour vous déconnecter de votre compte en toute sécurité."
+    },
+    "title": "Mon compte",
+    "description": "Gérez vos informations personnelles et vos paramètres de compte",
+    "status": {
+      "active": "Actif"
+    },
+    "sections": {
+      "personalInfo": "Informations personnelles",
+      "updateInfo": "Mettre à jour les informations",
+      "updateProfile": "Modifier le profil",
+      "dangerZone": "Zone de danger",
+      "deleteAccount": "Supprimer le compte",
+      "logout": "Déconnexion"
+    },
+    "fields": {
+      "fullName": "Nom complet",
+      "email": "Email",
+      "phone": "Téléphone",
+      "phoneNotSet": "Non défini"
+    },
+    "placeholders": {
+      "fullName": "Votre nom complet",
+      "email": "Votre email",
+      "phone": "Votre numéro de téléphone"
+    },
+    "buttons": {
+      "updateInfo": "Modifier les informations",
+      "updating": "Mise à jour...",
+      "saveChanges": "Enregistrer les modifications",
+      "cancel": "Annuler",
+      "deleteAccount": "Supprimer le compte",
+      "confirmDelete": "Oui, supprimer mon compte",
+      "logout": "Déconnexion",
+      "logging_out": "Déconnexion en cours..."
+    },
+    "deleteDialog": {
+      "title": "Supprimer le compte",
+      "confirmation": "Êtes-vous sûr de vouloir supprimer votre compte ?",
+      "warning": "Cette action est irréversible. Toutes vos données seront définitivement supprimées."
+    },
+    "deleteWarning": "Une fois que vous supprimez votre compte, il n'y a pas de retour en arrière. Veuillez être certain.",
+    "errors": {
+      "currentPassword": {
+        "required": "Le mot de passe actuel est requis",
+        "incorrect": "Le mot de passe actuel est incorrect"
+      },
+      "password": {
+        "min_length": "Le mot de passe doit contenir au moins 8 caractères",
+        "uppercase": "Le mot de passe doit contenir au moins une lettre majuscule",
+        "number": "Le mot de passe doit contenir au moins un chiffre",
+        "special": "Le mot de passe doit contenir au moins un caractère spécial",
+        "requirements": "Le mot de passe ne répond pas aux exigences de sécurité"
+      },
+      "confirmPassword": {
+        "required": "La confirmation du mot de passe est requise",
+        "mismatch": "Les mots de passe ne correspondent pas"
+      },
+      "passwordChange": {
+        "error": "Erreur lors du changement de mot de passe",
+        "generic": "Une erreur s'est produite lors du changement de mot de passe"
+      },
+      "loadingFailed": "Échec du chargement du profil",
+      "updateFailed": "Échec de la mise à jour du profil",
+      "deleteFailed": "Échec de la suppression du compte",
+      "userNotFound": "Utilisateur non trouvé"
+    },
+    "success": {
+      "profileUpdated": "Profil mis à jour avec succès",
+      "accountDeleted": "Compte supprimé avec succès"
+    }
+  },
+  "accountPage": {
+    "buttons": {
+      "cancel": "Annuler"
+    },
+    "passwordChange": {
+      "title": "Changer le mot de passe",
+      "currentPassword": {
+        "label": "Mot de passe actuel",
+        "placeholder": "Entrez votre mot de passe actuel"
+      },
+      "newPassword": {
+        "label": "Nouveau mot de passe",
+        "placeholder": "Entrez votre nouveau mot de passe"
+      },
+      "changePassword": "Changer le mot de passe",
+      "submitButton": "Changer le mot de passe",
+      "submitting": "Changement en cours...",
+      "success": "Mot de passe changé avec succès !",
+      "error": "Échec du changement de mot de passe."
+    }
+  },
+  "courses": {
+    "headerHighlight": "Tous nos",
+    "continue": "Continuer",
+    "headerTitle": "Cours",
+    "headerSubtitle": "Découvrez notre catalogue complet",
+    "headerDescription": "Beaucoup de formations pour développer vos compétences et booster votre carrière",
+    "backHome": "Retour à l'accueil",
+    "errorTitle": "Erreur de chargement",
+    "retry": "Réessayer",
+    "activeFilters": "filtre(s) actif(s)",
+    "clearAll": "Tout effacer",
+    "noCourses": "Aucun cours trouvé",
+    "tryChangeFilters": "Essayez de modifier vos critères de recherche ou filtres.",
+    "noCoursesAvailable": "Il n'y a actuellement aucun cours disponible. Revenez plus tard !",
+    "clearFilters": "Effacer les filtres",
+    "loadMore": "Charger plus de cours",
+    "loading": "Chargement des cours...",
+    "filter": {
+      "searchPlaceholder": "Rechercher par titre, description...",
+      "filters": "Filtres",
+      "filter": "Filtrer",
+      "clear": "Effacer",
+      "advanced": "Filtres avancés",
+      "category": "Catégorie",
+      "allCategories": "Toutes les catégories",
+      "level": "Niveau",
+      "allLevels": "Tous les niveaux",
+      "price": "Prix (MAD)",
+      "allPrices": "Tous les prix",
+      "priceLow": "Moins de 2000",
+      "priceMid": "2000 - 3000",
+      "priceHigh": "3000 - 4000",
+      "priceVeryHigh": "Plus de 4000",
+      "minRating": "Note minimum",
+      "allRatings": "Toutes les notes",
+      "rating45": "4.5+ étoiles",
+      "rating40": "4.0+ étoiles",
+      "rating35": "3.5+ étoiles",
+      "subscription": {
+        "label": "Statut de souscription",
+        "all": "Tous les statuts",
+        "active": "Actif",
+        "expired": "Expiré",
+        "pending": "En attente",
+        "rejected": "Rejeté"
+      },
+      "sortBy": "Trier par",
+      "sortTitle": "Nom (A-Z)",
+      "sortPriceAsc": "Prix croissant",
+      "sortPriceDesc": "Prix décroissant",
+      "sortRating": "Mieux notés",
+      "sortDuration": "Durée",
+      "searchButton": "Rechercher"
+    },
+    "free": "Gratuit"
+  },
+  "courseDetails": {
+    "notFoundTitle": "Formation non trouvée",
+    "notFoundDescription": "La formation que vous recherchez n'existe pas ou n'est plus disponible.",
+    "backToCourses": "Retour aux cours",
+    "aboutTitle": "À propos de cette formation",
+    "aboutLearn": "Ce que vous allez apprendre :",
+    "contentTitle": "Contenu du cours",
+    "reviewsTitle": "Avis",
+    "basePrice": "Prix de base par particulier",
+    "selectedPack": "Pack sélectionné :",
+    "packCapacity": "Capacité du pack",
+    "packDiscount": "Réduction",
+    "packDescription": "Description du pack",
+    "learner": "particulier",
+    "learners": "particuliers",
+    "unitPrice": "Prix unitaire :",
+    "numLearners": "Nombre de particuliers :",
+    "subtotal": "Sous-total :",
+    "discount": "Réduction",
+    "total": "Total à payer :",
+    "includesTitle": "Cette formation inclut :",
+    "videoHours": "de vidéo",
+    "lifetimeAccess": "Accès à vie",
+    "certificate": "Certificat de fin",
+    "communitySupport": "Support communautaire",
+    "choosePack": "Choisir un pack",
+    "enrollNow": "S'inscrire maintenant",
+    "enrolling": "Inscription en cours...",
+    "enrollmentSuccess": "Inscription réussie !",
+    "enrollmentSuccessDescription": "Votre inscription a été enregistrée avec succès. Pour finaliser votre accès, veuillez procéder au paiement.",
+    "enrollmentError": "Erreur lors de l'inscription",
+    "enrollmentErrorDescription": "Une erreur s'est produite lors de votre inscription. Veuillez réessayer.",
+    "loginRequired": "Connectez-vous pour vous inscrire",
+    "signIn": "Connectez-vous",
+    "viewCourses": "Voir les cours",
+    "paymentInfo": "Informations de paiement",
+    "redirectingToPayment": "Redirection vers le paiement",
+    "redirectingToPaymentDescription": "Vous allez être redirigé vers la page de paiement pour finaliser votre inscription.",
+    "subscriptionInfo": "Informations d'abonnement",
+    "subscriptionStatus": "Statut",
+    "subscriptionUnitPrice": "Prix unitaire",
+    "subscriptionDiscount": "Remise",
+    "subscriptionLearners": "Particuliers inscrits",
+    "subscriptionStartDate": "Date de début",
+    "subscriptionEndDate": "Date de fin",
+    "subscriptionSubtotal": "Sous-total",
+    "subscriptionDiscountAmount": "Remise",
+    "subscriptionTotal": "Total payé",
+    "pendingSubscription": {
+      "title": "Inscription en attente de paiement",
+      "message": "Votre inscription au cours a été enregistrée avec succès. Pour finaliser votre accès, veuillez procéder au paiement en cliquant sur le bouton ci-dessous.",
+      "note": "Une fois le paiement effectué, vous aurez immédiatement accès au contenu du cours."
+    },
+    "chapterAccordion": {
+      "chapter": "Chapitre",
+      "lessons": "leçons",
+      "minutes": "min",
+      "hours": "h",
+      "order": "Ordre",
+      "video": "Vidéo",
+      "open": "Ouvrir le chapitre",
+      "close": "Fermer le chapitre"
+    },
+    "packSelector": {
+      "title": "Votre formule sélectionnée",
+      "automaticSelection": "Sélection automatique basée sur votre organisation",
+      "numberOfLearners": "Nombre d'apprenants dans votre organisation",
+      "learner": "particulier",
+      "learners": "particuliers",
+      "selectedPack": "Pack sélectionné",
+      "optimal": "Optimal",
+      "capacity": "Capacité",
+      "totalPrice": "Prix total",
+      "confirmSelection": "Confirmer cette sélection",
+      "selectPackBeforeEnroll": "Veuillez confirmer la sélection du pack avant de vous inscrire",
+      "saving": "Économie de {{discount}} %"
+    },
+    "reviewsSection": {
+      "title": "Avis des participants",
+      "averageRating": "Note moyenne",
+      "reviewsCount": "avis",
+      "seeAll": "Voir tous les avis",
+      "noReviews": "Aucun avis pour cette formation.",
+      "addReview": "Ajouter un avis",
+      "addReviewDescription": "Partagez votre expérience et donnez votre note pour ce cours.",
+      "addReviewButton": "Publier l'avis",
+      "adding": "Ajout en cours...",
+      "beFirst": "Soyez le premier à donner votre avis",
+      "yourReview": "Votre avis",
+      "editReview": "Modifier votre avis",
+      "editReviewDescription": "Modifiez votre note et votre commentaire pour ce cours.",
+      "rating": "Note",
+      "ratingRequired": "La note est requise",
+      "comment": "Commentaire",
+      "commentPlaceholder": "Partagez votre expérience avec ce cours...",
+      "characters": "caractères",
+      "commentRequired": "Le commentaire est requis",
+      "saving": "Enregistrement...",
+      "saveChanges": "Enregistrer",
+      "deleteReview": "Supprimer",
+      "confirmDelete": "Confirmer la suppression",
+      "confirmDeleteDescription": "Êtes-vous sûr de vouloir supprimer votre avis ? Cette action est irréversible.",
+      "confirmDeleteButton": "Supprimer",
+      "deleting": "Suppression...",
+      "addSuccess": "Avis ajouté",
+      "addSuccessDescription": "Votre avis a été ajouté avec succès.",
+      "addError": "Erreur d'ajout",
+      "addErrorDescription": "Une erreur est survenue lors de l'ajout de votre avis.",
+      "updateSuccess": "Avis mis à jour",
+      "updateSuccessDescription": "Votre avis a été mis à jour avec succès.",
+      "updateError": "Erreur de mise à jour",
+      "updateErrorDescription": "Une erreur est survenue lors de la mise à jour de votre avis.",
+      "deleteSuccess": "Avis supprimé",
+      "deleteSuccessDescription": "Votre avis a été supprimé avec succès.",
+      "deleteError": "Erreur de suppression",
+      "deleteErrorDescription": "Une erreur est survenue lors de la suppression de votre avis.",
+      "cancel": "Annuler",
+      "user": "Utilisateur"
+    }
+  },
+  "about": "À propos",
+  "pricing": "Tarifs",
+  "contact_navbar": "Contact",
+  "signup": "S'inscrire",
+  "login": "Se connecter",
+  "navbar": {
+    "logo": {
+      "alt": "Logo Tech-57",
+      "title": "Tech-57 - Plateforme d'apprentissage"
+    },
+    "mobile_menu": {
+      "open": "Ouvrir le menu",
+      "close": "Fermer le menu"
+    }
+  },
+  "homepage": {
+    "about_section": {
+      "title": "À propos de nous",
+      "description": "Bienvenue sur notre plateforme d'apprentissage innovante. Nous nous engageons à fournir une éducation de qualité accessible à tous."
+    },
+    "features_section": {
+      "flexible_learning": {
+        "title": "Apprentissage Flexible",
+        "description": "Apprenez à votre rythme, où que vous soyez",
+        "content": "Accédez à nos cours 24/7 et progressez selon votre emploi du temps."
+      },
+      "qualified_experts": {
+        "title": "Experts Qualifiés",
+        "description": "Apprenez des meilleurs dans leur domaine",
+        "content": "Nos instructeurs sont des professionnels expérimentés."
+      },
+      "certification": {
+        "title": "Certification",
+        "description": "Obtenez des certifications reconnues",
+        "content": "Valorisez vos compétences avec nos certificats."
+      }
+    },
+    "courses_section": {
+      "title": "Nos Cours Populaires",
+      "web_development": {
+        "title": "Développement Web Full-Stack",
+        "description": "Maîtrisez les technologies web modernes"
+      },
+      "artificial_intelligence": {
+        "title": "Intelligence Artificielle",
+        "description": "Découvrez le monde du Machine Learning"
+      },
+      "ux_ui_design": {
+        "title": "Design UX/UI",
+        "description": "Créez des interfaces utilisateur intuitives"
+      }
+    },
+    "statistics_section": {
+      "active_students": "Étudiants Actifs",
+      "available_courses": "Cours Disponibles",
+      "instructors": "Instructeurs",
+      "satisfaction_rate": "Taux de Satisfaction"
+    },
+    "team_section": {
+      "title": "Notre Équipe",
+      "sophie_martin": {
+        "name": "Sophie Martin",
+        "role": "Directrice Pédagogique"
+      },
+      "thomas_dubois": {
+        "name": "Thomas Dubois",
+        "role": "Expert Technique"
+      },
+      "marie_laurent": {
+        "name": "Marie Laurent",
+        "role": "Designer UX"
+      },
+      "lucas_bernard": {
+        "name": "Lucas Bernard",
+        "role": "Développeur Senior"
+      }
+    },
+    "partners_section": {
+      "title": "Nos Partenaires"
+    },
+    "feedbacks_section": {
+      "title": "Avis Clients",
+      "emma_petit": {
+        "name": "Emma Petit",
+        "feedback": "Une expérience d'apprentissage exceptionnelle ! Les cours sont bien structurés et les instructeurs sont très compétents."
+      },
+      "alexandre_durand": {
+        "name": "Alexandre Durand",
+        "feedback": "J'ai pu acquérir de nouvelles compétences rapidement grâce à la qualité des cours et au support réactif."
+      },
+      "julie_moreau": {
+        "name": "Julie Moreau",
+        "feedback": "La plateforme est intuitive et les cours sont très pratiques. Je recommande vivement !"
+      }
+    },
+    "footer": {
+      "about": {
+        "title": "À propos",
+        "description": "Votre partenaire de confiance pour l'apprentissage en ligne."
+      },
+      "quick_links": {
+        "title": "Liens Rapides",
+        "courses": "Cours",
+        "blog": "Blog",
+        "contact": "Contact"
+      },
+      "support": {
+        "title": "Support",
+        "faq": "FAQ",
+        "help": "Aide",
+        "privacy_policy": "Politique de confidentialité"
+      },
+      "follow_us": {
+        "title": "Suivez-nous"
+      },
+      "copyright": "© 2025 Tech-57. Tous droits réservés."
+    },
+    "about_hero": {
+      "highlight": "Dream.",
+      "rest": "Create. Inspire.",
+      "subtitle": "avec des cours de design et développement en ligne",
+      "description": "Apprenez auprès d'experts du secteur et améliorez vos compétences.",
+      "cta1": "Explorer les cours",
+      "cta2": "Voir les tarifs"
+    },
+    "learning_journey": {
+      "title": "Découvre ton parcours d'apprentissage",
+      "description": "Suis un parcours interactif et ludique pour maîtriser de nouvelles compétences. Progresse étape par étape, relève des défis et obtiens des certificats pour valider tes acquis !",
+      "cta": "Commence ton aventure"
+    }
+  },
+  "notFound": {
+    "message": "Page non trouvée",
+    "backHome": "Retour à l'accueil"
+  },
+  "errorBoundary": {
+    "title": "Une erreur est survenue",
+    "description": "Une erreur inattendue s'est produite.",
+    "goHome": "Aller à l'accueil",
+    "reloadPage": "Recharger la page"
+  },
+  "common": {
+    "form": {
+      "firstName": {
+        "label": "Prénom",
+        "placeholder": "Votre prénom"
+      },
+      "lastName": {
+        "label": "Nom",
+        "placeholder": "Votre nom"
+      },
+      "email": {
+        "label": "Email",
+        "placeholder": "example@email.com"
+      },
+      "phone": {
+        "label": "Téléphone",
+        "placeholder": "+212 600 000 000"
+      },
+      "city": {
+        "label": "Ville",
+        "placeholder": "Votre ville"
+      },
+      "organisationName": {
+        "label": "Nom de l'organisation",
+        "placeholder": "Ex: École Almassira"
+      },
+      "password": {
+        "label": "Mot de passe",
+        "placeholder": "Minimum 8 caractères",
+        "helper": "Doit contenir au moins une majuscule, un chiffre et un symbole"
+      },
+      "confirmPassword": {
+        "label": "Confirmer le mot de passe",
+        "placeholder": "Confirmez votre mot de passe"
+      },
+      "dateOfBirth": {
+        "label": "Date de naissance",
+        "placeholder": "Sélectionnez votre date de naissance"
+      },
+      "gender": {
+        "label": "Genre",
+        "options": {
+          "male": "Homme",
+          "female": "Femme"
+        }
+      }
+    },
+    "terms": {
+      "label": "J'accepte les",
+      "link": "conditions générales et la politique de confidentialité",
+      "title": "Conditions Générales d'Utilisation",
+      "helper": "Vous devez accepter nos conditions pour créer un compte",
+      "description": "Veuillez lire attentivement nos conditions générales d'utilisation avant de vous inscrire. En validant, vous acceptez les termes suivants :",
+      "content": {
+        "section1": {
+          "title": "1. Collecte des informations :",
+          "text": {
+            "learner": "Nous recueillons vos données personnelles (nom, prénom, email, téléphone) uniquement pour la gestion de votre accès aux formations et le suivi de votre progression.",
+            "coordinator": "Nous recueillons les données des bénéficiaires (nom, prénom, email, téléphone) uniquement pour la gestion de leur accès aux formations et le suivi de leur progression."
+          }
+        },
+        "section2": {
+          "title": "2. Utilisation des fichiers importés :",
+          "text": "Les fichiers Excel importés doivent contenir uniquement les informations nécessaires à l'inscription des bénéficiaires."
+        },
+        "section3": {
+          "title": "3. Confidentialité :",
+          "text": "Toutes les données et images transmises sont strictement confidentielles et utilisées uniquement dans le cadre de la plateforme. Elles ne seront jamais partagées avec des tiers sans consentement.",
+          "note": "Les informations personnelles ne seront jamais vendues, louées ou partagées avec des entreprises tierces à des fins commerciales."
+        },
+        "section4": {
+          "title": "4. Sécurité :",
+          "text": "Nous mettons en œuvre des mesures de sécurité pour protéger les données personnelles et les images des bénéficiaires contre tout accès non autorisé.",
+          "measures": {
+            "title": "Mesures mises en place",
+            "item1": "Cryptage des données sensibles",
+            "item2": "Authentification sécurisée",
+            "item3": "Sauvegardes régulières"
+          },
+          "protection": {
+            "title": "Protection des comptes",
+            "item1": "Mots de passe complexes requis",
+            "item2": "Détection des activités suspectes",
+            "item3": "Accès restreint aux administrateurs"
+          }
+        },
+        "section5": {
+          "title": "5. Droit d'accès et de suppression :",
+          "text": {
+            "learner": "Vous pouvez demander à tout moment la modification ou la suppression de vos informations personnelles.",
+            "coordinator": "Vous pouvez demander à tout moment la modification ou la suppression des informations concernant vos bénéficiaires."
+          },
+          "procedure": {
+            "title": "Procédure de demande",
+            "text": {
+              "learner": "Pour toute demande concernant vos données personnelles, veuillez contacter notre équipe support via votre espace personnel ou par email à l'adresse support@elearningplatform.com.",
+              "coordinator": "Pour toute demande concernant les données de vos bénéficiaires, veuillez contacter notre équipe support via votre espace coordinateur ou par email à l'adresse support@elearningplatform.com."
+            }
+          }
+        },
+        "section6": {
+          "title": "6. Engagement :",
+          "text": {
+            "learner": "En validant, vous certifiez que les informations transmises sont exactes et vous consentez à leur utilisation conformément à notre politique de confidentialité.",
+            "coordinator": "En validant, vous certifiez que les informations transmises sont exactes et que vous avez obtenu le consentement des bénéficiaires pour leur inscription et l'utilisation de leurs données."
+          },
+          "note": {
+            "label": "Note importante:",
+            "text": {
+              "learner": "En tant qu'utilisateur, vous êtes responsable de l'exactitude des informations fournies et vous acceptez leur traitement conformément à nos conditions.",
+              "coordinator": "En tant que coordinateur, vous êtes responsable d'obtenir le consentement des bénéficiaires pour l'utilisation de leurs données personnelles sur notre plateforme d'apprentissage."
+            }
+          }
+        }
+      },
+      "footer": "En créant un compte, vous reconnaissez avoir lu, compris et accepté d'être lié par ces Conditions Générales d'Utilisation.",
+      "lastUpdate": "Dernière mise à jour : Juillet 2025"
+    },
+    "edit": "Modifier",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "deleting": "en cours de suppression...",
+    "retry": "Réessayer"
+  },
+  "errors": {
+    "currentPassword": {
+      "required": "Le mot de passe actuel est requis",
+      "incorrect": "Le mot de passe actuel est incorrect"
+    },
+    "password": {
+      "min_length": "Le mot de passe doit contenir au moins 8 caractères",
+      "uppercase": "Le mot de passe doit contenir au moins une lettre majuscule",
+      "number": "Le mot de passe doit contenir au moins un chiffre",
+      "special": "Le mot de passe doit contenir au moins un caractère spécial",
+      "requirements": "Le mot de passe ne répond pas aux exigences de sécurité"
+    },
+    "confirmPassword": {
+      "required": "La confirmation du mot de passe est requise",
+      "mismatch": "Les mots de passe ne correspondent pas"
+    },
+    "passwordChange": {
+      "error": "Erreur lors du changement de mot de passe",
+      "generic": "Une erreur s'est produite lors du changement de mot de passe"
+    },
+    "generic": "Une erreur s'est produite, veuillez réessayer",
+    "required": "Ce champ est requis",
+    "minLength": "Minimum 8 caractères requis",
+    "maxLength": "Maximum 8 caractères autorisés",
+    "regexName": "Le nom ne peut contenir que des lettres, des espaces et des tirets",
+    "email": "Adresse email invalide",
+    "url": "URL invalide",
+    "phone": "Numéro de téléphone invalide",
+    "password": "Le mot de passe doit contenir au moins une majuscule, un chiffre et un symbole",
+    "passwordMismatch": "Les mots de passe ne correspondent pas",
+    "organisationIdRequired": "ID organisation requis",
+    "organisationTypeRequired": "Type d'organisation requis",
+    "organisationNameRequired": "Nom d'organisation requis (min. 2 caractères)",
+    "cityRequired": "Ville requise (min. 2 caractères)",
+    "addressRequired": "Adresse requise (min. 5 caractères)",
+    "firstNameRequired": "Prénom requis (min. 2 caractères)",
+    "lastNameRequired": "Nom requis (min. 2 caractères)",
+    "termsRequired": "Vous devez accepter les conditions générales",
+    "numberOfLearnersRequired": "Nombre de bénéficiaires requis",
+    "formationsRequired": "Veuillez sélectionner au moins une formation",
+    "fileUploadError": "Erreur lors du téléchargement du fichier",
+    "invalidFileFormat": "Format de fichier invalide",
+    "fileSizeExceeded": "Taille de fichier dépassée (max 10MB)",
+    "networkError": "Erreur de connexion réseau",
+    "serverError": "Erreur serveur, veuillez réessayer",
+    "validationError": "Erreur de validation des données",
+    "dateOfBirthRequired": "Date de naissance requise",
+    "ageRange": "Les bénéficiaires doivent avoir plus de 5 ans et moins de 120 ans",
+    "genderRequired": "Le genre est requis",
+    "phoneMinLength": "Le numéro de téléphone doit comporter au moins 8 chiffres",
+    "phoneMaxLength": "Le numéro de téléphone ne doit pas dépasser 15 chiffres",
+    "phoneFormat": "Le numéro de téléphone doit être au format correct (+212 600 000 000)",
+    "invalidFileType": "Type de fichier non pris en charge, veuillez utiliser .xlsx ou .xls",
+    "invalidExcelFile": "Le fichier téléchargé n'est pas un fichier Excel valide",
+    "accountCreationError": "Erreur lors de la création du compte",
+    "Email already exists": "L'adresse email existe déjà, veuillez en utiliser une autre",
+    "Unknown error": "Erreur inconnue, veuillez réessayer plus tard"
+  },
+  "chooseAccountType": {
+    "title": "Créez votre compte",
+    "subtitle": "Rejoignez notre plateforme et commencez votre parcours d'apprentissage dès aujourd'hui.",
+    "learner": {
+      "title": "Particulier",
+      "description": "Accédez à des milliers de cours et développez vos compétences à votre rythme.",
+      "features": {
+        "skills": "Approfondissez vos compétences",
+        "tracking": "Suivi de progression personnalisé",
+        "certificates": "Certificats de réussite"
+      }
+    },
+    "organisation": {
+      "title": "Organisation",
+      "description": "Achetez des formations pour vos bénéficiaires et suivez leur progression en temps réel.",
+      "features": {
+        "management": "Gestion centralisée des bénéficiaires",
+        "dashboard": "Tableau de bord de progression",
+        "ranking": "Classement des particuliers"
+      }
+    },
+    "continue": "Continuer",
+    "comingSoon": "À venir"
+  },
+  "signUp": {
+    "signUpOrganisation": {
+      "title": "Inscription Organisation",
+      "subtitle": "Créez votre compte organisation en quelques étapes simples",
+      "progress": {
+        "step": "Étape",
+        "of": "sur",
+        "completed": "Terminé"
+      },
+      "steps": {
+        "organisation": "Organisation",
+        "coordinator": "Coordinateur",
+        "beneficiaries": "Bénéficiaires",
+        "formations": "Formations",
+        "summary": "Récapitulatif"
+      },
+      "step1Organisation": {
+        "title": "Informations sur l'organisation",
+        "description": "Renseignez les informations de votre organisation",
+        "fields": {
+          "organisationType": {
+            "label": "Type d'organisation",
+            "placeholder": "Sélectionnez le type",
+            "options": {
+              "SCHOOL": "École",
+              "OTHER": "Autre",
+              "ASSOCIATION": "Association"
+            }
+          },
+          "username": {
+            "label": "Identifiant de l’organisation",
+            "placeholder": "Ex: school-123"
+          },
+          "organisationName": {
+            "label": "Nom de l'organisation",
+            "placeholder": "Ex: École Almassira"
+          },
+          "city": {
+            "label": "Ville",
+            "placeholder": "Ville de l'organisation"
+          },
+          "organisationAddress": {
+            "label": "Adresse",
+            "placeholder": "Adresse complète de l'organisation"
+          },
+          "organisationEmail": {
+            "label": "Email",
+            "placeholder": "contact@organisation.com"
+          },
+          "organisationWebsite": {
+            "label": "Site web (optionnel)",
+            "placeholder": "https://www.organisation.com"
+          }
+        },
+        "buttons": {
+          "next": "Suivant"
+        },
+        "required": "*"
+      },
+      "step2Coordinator": {
+        "title": "Informations du coordinateur",
+        "description": "Créez votre compte coordinateur pour gérer l'organisation",
+        "buttons": {
+          "previous": "Précédent",
+          "next": "Suivant"
+        },
+        "required": "*"
+      },
+      "step3Learners": {
+        "title": "Import des bénéficiaires",
+        "description": "Importez la liste de vos particuliers via un fichier Excel",
+        "downloadTemplate": {
+          "title": "Téléchargez le modèle Excel",
+          "description": "Utilisez notre modèle pour formater correctement vos données",
+          "button": "Télécharger le modèle"
+        },
+        "instructions": {
+          "title": "Instructions",
+          "content": "Le fichier Excel doit contenir les colonnes : Prénom, Nom, Email, Date de naissance, Téléphone, Sexe"
+        },
+        "upload": {
+          "label": "Importer votre fichier Excel",
+          "placeholder": "Cliquez pour sélectionner un fichier",
+          "formats": "Formats acceptés : .xlsx, .xls (max 10MB)",
+          "success": "Fichier importé avec succès"
+        },
+        "buttons": {
+          "previous": "Précédent",
+          "next": "Suivant"
+        },
+        "required": "*"
+      },
+      "stepSummary": {
+        "title": "Récapitulatif de votre inscription",
+        "description": "Vérifiez vos informations avant de valider l'inscription",
+        "sections": {
+          "organisation": {
+            "title": "Organisation",
+            "fields": {
+              "id": "ID:",
+              "type": "Type:",
+              "name": "Nom:",
+              "city": "Ville:",
+              "address": "Adresse:",
+              "email": "Email:",
+              "phone": "Téléphone:",
+              "website": "Site web:"
+            }
+          },
+          "coordinator": {
+            "title": "Coordinateur",
+            "fields": {
+              "name": "Nom:"
+            }
+          },
+          "beneficiaries": {
+            "title": "Bénéficiaires",
+            "fields": {
+              "excelFile": "Fichier Excel:",
+              "termsAccepted": "CGU acceptées:",
+              "notProvided": "Non fourni",
+              "yes": "Oui",
+              "no": "Non"
+            }
+          },
+          "formations": {
+            "title": "Formations",
+            "fields": {
+              "numberOfBeneficiaries": "Nombre de bénéficiaires:",
+              "selectedFormations": "Formations sélectionnées:"
+            }
+          }
+        },
+        "success": {
+          "title": "Inscription réussie !",
+          "description": "Votre demande d'inscription a été envoyée avec succès. Vous recevrez un email de confirmation sous peu.",
+          "emailNotification": "Un email avec les détails de votre inscription et les prochaines étapes vous sera envoyé à"
+        },
+        "buttons": {
+          "modify": "Modifier",
+          "validate": "Valider l'inscription",
+          "submitting": "Envoi en cours...",
+          "newRegistration": "Nouvelle inscription"
+        },
+        "redirecting": "Redirection vers la page de connexion..."
+      }
+    },
+    "signUpLearner": {
+      "title": "Créer votre compte particulier",
+      "description": "Remplissez vos informations pour commencer votre parcours d'apprentissage",
+      "profilePicture": {
+        "label": "Photo de profil"
+      },
+      "personalInfo": {
+        "title": "Informations personnelles"
+      },
+      "schoolInfo": {
+        "title": "Informations scolaires"
+      },
+      "submit": "Créer mon compte",
+      "alreadyHaveAccount": "Vous avez déjà un compte ?",
+      "loginHere": "Connectez-vous ici",
+      "acceptTerms": {
+        "label": "J'accepte les conditions générales",
+        "helper": "Vous devez accepter nos conditions pour créer un compte"
+      }
+    },
+    "success": {
+      "title": "Inscription réussie !",
+      "description": "Votre compte particulier a été créé avec succès. Vous recevrez un email de confirmation sous peu.",
+      "emailNotification": "Un email avec les détails de votre inscription vous sera envoyé à",
+      "redirecting": "Redirection vers la page de connexion..."
+    }
+  },
+  "profileImageUploader": {
+    "label": "Photo",
+    "helper": "Photo de profil (optionnel) - PNG, JPG jusqu'à {{maxSizeMB}}MB",
+    "errors": {
+      "currentPassword": {
+        "required": "Le mot de passe actuel est requis",
+        "incorrect": "Le mot de passe actuel est incorrect"
+      },
+      "password": {
+        "min_length": "Le mot de passe doit contenir au moins 8 caractères",
+        "uppercase": "Le mot de passe doit contenir au moins une lettre majuscule",
+        "number": "Le mot de passe doit contenir au moins un chiffre",
+        "special": "Le mot de passe doit contenir au moins un caractère spécial",
+        "requirements": "Le mot de passe ne répond pas aux exigences de sécurité"
+      },
+      "confirmPassword": {
+        "required": "La confirmation du mot de passe est requise",
+        "mismatch": "Les mots de passe ne correspondent pas"
+      },
+      "passwordChange": {
+        "error": "Erreur lors du changement de mot de passe",
+        "generic": "Une erreur s'est produite lors du changement de mot de passe"
+      },
+      "invalidFormat": "Veuillez sélectionner une image valide (JPG, PNG)",
+      "fileTooLarge": "L'image ne doit pas dépasser {{maxSizeMB}}MB",
+      "processingError": "Une erreur s'est produite lors du traitement de l'image",
+      "imageTooLarge": "Les dimensions de l'image sont trop grandes"
+    },
+    "cropDialog": {
+      "title": "Ajuster votre photo de profil",
+      "description": "Déplacez, zoomez et recadrez votre image pour obtenir le résultat parfait",
+      "zoom": "Zoom",
+      "cancel": "Annuler",
+      "apply": "Appliquer"
+    }
+  },
+  "learnerProfile": {
+    "title": "Profil de l'apprenant",
+    "subtitle": "Détails et performances de l'apprenant",
+    "personalInfo": "Informations personnelles",
+    "contactInfo": "Informations de contact",
+    "accountInfo": "Informations du compte",
+    "performance": "Performances",
+    "active": "Actif",
+    "inactive": "Inactif",
+    "username": "Nom d'utilisateur",
+    "ranking": "Classement global",
+    "enrolledCourses": "Cours suivis",
+    "noCourses": "Aucun cours suivi pour le moment",
+    "rank": "Rang",
+    "score": "Score",
+    "completion": "Progression",
+    "progress": "Progression actuelle",
+    "chapter": "Chapitre",
+    "lesson": "Leçon",
+    "totalScore": "Score total",
+    "lastUpdated": "Dernière mise à jour",
+    "status": "Statut",
+    "courses": {
+      "title": "Cours suivis",
+      "progress": "Progression",
+      "score": "Score",
+      "rank": "Classement",
+      "noCoursesFound": "Aucun cours trouvé pour cet apprenant"
+    },
+    "stats": {
+      "title": "Statistiques",
+      "totalScore": "Score total",
+      "averageProgress": "Progression moyenne",
+      "completedCourses": "Cours terminés"
+    },
+    "notFound": "Profil non trouvé",
+    "notFoundDescription": "Le profil de l'apprenant que vous recherchez n'existe pas ou n'est plus disponible."
+  },
+  "learnerRanking": {
+    "title": "Classement des particuliers",
+    "subtitle": "Suivez et surveillez les performances des particuliers sur tous les programmes de formation",
+    "searchPlaceholder": "Rechercher par nom ou nom d'utilisateur...",
+    "filterByGender": "Filtrer par genre",
+    "filterByFormation": "Filtrer par une formation...",
+    "allGenders": "Tous les genres",
+    "male": "Homme",
+    "female": "Femme",
+    "rank": "Rang",
+    "avatar": "Photo",
+    "fullName": "Nom complet",
+    "username": "Nom d'utilisateur",
+    "globalScore": "Score global",
+    "showing": "Affichage",
+    "of": "sur",
+    "learners": "particuliers",
+    "noLearnersFound": "Aucun particulier trouvé",
+    "tryAdjusting": "Essayez de modifier les critères de recherche ou les filtres",
+    "rowsPerPage": "Lignes par page",
+    "page": "Page",
+    "all": "Tous",
+    "errorTitle": "Une erreur s'est produite",
+    "errorLoading": "Une erreur s'est produite lors du chargement des données des particuliers",
+    "refreshPage": "Actualiser la page",
+    "noData": "Aucune donnée disponible pour le moment",
+    "filters": "Filtres",
+    "allFormations": "Toutes les formations",
+    "resetFilters": "Réinitialiser les filtres",
+    "loading": "Chargement des données...",
+    "noResultsWithFilters": "Aucun résultat avec les filtres sélectionnés",
+    "formationScore": "Score de la formation",
+    "rankingFor": "Classement pour"
+  },
+  "pagination": {
+    "previous": "Précédent",
+    "next": "Suivant",
+    "page": "Page",
+    "of": "de"
+  },
+  "quiz": {
+    "title": "Quiz après la vidéo",
+    "start": "Commencer le quiz",
+    "submit": "Terminer le quiz",
+    "submitting": "Envoi en cours...",
+    "nextVideo": "Passer à la vidéo suivante",
+    "retry": "Réessayer",
+    "success": "Félicitations ! Vous avez réussi le quiz.",
+    "failure": "Continuez vos efforts ! ",
+    "passed": "✅ Quiz réussi !",
+    "failed": "❌ Quiz échoué",
+    "score": "Score obtenu :",
+    "results": "Résultats du Quiz",
+    "correctAnswers": "bonnes réponses",
+    "canAccessNext": "Vous pouvez accéder à la vidéo suivante",
+    "detailedResults": "Résultats détaillés",
+    "question": "Question",
+    "of": "sur",
+    "previous": "Précédent",
+    "next": "Suivant",
+    "yourAnswer": "Votre réponse",
+    "correctAnswer": "Bonne réponse",
+    "explanation": "Explication",
+    "noQuiz": "Aucun quiz n'est associé à cette leçon.",
+    "loading": "Chargement du quiz...",
+    "skillsCovered": "Compétences évaluées",
+    "skill": "Compétence",
+    "openQuestionPlaceholder": "Tapez votre réponse ici...",
+    "openAnswer": "Réponse libre",
+    "characters": "caractères",
+    "testDescription": "Testez vos connaissances",
+    "submitError": "Erreur lors de la soumission",
+    "noQuestion": "Aucune question disponible",
+    "noQuestionDescription": "Veuillez vérifier le contenu ou recharger la page.",
+    "reviewTitle": "Révision du quiz",
+    "reviewDescription": "Vérifiez les réponses correctes avant de voir votre score final",
+    "correct": "Correct",
+    "incorrect": "Incorrect",
+    "correctAnswer": "Réponse correcte",
+    "yourChoice": "Votre choix",
+    "yourAnswer": "Votre réponse",
+    "noAnswer": "Pas de réponse",
+    "viewResults": "Voir mon score final",
+    "points": "pts",
+    "timeUsed": "Temps utilisé"
+  },
+  "quizPoints": "Points",
+  "quizIncorrect": "Réponse incorrecte",
+  "quizYourChoice": "Votre choix",
+  "quizViewResults": "Résultats du quiz",
+  "lessonPage": {
+    "noVideoFoundTitle": "Aucune vidéo trouvée pour cette leçon",
+    "noVideoFoundDescription": "Il semble que la leçon demandée n'existe pas ou n'appartient à aucun chapitre de ce cours.\nVeuillez vérifier le lien ou sélectionner une leçon valide dans la liste à droite.",
+    "loadingLesson": "Chargement de la leçon...",
+    "loadingComments": "Chargement des commentaires...",
+    "presentationTab": "Présentation",
+    "commentsTab": "Commentaires",
+    "resourcesTab": "Ressources",
+    "lesson": "Leçon",
+    "updatedOn": "Mis à jour le",
+    "skills": "Compétences",
+    "noSkills": "Aucune compétence",
+    "noResources": "Aucun ressource pour le moment",
+    "seeResources": "Voir les ressources",
+    "additionalResources": "Ressources supplémentaires",
+    "additionalResourcesDescription": "Retrouvez ici des liens, documents ou supports complémentaires pour approfondir la leçon.",
+    "readyToTest": "Prêt à tester vos connaissances ?",
+    "testDescription": "Évaluez votre compréhension de cette leçon avec notre quiz interactif.",
+    "testWarning": "Vous avez une seule chance pour passer le test. Ne lancez le test que si vous êtes prêt.",
+    "startTest": "Commencer le test",
+    "inProgress": "en cours...",
+    "addCommentSuccess": "Commentaire ajouté !",
+    "addCommentError": "Erreur lors de l'ajout du commentaire",
+    "addReplySuccess": "Réponse ajoutée !",
+    "addReplyError": "Erreur lors de l'ajout du sous-commentaire",
+    "commentsLoadError": "Erreur lors du chargement des commentaires",
+    "chaptersLoadError": "Erreur lors du chargement des chapitres",
+    "noAccess": "Vous n'avez pas accès à cette vidéo.",
+    "accessDenied": "Accès refusé",
+    "backToCourses": "Retour aux cours",
+    "backToCourse": "Retour au cours",
+    "repliesLoadError": "Erreur lors du chargement des réponses"
+  },
+  "lessonSidebar": {
+    "courseContent": "Contenu du cours",
+    "close": "Fermer",
+    "chaptersCount": "{{count}} chapitres",
+    "phasesCount": "{{count}} phases",
+    "lessonsCount": "{{count}} leçons",
+    "completed": "{{completed}} / {{total}}",
+    "duration": "{{duration}}",
+    "locked": "Leçon verrouillée",
+    "openMenu": "Contenu du cours",
+    "chapterQuiz": "Quiz du Phase {{number}}",
+    "phase": "Phase {{number}}"
+  },
+  "time": {
+    "justNow": "à l'instant",
+    "ago": "il y a",
+    "seconds": "secondes",
+    "minutes": "minutes",
+    "hours": "heures",
+    "days": "jours",
+    "months": "mois",
+    "year": "an",
+    "years": "ans"
+  },
+  "comments": {
+    "addCommentTitle": "Ajouter un commentaire",
+    "yourComment": "Votre commentaire",
+    "commentPlaceholder": "Partagez votre expérience avec cette leçon...",
+    "publishComment": "Publier le commentaire",
+    "publishing": "Publication...",
+    "reply": "Répondre",
+    "replies": "Réponses",
+    "publishReply": "Publier la réponse",
+    "replyPlaceholder": "Votre réponse...",
+    "cancel": "Annuler",
+    "noComments": "Aucun commentaire pour le moment. Soyez le premier à partager votre avis !",
+    "commentsCount": "Commentaires ({{count}})",
+    "seeMoreComments": "Voir plus de commentaires",
+    "seeLessComments": "Afficher moins de commentaires",
+    "seeMoreReplies": "Voir plus de réponses ({{count}})",
+    "seeLessReplies": "Afficher moins",
+    "showReplies": "Afficher les réponses",
+    "hideReplies": "Masquer les réponses",
+    "admin": "ADMIN",
+    "showMore": "Voir plus",
+    "showLess": "Voir moins",
+    "more": "plus",
+    "options": "Options",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "deleting": "Suppression...",
+    "deleteConfirmation": "Êtes-vous sûr de vouloir supprimer ce commentaire ?",
+    "deleteWarning": "Cette action est irréversible.",
+    "deleteTitle": "Supprimer le commentaire",
+    "confirmDelete": "Supprimer",
+    "updateSuccess": "Commentaire mis à jour avec succès",
+    "updateError": "Erreur lors de la mise à jour du commentaire",
+    "deleteSuccess": "Commentaire supprimé avec succès",
+    "deleteError": "Erreur lors de la suppression du commentaire",
+    "editCommentTitle": "Modifier votre commentaire",
+    "editYourComment": "Modifier votre commentaire",
+    "updateComment": "Mettre à jour",
+    "updating": "Mise à jour..."
+  },
+  "unauthorized": {
+    "title": "Accès non autorisé",
+    "description": "Vous n'avez pas l'autorisation d'accéder à cette page.",
+    "backHome": "Retour à l'accueil"
+  },
+  "quizInfos": {
+    "missingQuizIdTitle": "Quiz ID manquant",
+    "missingQuizIdDesc": "Impossible de charger les informations du quiz",
+    "loadingQuiz": "Chargement du quiz...",
+    "pleaseWait": "Veuillez patienter quelques instants",
+    "loadErrorTitle": "Erreur de chargement",
+    "loadErrorDesc": "Impossible de charger les informations du quiz",
+    "retry": "Réessayer",
+    "chapterQuiz": "Quiz du Phase {{number}}",
+    "finalTest": "Test final",
+    "duration": "{{duration}} minutes",
+    "importantWarning": "Attention importante",
+    "chapterTestWarning": "Ce test couvre l'ensemble des notions abordées dans ce chapitre. Assurez-vous d'avoir révisé toutes les leçons avant de commencer.",
+    "startTest": "Commencer le test",
+    "confirmStartTitle": "Confirmer le début du test",
+    "readyToStart": "Êtes-vous prêt(e) à commencer ce test ? Une fois démarré :",
+    "timerWillStart": "Le chronomètre sera activé",
+    "cannotGoBack": "Vous ne pourrez pas revenir en arrière",
+    "answersSaved": "Toutes vos réponses seront enregistrées",
+    "cancel": "Annuler",
+    "start": "Commencer",
+    "noAccessTitle": "Accès non autorisé",
+    "noAccessDesc": "Vous n'avez pas accès à ce quiz.",
+    "resumeTest": "Reprendre le test ...",
+    "inProgress": "en cours ...",
+    "completed": "terminé"
+  },
+  "quizWarning": {
+    "title": "Quiz en cours ...",
+    "description": "Vous n'avez pas encore terminé le quiz. Veuillez le terminer avant de passer à la vidéo souhaitée."
+  },
+  "finalExam": {
+    "divider": "Examen Final",
+    "subtitle": "Validez vos connaissances",
+    "completed": "Terminé",
+    "inProgress": "En cours",
+    "locked": "Verrouillé",
+    "courseProgress": "Progression du cours",
+    "completedDescription": "Félicitations ! Vous avez terminé l'examen final avec succès.",
+    "activeDescription": "Votre examen est en cours. Terminez-le pour obtenir votre certification.",
+    "description": "Testez vos connaissances acquises tout au long du cours avec cet examen complet.",
+    "confirmTitle": "Examen Final",
+    "confirmSubtitle": "Validez vos compétences",
+    "aboutTitle": "À propos de cet examen",
+    "aboutDescription": "Cet examen final va tester toutes les connaissances que vous avez étudiées dans ce cours. Il couvre l'ensemble du programme et évalue votre compréhension globale.",
+    "certificateTitle": "Obtenez votre certificat",
+    "certificateDescription": "Vous obtiendrez un certificat de réussite à la fin si vous atteignez un score de 70% ou plus.",
+    "warningTitle": "⚠️ Attention importante",
+    "warningText": "Vous n'avez qu'une seule chance pour passer cet examen !",
+    "warningSubtext": "Ne commencez le test que si vous êtes entièrement prêt(e). Une fois commencé, vous ne pourrez pas le reprendre.",
+    "readyTitle": "Êtes-vous prêt(e) ?",
+    "readyDescription": "Assurez-vous d'avoir bien révisé tout le contenu du cours avant de commencer.",
+    "startExam": "Commencer l'examen",
+    "progressBadge": "{{percent}}% du cours complété"
+  },
+  "dashboard": {
+    "overview": "Aperçu Général",
+    "dateRange": "Du {start} au {end}",
+    "totalLearners": "Nombre total des particuliers",
+    "coursesPurchased": "Nombre de formations achetées",
+    "certificatesIssued": "Nombre de certificats délivrés",
+    "genderDistribution": "Répartition par genre",
+    "lessonsCompletedChartDescription": "Ce graphique montre le nombre de leçons complétées selon la période choisie.",
+    "male": "Masculins",
+    "female": "Féminins",
+    "generalStatistics": "Statistiques générales",
+    "today": "Aujourd'hui",
+    "lastWeek": "une semaine",
+    "lastMonth": "un mois",
+    "last6Months": "6 mois",
+    "year": "une année",
+    "ranking": "Classement",
+    "yourBalance": "Votre solde",
+    "yourDeposits": "Vos dépôts",
+    "accruedYield": "Rendement accumulé",
+    "completedLessons": "Leçons complétées",
+    "month": "Mois",
+    "loadingStatistics": "Chargement des statistiques ...",
+    "totalVisitors": "Progression du nombre de leçons complétées par les garçons et les filles",
+    "totalVisitorsPeriod": "Total pour la période sélectionnée"
+  },
+  "sidebar": {
+    "admin": {
+      "dashboard": "Tableau de bord",
+      "courses": "Cours",
+      "students": "Étudiants",
+      "settings": "Paramètres",
+      "notifications": "Notifications"
+    },
+    "dashboard": "Tableau de bord",
+    "courses": "Cours",
+    "students": "Étudiants",
+    "quizzes": "Quiz",
+    "organizations": "Organisations",
+    "requestsSubscriptions": "Demandes & Abonnements",
+
+    "courseDetails": "Détails du cours",
+    "addCourse": "Cours  >  Ajouter",
+    "editCourse": "Cours > Modifier",
+    "manageChapters": "Gérer les chapitres",
+    "quizManagement": "Gestion des quiz"
+  },
+  "statistics": {
+    "gender_distribution": "Répartition par genre",
+    "total_learners": "Total Étudiants"
+  },
+  "activateAccount": {
+    "processing": "Activation en cours...",
+    "success": "Votre compte a été activé avec succès !",
+    "error": "Erreur lors de l'activation du compte.",
+    "missingToken": "Token d'activation manquant."
+  },
+  "switchedTabs": {
+    "warningTitle": "Attention importante",
+    "warningMessage": "Vous avez changé d'onglet. Veuillez terminer le quiz avant de passer à un autre onglet.",
+    "closeQuizWarning": "Votre quiz sera fermé si vous quittez à nouveau la page."
+  },
+  "navUser": {
+    "account": "Mon Compte",
+    "notifications": "Notifications",
+    "logout": "Se Déconnecter"
+  },
+  "waitingAdminMessage": "Veuillez attendre l'activation du prochain chapitre par l'administrateur.",
+  "waiting": "Veuillez patienter..."
+}
