@@ -29,13 +29,12 @@ import MotivationRace from "@/pages/motivation/MotivationPage";
 import AdminCoursesPage from "@/pages/admin/AdminCoursesPage";
 import AdminCourseDetailsPage from "@/pages/admin/AdminCourseDetailsPage";
 import EditCoursePage from "@/pages/admin/EditCoursePage";
-import ChapterManager from "@/components/admin/ChapterManager";
+import PhaseManager from "@/components/admin/PhaseManager";
 
 import ErrorBoundary from "@/components/ErrorBoundary";
 import ActivateAccountPage from "@/pages/auth/ActivateAccount";
 import ManagementAccessToCourseResources from "@/pages/organisation/ManagementAccessToCourseResources";
 import AddCoursePage from "@/pages/admin/AddCoursePage";
-import QuizManagementPage from "@/pages/admin/QuizManagementPage";
 import QuestionManagementPage from "@/pages/admin/QuestionManagementPage";
 import OrganizationsPage from "@/pages/admin/OrganizationsPage";
 import RequestsPage from "@/pages/admin/RequestsPage copy";
@@ -195,15 +194,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "courses/:courseId/chapters",
-        element: <ChapterManager />,
-      },
-      {
-        path: "courses/:courseId/quizzes",
-        element: <QuizManagementPage />,
-      },
-      {
-        path: "quizzes",
-        element: <QuizManagementPage />,
+        element: <PhaseManager />,
       },
       {
         path: "organizations",

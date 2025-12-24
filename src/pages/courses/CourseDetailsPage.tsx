@@ -262,14 +262,6 @@ export default function CourseDetailsPage() {
     }
   };
 
-  // Loading state global
-  const isLoading =
-    courseLoading ||
-    reviewsLoading ||
-    chaptersLoading ||
-    packsLoading ||
-    CourseSubscriptionLoading;
-
   const handlePackSelect = (pack: Pack | null, learners: number) => {
     if (pack) {
       setSelectedPack({ pack, learners });
@@ -288,7 +280,9 @@ export default function CourseDetailsPage() {
     return totalPrice - discount;
   };
 
-  if (isLoading) {
+  // Loading state - bloquer uniquement si le cours n'est pas chargé
+  // Les autres composants afficheront leurs propres skeletons
+  if (courseLoading) {
     return (
       <>
         <CourseDetailsSkeleton />
@@ -296,7 +290,7 @@ export default function CourseDetailsPage() {
     );
   }
 
-  if (!course && !courseLoading) {
+  if (!course) {
     return (
       <>
         <div className="min-h-screen gradient-bg flex items-center justify-center">
@@ -411,31 +405,57 @@ export default function CourseDetailsPage() {
                 </CardContent>
               </Card>
 
-              {/* Course content */}
-              <div className="space-y-4 mx-2 md:mx-0">
+              {/* Content/Chapters */}
+              <div className="mx-2 md:mx-0">
                 <h2 className="text-xl md:text-2xl font-bold text-gray-800">
                   {t("courseDetails.contentTitle")}
                 </h2>
-                <div className="space-y-4">
-                  {chapters
-                    .sort((a, b) => a.order - b.order)
-                    .map((chapter, index) => (
-                      <ChapterAccordion
-                        key={chapter.id}
-                        chapter={chapter}
-                        index={index}
-                      />
+                {chaptersLoading ? (
+                  <div className="space-y-4 mt-4">
+                    {[1, 2, 3].map((i) => (
+                      <div key={i} className="bg-white rounded-lg border p-4 animate-pulse">
+                        <div className="h-6 bg-gray-200 rounded w-3/4 mb-2"></div>
+                        <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                      </div>
                     ))}
-                </div>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {chapters
+                      .sort((a, b) => a.order - b.order)
+                      .map((chapter, index) => (
+                        <ChapterAccordion
+                          key={chapter.id}
+                          chapter={chapter}
+                          index={index}
+                        />
+                      ))}
+                  </div>
+                )}
               </div>
 
               {/* Reviews */}
               <div className="mx-2 md:mx-0">
-                <ReviewsSection
-                  reviews={reviews}
-                  courseId={courseId!}
-                  canManageReviews={canManageReviews()}
-                />
+                {reviewsLoading ? (
+                  <div className="bg-white rounded-lg border p-6 animate-pulse">
+                    <div className="h-8 bg-gray-200 rounded w-1/3 mb-4"></div>
+                    <div className="space-y-4">
+                      {[1, 2].map((i) => (
+                        <div key={i} className="space-y-2">
+                          <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+                          <div className="h-4 bg-gray-200 rounded w-full"></div>
+                          <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <ReviewsSection
+                    reviews={reviews}
+                    courseId={courseId!}
+                    canManageReviews={canManageReviews()}
+                  />
+                )}
               </div>
             </div>
 
@@ -456,11 +476,20 @@ export default function CourseDetailsPage() {
                         </p>
                       </div>
                       <div className="flex items-center justify-center gap-2">
-                        <StarRating rating={averageRating} size="md" />
-                        <span className="text-sm text-gray-600">
-                          ({reviews.length}{" "}
-                          {t("courseDetails.reviewsSection.reviewsCount")})
-                        </span>
+                        {reviewsLoading ? (
+                          <div className="flex items-center gap-2 animate-pulse">
+                            <div className="h-5 w-24 bg-gray-200 rounded"></div>
+                            <div className="h-4 w-16 bg-gray-200 rounded"></div>
+                          </div>
+                        ) : (
+                          <>
+                            <StarRating rating={averageRating} size="md" />
+                            <span className="text-sm text-gray-600">
+                              ({reviews.length}{" "}
+                              {t("courseDetails.reviewsSection.reviewsCount")})
+                            </span>
+                          </>
+                        )}
                       </div>
                     </CardHeader>
                   )}

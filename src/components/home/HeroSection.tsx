@@ -136,7 +136,7 @@ const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
           >
             <div className="relative w-full max-w-4xl aspect-video">
               <ReactPlayer
-                src="https://sindibad-elearning-assets.s3.eu-north-1.amazonaws.com/Courses-Pictures/main-video.mp4"
+                src="https://sindibad-elearning-assets.s3.eu-north-1.amazonaws.com/HomePageVideo/full-main-video.mp4"
                 playing
                 controls
                 muted

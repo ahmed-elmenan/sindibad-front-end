@@ -65,6 +65,48 @@ export const getCourseById = async (id: string): Promise<Course | null> => {
   }
 };
 
+/**
+ * OPTIMIZED: Fetch all admin course details in a single request
+ * This combines course, reviews, chapters, and packs data
+ * Reduces network latency from 4 requests to 1 request
+ */
+export const getAdminCourseDetails = async (id: string): Promise<{
+  course: Course;
+  reviews: Review[];
+  chapters: Chapter[];
+  packs: Pack[];
+}> => {
+  try {
+    const res = await api.get(`/courses/${id}/admin-details`);
+    return res.data;
+  } catch (error: any) {
+    // Si l'erreur est due à l'absence de chapitres (404), on retourne quand même les données
+    if (error?.response?.status === 404 && error?.response?.data?.includes?.("No chapters found")) {
+      console.warn("Course has no chapters yet, returning empty chapters array");
+      // On doit faire des appels séparés pour récupérer les autres données
+      try {
+        const [courseRes, reviewsRes, packsRes] = await Promise.allSettled([
+          api.get(`/courses/${id}`),
+          api.get(`/courses/${id}/reviews`),
+          api.get(`/courses/${id}/packs`)
+        ]);
+        
+        return {
+          course: courseRes.status === 'fulfilled' ? courseRes.value.data : null,
+          reviews: reviewsRes.status === 'fulfilled' ? reviewsRes.value.data : [],
+          chapters: [], // Pas de chapitres
+          packs: packsRes.status === 'fulfilled' ? packsRes.value.data : []
+        };
+      } catch (fallbackError) {
+        console.error("Error fetching course data with fallback:", fallbackError);
+        throw fallbackError;
+      }
+    }
+    console.error("Error fetching admin course details:", error);
+    throw error;
+  }
+};
+
 export const getCourseReviews = async (id: string): Promise<Review[]> => {
   try {
     const res = await api.get(`/courses/${id}/reviews`);
@@ -77,7 +119,15 @@ export const getCourseReviews = async (id: string): Promise<Review[]> => {
 
 export const getCourseChapters = async (id: string): Promise<Chapter[]> => {
   try {
-    const res = await api.get(`/courses/${id}/chapters`);
+    // Ajouter un timestamp pour forcer un bypass du cache backend si nécessaire
+    const timestamp = new Date().getTime();
+    const res = await api.get(`/courses/${id}/chapters?_t=${timestamp}`);
+    console.log("Chapters details:", res.data.map((ch: any) => ({
+      id: ch.id,
+      title: ch.title,
+      lessonsCount: ch.lessons?.length || 0,
+      lessons: ch.lessons
+    })));
     return res.data;
   } catch (error) {
     console.error("Error fetching chapters:", error);
@@ -223,6 +273,8 @@ export const createCourse = async (
               "Content-Type": "application/json",
             },
           };
+
+    console.log(courseData);
 
     const res = await api.post("/courses", courseData, config);
     return res.data;

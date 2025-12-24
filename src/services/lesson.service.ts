@@ -43,6 +43,20 @@ export async function getNextResource(
   }
 }
 
+/**
+ * Supprime une leçon et ses ressources associées (vidéo et miniature dans S3)
+ * @param lessonId L'identifiant de la leçon à supprimer
+ */
+export async function deleteLesson(lessonId: string): Promise<void> {
+  try {
+    await api.delete(`/lessons/${lessonId}`);
+    console.log(`✅ Leçon ${lessonId} supprimée avec succès`);
+  } catch (error) {
+    console.error(`❌ Erreur lors de la suppression de la leçon ${lessonId}:`, error);
+    handleApiError(error);
+  }
+}
+
 function handleApiError(error: unknown): never {
   const axiosError = error as AxiosError;
   let message: string;

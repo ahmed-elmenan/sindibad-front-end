@@ -29,6 +29,14 @@ const ModernNavBar = () => {
             </div>
             <div className="hidden md:flex items-center space-x-8">
               <a
+                href="https://blackhole.sindibadacademy.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="nav-link text-muted-foreground hover:text-foreground transition-colors"
+              >
+                BlackHole
+              </a>
+              <a
                 href="#features"
                 className="nav-link text-muted-foreground hover:text-foreground transition-colors"
               >
@@ -93,6 +101,15 @@ const ModernNavBar = () => {
             >
               <div className="px-6 py-4 space-y-4">
                 <a
+                  href="https://blackhole.sindibadacademy.com/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all duration-300 py-2 px-3 rounded-lg hover:translate-x-2"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  BlackHole
+                </a>
+                <a
                   href="#features"
                   className="block text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all duration-300 py-2 px-3 rounded-lg hover:translate-x-2"
                   onClick={() => setIsMobileMenuOpen(false)}
@@ -130,5 +147,6 @@ const ModernNavBar = () => {
     </div>
   );
 };
+
 
 export default ModernNavBar;

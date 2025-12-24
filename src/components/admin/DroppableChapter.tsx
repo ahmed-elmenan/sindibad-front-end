@@ -1,13 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useDrop } from 'react-dnd';
-import { Folder, ChevronDown, ChevronRight, Edit, Check, Trash2, Video } from 'lucide-react';
+import { Folder, ChevronDown, ChevronRight, Edit, Trash2, Video } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ItemTypes } from '@/types/ChapterManager';
 import type { DroppableChapterProps } from '@/types/ChapterManager';
+import { ChapterEditModal } from './ChapterEditModal';
+import { ChapterDeleteModal } from './ChapterDeleteModal';
 
 const DroppableChapter: React.FC<DroppableChapterProps> = ({
   chapter,
@@ -15,12 +15,34 @@ const DroppableChapter: React.FC<DroppableChapterProps> = ({
   onSelect,
   isSelected,
   onToggleExpansion,
-  onToggleEdit,
   onSave,
   onDelete,
   onUpdate,
   children
 }) => {
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  const handleEditClick = () => {
+    setShowEditModal(true);
+  };
+
+  const handleDeleteClick = () => {
+    setShowDeleteModal(true);
+  };
+
+  const handleSaveEdit = (data: { title: string; description: string }) => {
+    onUpdate('title', data.title);
+    onUpdate('description', data.description);
+    onSave();
+    setShowEditModal(false);
+  };
+
+  const handleConfirmDelete = () => {
+    onDelete();
+    setShowDeleteModal(false);
+  };
+
   const [{ isOver, canDrop }, drop] = useDrop(() => ({
     accept: ItemTypes.VIDEO,
     drop: (item: any) => {
@@ -45,34 +67,34 @@ const DroppableChapter: React.FC<DroppableChapterProps> = ({
       className={`
         transition-all duration-300 ease-in-out rounded-2xl
         ${isOver && canDrop 
-          ? 'ring-4 ring-primary/50 ring-offset-4 bg-gradient-to-r from-secondary/10 to-primary/10 scale-[1.02] shadow-2xl' 
+          ? 'ring-2 ring-primary/30 ring-offset-2 bg-gradient-to-r from-primary/5 to-secondary/5 scale-[1.01] shadow-xl' 
           : ''
         }
         ${isSelected 
-          ? 'ring-4 ring-muted/50 ring-offset-4 bg-gradient-to-r from-muted/10 to-secondary/10' 
+          ? 'ring-2 ring-primary/40 ring-offset-2 bg-gradient-to-r from-primary/5 to-white' 
           : ''
         }
-        ${!isSelected && !isOver ? 'hover:shadow-lg hover:scale-[1.01]' : ''}
+        ${!isSelected && !isOver ? 'hover:shadow-lg hover:scale-[1.005]' : ''}
       `}
     >
       <Card className={`
         ${chapter.isNew 
-          ? 'bg-gradient-to-br from-secondary/10 via-primary/10 to-muted/10 border-2 border-primary shadow-primary/20' 
-          : 'bg-white border-gray-200 shadow-sm'
+          ? 'bg-gradient-to-br from-orange-50/50 via-white to-yellow-50/30 border border-orange-200/30 shadow-sm' 
+          : 'bg-white border border-gray-200/50 shadow-sm'
         }
         ${isOver && canDrop 
-          ? 'shadow-2xl border-primary bg-gradient-to-br from-secondary/10 to-white' 
+          ? 'shadow-xl border-primary/40 bg-gradient-to-br from-primary/5 to-white' 
           : ''
         }
         rounded-2xl transition-all duration-300 overflow-hidden
-        hover:shadow-md backdrop-blur-sm pt-0
+        hover:shadow-md backdrop-blur-sm
       `}>
         {/* Chapter Header - Always visible */}
         <CardHeader className={`
-          py-3 sm:py-4 px-3 sm:px-6
+          py-4 sm:py-5 px-4 sm:px-6
           ${chapter.isNew 
-            ? 'bg-gradient-to-r from-primary/10 to-muted/10 border-b border-primary/30' 
-            : 'border-b border-gray-100'
+            ? 'bg-gradient-to-r from-orange-50/50 to-yellow-50/30 border-b border-orange-200/30' 
+            : 'border-b border-gray-100/80 bg-gradient-to-r from-gray-50/30 to-white'
           }
         `}>
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
@@ -86,15 +108,15 @@ const DroppableChapter: React.FC<DroppableChapterProps> = ({
                     onCheckedChange={() => onSelect(chapter.id!)}
                     onClick={(e) => e.stopPropagation()}
                     className={`
-                      w-4 h-4 sm:w-5 sm:h-5 rounded-lg border-2 transition-all duration-200
+                      w-5 h-5 rounded-lg border-2 transition-all duration-300
                       ${isSelected 
-                        ? 'border-muted bg-muted shadow-lg shadow-muted/30' 
-                        : 'border-gray-300 hover:border-muted hover:shadow-md'
+                        ? 'border-primary bg-primary shadow-md shadow-primary/20 scale-110' 
+                        : 'border-gray-300/60 hover:border-primary/50 hover:shadow-sm hover:scale-105'
                       }
                     `}
                   />
                   {isSelected && (
-                    <div className="absolute -top-1 -right-1 w-2 h-2 sm:w-3 sm:h-3 bg-muted rounded-full animate-ping opacity-75"></div>
+                    <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-primary rounded-full animate-ping opacity-60"></div>
                   )}
                 </div>
 
@@ -103,149 +125,96 @@ const DroppableChapter: React.FC<DroppableChapterProps> = ({
                   variant="ghost"
                   size="sm"
                   className={`
-                    p-1.5 sm:p-2 h-auto rounded-xl transition-all duration-200
+                    p-2 h-auto rounded-xl transition-all duration-300 shadow-sm
                     ${chapter.isExpanded 
-                      ? 'bg-primary/10 hover:bg-primary/20 text-primary' 
-                      : 'hover:bg-gray-100 text-gray-500 hover:text-gray-700'
+                      ? 'bg-primary/10 hover:bg-primary/15 text-primary scale-105 shadow-md' 
+                      : 'bg-gray-100/80 hover:bg-gray-200/80 text-gray-500 hover:text-gray-700 hover:scale-105'
                     }
                   `}
                   onClick={onToggleExpansion}
                 >
                   {chapter.isExpanded ? (
-                    <ChevronDown className="h-4 w-4 sm:h-5 sm:w-5 transition-transform duration-200" />
+                    <ChevronDown className="h-5 w-5 transition-transform duration-300" />
                   ) : (
-                    <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5 transition-transform duration-200" />
+                    <ChevronRight className="h-5 w-5 transition-transform duration-300" />
                   )}
                 </Button>
 
                 {/* Chapter Icon */}
                 <div className={`
-                  w-8 h-8 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center transition-all duration-200
+                  w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 shadow-md ring-2
                   ${chapter.isNew 
-                    ? 'bg-gradient-to-br from-primary to-muted shadow-lg shadow-primary/30' 
-                    : 'bg-gradient-to-br from-primary to-muted shadow-lg shadow-primary/30'
+                    ? 'bg-gradient-to-br from-primary via-primary/90 to-muted shadow-primary/20 ring-primary/20' 
+                    : 'bg-gradient-to-br from-gray-400 via-gray-500 to-gray-600 shadow-gray-400/20 ring-gray-200/50'
                   }
+                  hover:scale-105 hover:shadow-lg
                 `}>
-                  <Folder className="h-4 w-4 sm:h-6 sm:w-6 text-white" />
+                  <Folder className="h-6 w-6 text-white drop-shadow-sm" />
                 </div>
               </div>
-
               {/* Action Buttons - Mobile positioned */}
-              <div className="flex sm:hidden items-center gap-1">
+              <div className="flex sm:hidden items-center gap-1.5">
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => {
-                    if (chapter.isEditing) {
-                      onSave();
-                    } else {
-                      onToggleEdit();
-                    }
-                  }}
-                  className={`
-                    ${chapter.isEditing 
-                      ? 'bg-green-100 hover:bg-green-200 text-green-700 border border-green-300 shadow-sm' 
-                      : 'hover:bg-primary/10 text-primary hover:text-primary/80'
-                    }
-                    transition-all duration-200 font-medium px-2 py-1 text-xs
-                  `}
+                  onClick={handleEditClick}
+                  className="
+                    bg-blue-100/80 hover:bg-blue-200 text-blue-600 shadow-sm hover:shadow-md
+                    transition-all duration-300 font-semibold px-2.5 py-1.5 text-xs rounded-lg
+                  "
                 >
-                  {chapter.isEditing ? (
-                    <Check className="h-3 w-3" />
-                  ) : (
-                    <Edit className="h-3 w-3 text-blue-500" />
-                  )}
+                  <Edit className="h-3.5 w-3.5" />
                 </Button>
 
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={onDelete}
+                  onClick={handleDeleteClick}
                   className="
-                    text-red-600 hover:text-red-700 hover:bg-red-100 
-                    border border-transparent hover:border-red-300
-                    transition-all duration-200 font-medium px-2 py-1 text-xs
+                    bg-red-100/80 hover:bg-red-200 text-red-600 hover:text-red-700
+                    shadow-sm hover:shadow-md
+                    transition-all duration-300 font-semibold px-2.5 py-1.5 text-xs rounded-lg
                   "
                 >
-                  <Trash2 className="h-3 w-3" />
+                  <Trash2 className="h-3.5 w-3.5" />
                 </Button>
               </div>
             </div>
 
             {/* Chapter Title and Description */}
             <div className="flex-1 w-full sm:w-auto min-w-0">
-              {chapter.isEditing ? (
-                <div className="space-y-3 sm:space-y-4 bg-gradient-to-r from-white to-gray-50 p-3 sm:p-4 rounded-xl border border-gray-200 shadow-sm">
-                  <div className="space-y-1 sm:space-y-2">
-                    <label className="text-xs font-semibold text-gray-700 uppercase tracking-wide">
-                      Chapter Title
-                    </label>
-                    <Input
-                      defaultValue={chapter.title}
-                      placeholder="Enter chapter title..."
-                      className="
-                        font-medium text-base sm:text-lg border-gray-300 
-                        focus:border-primary focus:ring-2 focus:ring-primary/20 
-                        transition-all duration-200 placeholder:text-gray-400
-                        bg-white shadow-sm hover:border-gray-400 w-full
-                      "
-                      onChange={(e) => onUpdate('title', e.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-1 sm:space-y-2">
-                    <label className="text-xs font-semibold text-gray-700 uppercase tracking-wide">
-                      Description
-                    </label>
-                    <Textarea
-                      defaultValue={chapter.description}
-                      placeholder="Describe this chapter content..."
-                      rows={2}
-                      className="
-                        text-sm border-gray-300 
-                        focus:border-primary focus:ring-2 focus:ring-primary/20 
-                        transition-all duration-200 placeholder:text-gray-400
-                        bg-white shadow-sm hover:border-gray-400 resize-none w-full
-                      "
-                      onChange={(e) => onUpdate('description', e.target.value)}
-                    />
-                  </div>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
-                    <CardTitle className="text-lg sm:text-xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent line-clamp-2 sm:line-clamp-1">
-                      Chapter {chapter.chapterNumber}: {chapter.title}
-                    </CardTitle>
-                    {chapter.isNew && (
-                      <span className="
-                        inline-flex items-center gap-1 text-xs 
-                        bg-gradient-to-r from-primary to-muted 
-                        text-white px-2 sm:px-3 py-1 sm:py-1.5 rounded-full 
-                        font-semibold shadow-sm animate-pulse self-start sm:self-center
-                      ">
-                        <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
-                        <span className="hidden sm:inline">NEW CHAPTER</span>
-                        <span className="sm:hidden">NEW</span>
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-sm">
-                    <div className="inline-flex items-center gap-1 sm:gap-2 bg-primary/10 text-primary px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg font-medium text-xs sm:text-sm">
-                      <Video className="h-3 w-3 sm:h-4 sm:w-4" />
-                      <span className="hidden sm:inline">{chapter.videos.filter(v => !v.isDeleted).length} videos</span>
-                      <span className="sm:hidden">{chapter.videos.filter(v => !v.isDeleted).length}</span>
-                    </div>
-                  </div>
-                  {chapter.description && (
-                    <CardDescription className="text-sm text-gray-600 bg-white p-2 sm:p-3 rounded-lg line-clamp-3 sm:line-clamp-none">
-                      <strong>
-                        Description : {" "}
-                      </strong>
-                      {chapter.description}
-                    </CardDescription>
+              <div className="space-y-2.5">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+                  <CardTitle className="text-xl font-bold text-gray-900 leading-tight line-clamp-2 sm:line-clamp-1">
+                    Chapitre {chapter.chapterNumber}: {chapter.title}
+                  </CardTitle>
+                  {chapter.isNew && (
+                    <span className="
+                      inline-flex items-center gap-1.5 text-xs 
+                      bg-gradient-to-r from-primary to-muted 
+                      text-white px-3 py-1.5 rounded-full 
+                      font-bold shadow-sm animate-pulse self-start sm:self-center
+                      ring-2 ring-primary/20
+                    ">
+                      <div className="w-1.5 h-1.5 bg-white rounded-full animate-ping absolute"></div>
+                      <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
+                      <span className="hidden sm:inline">NOUVEAU</span>
+                      <span className="sm:hidden">NOUVEAU</span>
+                    </span>
                   )}
                 </div>
-              )}
+                <div className="flex flex-wrap items-center gap-2 text-sm">
+                  <div className="inline-flex items-center gap-1.5 bg-gradient-to-r from-primary/10 to-muted/10 text-primary px-3 py-1.5 rounded-lg font-semibold text-xs shadow-sm border border-primary/20">
+                    <Video className="h-4 w-4" />
+                    <span>{chapter.videos.filter(v => !v.isDeleted).length} vidéo{chapter.videos.filter(v => !v.isDeleted).length > 1 ? 's' : ''}</span>
+                  </div>
+                </div>
+                {chapter.description && (
+                  <CardDescription className="text-sm text-gray-600 leading-relaxed bg-gradient-to-r from-gray-50/50 to-white p-3 rounded-lg line-clamp-3 sm:line-clamp-none border border-gray-100/50">
+                    <strong className="text-gray-700">Description:</strong> {chapter.description}
+                  </CardDescription>
+                )}
+              </div>
             </div>
 
             {/* Action Buttons - Desktop only */}
@@ -253,46 +222,28 @@ const DroppableChapter: React.FC<DroppableChapterProps> = ({
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => {
-                  if (chapter.isEditing) {
-                    onSave();
-                  } else {
-                    onToggleEdit();
-                  }
-                }}
-                className={`
-                  ${chapter.isEditing 
-                    ? 'bg-green-100 hover:bg-green-200 text-green-700 border border-green-300 shadow-sm' 
-                    : 'hover:bg-primary/10 text-primary hover:text-primary/80'
-                  }
-                  transition-all duration-200 font-medium px-3 py-2 !border-0
-                `}
+                onClick={handleEditClick}
+                className="
+                  bg-blue-100/80 hover:bg-blue-200 text-blue-600 shadow-sm hover:shadow-md
+                  transition-all duration-300 font-semibold px-4 py-2 rounded-xl hover:text-blue-700
+                "
               >
-                {chapter.isEditing ? (
-                  <>
-                    <Check className="h-4 w-4 mr-1" />
-                    Save
-                  </>
-                ) : (
-                  <span className="text-blue-500 flex items-center">
-                    <Edit className="h-4 w-4 mr-1" />
-                    Edit
-                  </span>
-                )}
+                <Edit className="h-4 w-4 mr-1.5" />
+                <span>Modifier</span>
               </Button>
 
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={onDelete}
+                onClick={handleDeleteClick}
                 className="
-                  text-red-600 hover:text-red-700 hover:bg-red-100 
-                  border border-transparent hover:border-red-300
-                  transition-all duration-200 font-medium px-3 py-2
+                  bg-red-100/80 hover:bg-red-200 text-red-600 hover:text-red-700
+                  shadow-sm hover:shadow-md
+                  transition-all duration-300 font-semibold px-4 py-2 rounded-xl
                 "
               >
-                <Trash2 className="h-4 w-4 mr-1" />
-                Delete
+                <Trash2 className="h-4 w-4 mr-1.5" />
+                <span>Supprimer</span>
               </Button>
             </div>
           </div>
@@ -300,31 +251,47 @@ const DroppableChapter: React.FC<DroppableChapterProps> = ({
 
         {/* Chapter Videos - Only show when expanded */}
         {chapter.isExpanded && (
-          <CardContent className="pt-3 sm:pt-4 px-3 sm:px-6 space-y-3 sm:space-y-4">
+          <CardContent className="pt-4 px-4 sm:px-6 pb-4 space-y-4 bg-gradient-to-b from-gray-50/30 to-white">
             {isOver && canDrop && (
               <div className="
-                mb-4 sm:mb-6 p-4 sm:p-6 border-2 border-dashed border-primary 
-                bg-gradient-to-r from-secondary/10 via-primary/10 to-muted/10 
+                mb-6 p-6 border-2 border-dashed border-primary/40 
+                bg-gradient-to-r from-primary/5 via-secondary/5 to-primary/5 
                 rounded-2xl text-center transition-all duration-300
-                shadow-lg shadow-primary/20 animate-pulse
+                shadow-lg shadow-primary/10 animate-pulse
               ">
-                <div className="flex flex-col items-center justify-center gap-2 sm:gap-3">
-                  <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-primary to-muted rounded-2xl flex items-center justify-center shadow-lg">
-                    <Video className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
+                <div className="flex flex-col items-center justify-center gap-3">
+                  <div className="w-16 h-16 bg-gradient-to-br from-primary via-primary/90 to-muted rounded-2xl flex items-center justify-center shadow-lg ring-2 ring-primary/20">
+                    <Video className="h-8 w-8 text-white drop-shadow-sm" />
                   </div>
                   <div className="space-y-1">
-                    <p className="font-bold text-primary text-base sm:text-lg">Drop Video Here</p>
-                    <p className="text-xs sm:text-sm text-muted">Move video to this chapter</p>
+                    <p className="font-bold text-primary text-lg">Déposez la vidéo ici</p>
+                    <p className="text-sm text-gray-600">Déplacez la vidéo vers ce chapitre</p>
                   </div>
                 </div>
               </div>
             )}
-            <div className="space-y-2 sm:space-y-3">
+            <div className="space-y-3">
               {children}
             </div>
           </CardContent>
         )}
       </Card>
+
+      {/* Modals */}
+      <ChapterEditModal
+        isOpen={showEditModal}
+        onClose={() => setShowEditModal(false)}
+        onSave={handleSaveEdit}
+        chapter={chapter}
+      />
+
+      <ChapterDeleteModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={handleConfirmDelete}
+        chapterTitle={chapter.title}
+        videoCount={chapter.videos.filter(v => !v.isDeleted).length}
+      />
     </div>
   );
 };

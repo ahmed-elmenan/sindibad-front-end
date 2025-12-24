@@ -156,3 +156,18 @@ export function formatDurationSimple(totalSeconds: number): string {
 
   return parts.join(" ") || "0sec";
 }
+
+/**
+ * Formate la taille d'un fichier en unités lisibles
+ * @param bytes - Taille en bytes
+ * @returns La taille formatée (ex: "1.5 MB", "500 KB", "2.3 GB")
+ */
+export function formatFileSize(bytes?: number): string {
+  if (!bytes || bytes === 0) return "0 B";
+  
+  const k = 1024;
+  const sizes = ["B", "KB", "MB", "GB", "TB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  
+  return `${(bytes / Math.pow(k, i)).toFixed(2)} ${sizes[i]}`;
+}

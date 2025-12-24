@@ -93,7 +93,7 @@ export default function QuestionManagementPage() {
 
   const handleDownloadTemplate = async () => {
     try {
-      const blob = quizManagementService.generateExcelTemplate();
+      const blob = await quizManagementService.generateExcelTemplate();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;

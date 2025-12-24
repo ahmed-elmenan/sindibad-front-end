@@ -70,7 +70,7 @@ export default function CourseCard({ course }: CourseCardProps) {
                 </span>
                 <div className="flex items-center gap-1 text-xs md:text-sm text-gray-500">
                   <Clock className="w-3 h-3" />
-                  <span>{course.duration} weeks</span>
+                  <span>{course.duration} heures</span>
                 </div>
               </div>
               <Badge

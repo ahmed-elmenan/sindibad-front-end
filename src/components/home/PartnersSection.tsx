@@ -4,16 +4,17 @@ import { useEffect, useState } from "react";
 
 function PartnersAutoScroll() {
   const logos = [
-    "https://logo.clearbit.com/stripe.com",
-    "https://logo.clearbit.com/airbnb.com",
-    "https://logo.clearbit.com/github.com",
-    "https://logo.clearbit.com/netflix.com",
-    "https://logo.clearbit.com/spotify.com",
-    "https://logo.clearbit.com/slack.com",
-    "https://logo.clearbit.com/zoom.us",
-    "https://logo.clearbit.com/uber.com",
-    "https://logo.clearbit.com/shopify.com",
-    "https://logo.clearbit.com/coinbase.com",
+    "/logos/cinkmorocco_logo.jfif",
+    "/logos/cinkmorocco_logo.jfif",
+    "/logos/cinkmorocco_logo.jfif",
+    "/logos/cinkmorocco_logo.jfif",
+    "/logos/cinkmorocco_logo.jfif",
+    "/logos/cinkmorocco_logo.jfif",
+    "/logos/cinkmorocco_logo.jfif",
+    "/logos/cinkmorocco_logo.jfif",
+    "/logos/cinkmorocco_logo.jfif",
+    "/logos/cinkmorocco_logo.jfif",
+    "/logos/cinkmorocco_logo.jfif",
   ];
   // Duplicate logos for seamless loop
   const allLogos = [...logos, ...logos];

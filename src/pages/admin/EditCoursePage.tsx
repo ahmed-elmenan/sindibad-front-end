@@ -62,6 +62,7 @@ type CourseFormValues = {
   imgPreview?: string; // Base64 string pour l'aperçu
   currentImgUrl?: string; // URL actuelle de l'image
   packs: Pack[]; // Packs de réduction
+  features: string[]; // Fonctionnalités du cours
 };
 
 // Constants pour améliorer la maintenabilité
@@ -378,6 +379,7 @@ export default function EditCoursePage() {
       imgPreview: "",
       currentImgUrl: "",
       packs: [],
+      features: [],
     },
     mode: "onChange",
   });
@@ -426,6 +428,7 @@ export default function EditCoursePage() {
         imgPreview: course.imgUrl || "",
         currentImgUrl: course.imgUrl || "",
         packs: formattedPacks,
+        features: course.features || [],
       });
 
       // Mise à jour des valeurs des sélecteurs de manière forcée
@@ -555,6 +558,16 @@ export default function EditCoursePage() {
             formData.append("packs", JSON.stringify(data.packs));
           }
 
+          // Ajouter les fonctionnalités si présentes
+          if (data.features && data.features.length > 0) {
+            const filteredFeatures = data.features.filter(
+              (f) => f.trim() !== ""
+            );
+            if (filteredFeatures.length > 0) {
+              formData.append("features", JSON.stringify(filteredFeatures));
+            }
+          }
+
           await updateCourseMutation.mutateAsync(formData as any);
         } else {
           // Pour l'update sans image, on envoie aussi en FormData pour cohérence
@@ -569,6 +582,16 @@ export default function EditCoursePage() {
           // Ajouter les packs de réduction si présents
           if (data.packs && data.packs.length > 0) {
             formData.append("packs", JSON.stringify(data.packs));
+          }
+
+          // Ajouter les fonctionnalités si présentes
+          if (data.features && data.features.length > 0) {
+            const filteredFeatures = data.features.filter(
+              (f) => f.trim() !== ""
+            );
+            if (filteredFeatures.length > 0) {
+              formData.append("features", JSON.stringify(filteredFeatures));
+            }
           }
 
           await updateCourseMutation.mutateAsync(formData as any);
@@ -598,13 +621,56 @@ export default function EditCoursePage() {
   // Vérifier si les données sont en cours de chargement
   if (courseLoading || categoriesLoading || packsLoading) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="flex items-center gap-3">
-            <Loader2 className="h-6 w-6 animate-spin text-orange-500" />
-            <span className="text-lg text-gray-600">
-              Chargement du cours...
-            </span>
+      <div className="container mx-auto px-4 py-8 max-w-5xl">
+        <div className="animate-pulse space-y-8">
+          {/* Header skeleton */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="h-10 w-10 bg-gray-200 rounded-full"></div>
+              <div className="space-y-2">
+                <div className="h-8 w-64 bg-gray-200 rounded"></div>
+                <div className="h-4 w-48 bg-gray-100 rounded"></div>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <div className="h-10 w-24 bg-gray-200 rounded-lg"></div>
+              <div className="h-10 w-24 bg-gray-200 rounded-lg"></div>
+            </div>
+          </div>
+
+          {/* Form skeleton */}
+          <div className="flex flex-col lg:flex-row gap-8">
+            <div className="flex-1 lg:w-2/3 space-y-6">
+              {/* Image section */}
+              <div className="space-y-4">
+                <div className="h-6 w-32 bg-gray-200 rounded"></div>
+                <div className="aspect-video bg-gray-100 rounded-lg"></div>
+              </div>
+
+              {/* Form fields */}
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="space-y-2">
+                  <div className="h-4 w-32 bg-gray-200 rounded"></div>
+                  <div className="h-10 w-full bg-gray-100 rounded-lg"></div>
+                </div>
+              ))}
+
+              {/* Textarea */}
+              <div className="space-y-2">
+                <div className="h-4 w-40 bg-gray-200 rounded"></div>
+                <div className="h-24 w-full bg-gray-100 rounded-lg"></div>
+              </div>
+            </div>
+
+            {/* Sidebar skeleton */}
+            <div className="w-full lg:w-1/3 space-y-6">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="space-y-4">
+                  <div className="h-6 w-40 bg-gray-200 rounded"></div>
+                  <div className="h-32 bg-gray-100 rounded-lg"></div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -636,11 +702,11 @@ export default function EditCoursePage() {
         <div className="flex items-center gap-4">
           <Link to={`/admin/courses/${courseId}`}>
             <Button
-              variant="outline"
+              variant="ghost"
               size="icon"
-              className="rounded-full h-10 w-10"
+              className="group rounded-full h-11 w-11 bg-gray-100 hover:bg-orange-50 border-2 border-gray-200 hover:border-orange-200 transition-all duration-300 hover:scale-105 shadow-sm"
             >
-              <ArrowLeft className="h-5 w-5" />
+              <ArrowLeft className="h-5 w-5 text-gray-700 group-hover:text-orange-600 transition-colors duration-300" />
             </Button>
           </Link>
           <div>
@@ -831,7 +897,6 @@ export default function EditCoursePage() {
                           setSelectedLevel(
                             value as "BEGINNER" | "INTERMEDIATE" | "ADVANCED"
                           );
-                          console.log("Level selected:", value);
                         }}
                         value={selectedLevel}
                         defaultValue={selectedLevel}
@@ -1138,6 +1203,100 @@ export default function EditCoursePage() {
                   )}
                 </div>
 
+                <Separator />
+
+                {/* Section Fonctionnalités */}
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-blue-100 rounded-lg">
+                        <CheckCircle2 className="h-5 w-5 text-blue-600" />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-900">
+                          Fonctionnalités du cours
+                        </h3>
+                        <p className="text-xs text-gray-600">
+                          Ajoutez les caractéristiques et avantages du cours
+                        </p>
+                      </div>
+                    </div>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        const currentFeatures = watchedValues.features || [];
+                        setValue("features", [...currentFeatures, ""], {
+                          shouldValidate: true,
+                        });
+                      }}
+                      className="gap-2 border-blue-300 text-blue-700 hover:bg-blue-100 hover:border-blue-400 hover:text-black transition-all"
+                    >
+                      <Plus className="h-4 w-4" />
+                      Ajouter
+                    </Button>
+                  </div>
+
+                  {/* Liste des fonctionnalités */}
+                  {watchedValues.features &&
+                  watchedValues.features.length > 0 ? (
+                    <div className="space-y-3">
+                      {watchedValues.features.map((feature, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center gap-3 p-3 border-2 border-blue-100 bg-blue-50/30 rounded-lg hover:border-blue-200 transition-all"
+                        >
+                          <CheckCircle2 className="h-4 w-4 text-blue-600 flex-shrink-0" />
+                          <Input
+                            type="text"
+                            value={feature}
+                            onChange={(e) => {
+                              const currentFeatures = [
+                                ...(watchedValues.features || []),
+                              ];
+                              currentFeatures[index] = e.target.value;
+                              setValue("features", currentFeatures, {
+                                shouldValidate: true,
+                              });
+                            }}
+                            className="flex-1 border-1 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
+                            placeholder="Ex: Accès à vie, Certificat de fin de cours..."
+                          />
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => {
+                              const currentFeatures =
+                                watchedValues.features || [];
+                              setValue(
+                                "features",
+                                currentFeatures.filter((_, i) => i !== index),
+                                { shouldValidate: true }
+                              );
+                            }}
+                            className="h-8 w-8 p-0 hover:bg-red-100 hover:text-red-600 flex-shrink-0"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 px-4 border-2 border-dashed border-blue-200 rounded-lg bg-blue-50/20">
+                      <CheckCircle2 className="h-12 w-12 mx-auto text-blue-300 mb-3" />
+                      <p className="text-sm text-gray-600 mb-2">
+                        Aucune fonctionnalité ajoutée
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        Cliquez sur "Ajouter une fonctionnalité" pour définir
+                        les avantages du cours
+                      </p>
+                    </div>
+                  )}
+                </div>
+
                 {/* Actions */}
                 <div className="flex flex-col sm:flex-row justify-end gap-4 pt-6 border-t">
                   <Button
@@ -1254,6 +1413,32 @@ export default function EditCoursePage() {
                       />
                     </div>
                   )}
+
+                  {/* Features Preview */}
+                  {watchedValues.features &&
+                    watchedValues.features.length > 0 && (
+                      <div className="mt-4 pt-4 border-t border-orange-200">
+                        <div className="flex items-center gap-2 mb-3">
+                          <CheckCircle2 className="h-4 w-4 text-blue-600" />
+                          <span className="text-sm font-semibold text-blue-700">
+                            Fonctionnalités
+                          </span>
+                        </div>
+                        <ul className="space-y-2">
+                          {watchedValues.features
+                            .filter((f) => f.trim() !== "")
+                            .map((feature, index) => (
+                              <li
+                                key={index}
+                                className="flex items-start gap-2 text-xs text-gray-700"
+                              >
+                                <CheckCircle2 className="h-3 w-3 text-blue-500 mt-0.5 flex-shrink-0" />
+                                <span>{feature}</span>
+                              </li>
+                            ))}
+                        </ul>
+                      </div>
+                    )}
                 </div>
               </CardContent>
             </Card>

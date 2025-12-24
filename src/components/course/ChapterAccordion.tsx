@@ -43,12 +43,31 @@ export default function ChapterAccordion({
     setSelectedVideoTitle(lesson.title || "Aperçu vidéo");
     
     try {
+      console.log("🎬 Requesting presigned URL for:", lesson.videoUrl);
       const presignedUrl = await getPresignedUrlForVideo({ videoUrl: lesson.videoUrl });
+      
+      if (!presignedUrl) {
+        console.error("❌ Presigned URL is null or empty");
+        toast.error("URL présignée non disponible", {
+          description: "Le serveur n'a pas pu générer l'URL d'accès à la vidéo"
+        });
+        return;
+      }
+      
+      console.log("✅ Presigned URL received, opening modal");
       setVideoUrl(presignedUrl);
       setIsPreviewModalOpen(true);
-    } catch (error) {
-      toast.error("Erreur de chargement de la vidéo");
-      console.error("Error loading video preview:", error);
+    } catch (error: any) {
+      console.error("❌ Error loading video preview:", error);
+      
+      const errorMessage = error?.response?.data?.message 
+        || error?.response?.data?.error 
+        || error?.message 
+        || "Erreur inconnue";
+      
+      toast.error("Erreur de chargement de la vidéo", {
+        description: errorMessage
+      });
     } finally {
       setIsLoadingVideo(false);
     }

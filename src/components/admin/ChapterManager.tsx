@@ -81,12 +81,6 @@ const ChapterManager: React.FC<UnifiedChapterManagerProps> = () => {
   const [invalidFiles, setInvalidFiles] = useState<string[]>([]);
   const [unifiedChapters, setUnifiedChapters] = useState<UnifiedChapter[]>([]);
   const [hasChanges, setHasChanges] = useState(false);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [itemToDelete, setItemToDelete] = useState<{
-    type: "chapter" | "video";
-    id: string;
-    isNew: boolean;
-  } | null>(null);
   const [, setAddingVideo] = useState<{ chapterId: string } | null>(null);
   const [mergeDialogOpen, setMergeDialogOpen] = useState(false);
   const [selectedChapters, setSelectedChapters] = useState<Set<string>>(
@@ -1108,7 +1102,7 @@ const ChapterManager: React.FC<UnifiedChapterManagerProps> = () => {
             ),
             description: t(
               "admin.chapterManager.errors.invalidNaming.description",
-              "Le fichier {{name}} ne respecte pas le format ch1-v1.ext",
+              "Le fichier {{name}} ne respecte pas le format ch1-v1.mp4",
               { name }
             ),
           });
@@ -1217,15 +1211,6 @@ const ChapterManager: React.FC<UnifiedChapterManagerProps> = () => {
 
       // Upload new files with progress tracking
       if (newFiles.length > 0) {
-        const totalSize = newFiles.reduce((acc, file) => acc + file.size, 0);
-        console.log(
-          `Uploading ${newFiles.length} files (${(
-            totalSize /
-            1024 /
-            1024
-          ).toFixed(2)} MB)`
-        );
-
         await uploadVideos(courseId, newFiles, metadata, (progress) => {
           // Mettre à jour le toast avec le progress
           toast.dismiss(loadingToast);
@@ -1292,36 +1277,6 @@ const ChapterManager: React.FC<UnifiedChapterManagerProps> = () => {
     },
   });
 
-  // Delete confirmation dialog
-  const handleDeleteClick = (
-    type: "chapter" | "video",
-    id: string,
-    isNew: boolean
-  ) => {
-    setItemToDelete({ type, id, isNew });
-    setDeleteDialogOpen(true);
-  };
-
-  const confirmDelete = () => {
-    if (!itemToDelete) return;
-
-    const { type, id } = itemToDelete;
-
-    if (type === "chapter") {
-      handleDeleteChapter(id);
-    } else if (type === "video") {
-      const chapter = unifiedChapters.find((ch) =>
-        ch.videos.some((v) => v.id === id)
-      );
-      if (chapter?.id) {
-        handleDeleteVideo(chapter.id, id);
-      }
-    }
-
-    setDeleteDialogOpen(false);
-    setItemToDelete(null);
-  };
-
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -1338,34 +1293,34 @@ const ChapterManager: React.FC<UnifiedChapterManagerProps> = () => {
             <div className="absolute inset-0 bg-black/5"></div>
             <div className="relative z-10">
               <div className="flex flex-col gap-4">
-                {/* Back Button */}
-                <div className="flex items-center gap-3">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => navigate(`/admin/courses/${courseId}`)}
-                    className="rounded-full h-10 w-10"
-                    title={t(
-                      "admin.chapterManager.backToCourse",
-                      "Retour au cours"
-                    )}
-                  >
-                    <ArrowLeft className="h-5 w-5" />
-                  </Button>
-                </div>
-
                 {/* Title and Statistics Row */}
                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                  <div className="flex-1">
-                    <CardTitle className="text-2xl md:text-3xl font-bold mb-2">
-                      {t(
-                        "admin.chapterManager.title",
-                        "Course Content Manager"
+                  <div className="flex-1 flex items-center gap-4">
+                    {/* Back Button */}
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => navigate(`/admin/courses/${courseId}`)}
+                      className="group rounded-full h-11 w-11 bg-white border-2 border-white hover:scale-[1.02] hover:!bg-white shadow-sm hover:shadow-md backdrop-blur-sm flex-shrink-0 transition-all duration-300"
+                      title={t(
+                        "admin.chapterManager.backToCourse",
+                        "Retour au cours"
                       )}
-                    </CardTitle>
-                    <p className="text-white/90 text-sm md:text-base">
-                      Organize and manage your course chapters and videos
-                    </p>
+                    >
+                      <ArrowLeft className="h-5 w-5 text-primary transition-colors duration-300" />
+                    </Button>
+                    
+                    <div>
+                      <CardTitle className="text-2xl md:text-3xl font-bold mb-2">
+                        {t(
+                          "admin.chapterManager.title",
+                          "Gestionnaire de Contenu de Cours"
+                        )}
+                      </CardTitle>
+                      <p className="text-white/90 text-sm md:text-base">
+                        Organisez et gérez les chapitres et vidéos de votre cours
+                      </p>
+                    </div>
                   </div>
 
                   {/* Course Statistics */}
@@ -1375,7 +1330,7 @@ const ChapterManager: React.FC<UnifiedChapterManagerProps> = () => {
                       {
                         unifiedChapters.filter((ch) => !ch.isDeleted).length
                       }{" "}
-                      chapters
+                      chapitres
                     </div>
                     <div className="inline-flex items-center gap-2 bg-white/20 px-3 py-1.5 rounded-lg backdrop-blur-sm">
                       <Video className="h-4 w-4" />
@@ -1387,7 +1342,7 @@ const ChapterManager: React.FC<UnifiedChapterManagerProps> = () => {
                             ch.videos.filter((v) => !v.isDeleted).length,
                           0
                         )}{" "}
-                      videos
+                      vidéos
                     </div>
                   </div>
                 </div>
@@ -1401,7 +1356,7 @@ const ChapterManager: React.FC<UnifiedChapterManagerProps> = () => {
                       className="bg-white/20 hover:bg-secondary/20 border-white/30 text-white transition-all duration-200 hover:scale-105"
                     >
                       <Merge className="h-4 w-4 mr-2" />
-                      Merge Chapters
+                      Fusionner les Chapitres
                     </Button>
                   )}
                 </div>
@@ -1411,7 +1366,7 @@ const ChapterManager: React.FC<UnifiedChapterManagerProps> = () => {
                   {selectedChapters.size > 0 && (
                     <div className="bg-muted/20 border border-muted/30 rounded-lg p-3">
                       <p className="text-sm text-orange-100 font-medium">
-                        {selectedChapters.size} chapter(s) selected for merging
+                        {selectedChapters.size} chapitre(s) sélectionné(s) pour la fusion
                       </p>
                     </div>
                   )}
@@ -1426,7 +1381,7 @@ const ChapterManager: React.FC<UnifiedChapterManagerProps> = () => {
               <div className="flex items-center gap-3">
                 <div className="w-1 h-6 bg-gradient-to-b from-primary to-muted rounded-full"></div>
                 <h3 className="text-xl font-semibold bg-gradient-to-r from-primary to-muted bg-clip-text text-transparent">
-                  {t("admin.chapterManager.addContent", "Add Video Content")}
+                  {t("admin.chapterManager.addContent", "Ajouter du Contenu Vidéo")}
                 </h3>
               </div>
 
@@ -1466,26 +1421,31 @@ const ChapterManager: React.FC<UnifiedChapterManagerProps> = () => {
                     {isDragActive
                       ? t(
                           "admin.chapterManager.dropHere",
-                          "Drop the files here"
+                          "Déposez les fichiers ici"
                         )
                       : t(
                           "admin.chapterManager.dragDrop",
-                          "Drag and drop video files or click to select"
+                          "Glissez-déposez des vidéos ou cliquez pour sélectionner"
                         )}
                   </h4>
 
                   <p className="text-sm md:text-base text-gray-600 mb-3 max-w-md mx-auto">
                     {t(
                       "admin.chapterManager.namingConvention",
-                      "Files should be named as: ch1-v1, ch1-v2, etc."
+                      "Les fichiers doivent être nommés : ch1-v1, ch1-v2, etc."
                     )}
                   </p>
+                  <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 mb-4 max-w-2xl mx-auto">
+                    <p className="text-xs md:text-sm text-orange-900">
+                      <span className="font-semibold">Explication :</span> ch1-v1 signifie <span className="font-medium">vidéo 1 du chapitre 1</span>, ch1-v2 signifie <span className="font-medium">vidéo 2 du chapitre 1</span>, ch2-v1 signifie <span className="font-medium">vidéo 1 du chapitre 2</span>, etc.
+                    </p>
+                  </div>
 
                   <div className="inline-flex items-center gap-2 px-4 py-2 bg-orange-50 border border-orange-200 rounded-lg text-sm text-primary">
                     <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
                     {t(
                       "admin.chapterManager.nextAvailable",
-                      "Next available: Chapter {{chapter}}",
+                      "Prochain disponible : Chapitre {{chapter}}",
                       {
                         chapter: getNextChapterNumber(),
                       }
@@ -1503,7 +1463,7 @@ const ChapterManager: React.FC<UnifiedChapterManagerProps> = () => {
                     </div>
                     <div className="flex-1">
                       <h4 className="text-red-800 font-medium mb-2">
-                        Upload Validation Errors
+                        Erreurs de Validation de l'Upload
                       </h4>
                       <ul className="space-y-1 text-sm text-red-700">
                         {invalidFiles.map((error, index) => (
@@ -1525,13 +1485,13 @@ const ChapterManager: React.FC<UnifiedChapterManagerProps> = () => {
                 <div className="flex items-center gap-3">
                   <div className="w-1 h-6 bg-gradient-to-b from-muted to-secondary rounded-full"></div>
                   <h3 className="text-xl font-semibold bg-clip-text text-black">
-                    Course Chapters
+                    Phases du cours
                   </h3>
                 </div>
                 <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-50 to-yellow-50 border border-orange-200 rounded-lg">
                   <div className="text-primary">💡</div>
                   <p className="text-sm text-primary font-medium">
-                    Drag videos between chapters • Select chapters to merge
+                    Glissez les vidéos entre chapitres • Sélectionnez des chapitres à fusionner
                   </p>
                 </div>
               </div>
@@ -1544,15 +1504,15 @@ const ChapterManager: React.FC<UnifiedChapterManagerProps> = () => {
                     </div>
                   </div>
                   <h4 className="text-xl font-semibold text-gray-900 mb-2">
-                    No chapters yet
+                    Aucun chapitre pour le moment
                   </h4>
                   <p className="text-gray-600 max-w-md mx-auto mb-6">
-                    Get started by adding a chapter or uploading videos to
-                    automatically create chapters
+                    Commencez par ajouter un chapitre ou téléchargez des vidéos pour
+                    créer automatiquement des chapitres
                   </p>
                   <div className="flex flex-col sm:flex-row gap-3 justify-center">
                     <p className="text-sm text-gray-500 self-center">
-                      drag and drop videos above
+                      glissez-déposez des vidéos ci-dessus
                     </p>
                   </div>
                 </div>
@@ -1572,13 +1532,7 @@ const ChapterManager: React.FC<UnifiedChapterManagerProps> = () => {
                       }
                       onToggleEdit={() => toggleChapterEdit(chapter.id!)}
                       onSave={() => saveChapter(chapter.id!)}
-                      onDelete={() =>
-                        handleDeleteClick(
-                          "chapter",
-                          chapter.id!,
-                          chapter.isNew || false
-                        )
-                      }
+                      onDelete={() => handleDeleteChapter(chapter.id!)}
                       onUpdate={(field, value) =>
                         updateChapterField(chapter.id!, field, value)
                       }
@@ -1595,10 +1549,10 @@ const ChapterManager: React.FC<UnifiedChapterManagerProps> = () => {
                               <Video className="w-6 h-6 text-gray-500 group-hover:text-primary transition-colors" />
                             </div>
                             <h4 className="text-sm font-medium text-gray-700 mb-1">
-                              No videos yet
+                              Aucune vidéo pour le moment
                             </h4>
                             <p className="text-xs text-gray-500">
-                              Drag videos here or add them manually
+                              Glissez des vidéos ici ou ajoutez-les manuellement
                             </p>
                           </div>
                         ) : (
@@ -1618,11 +1572,7 @@ const ChapterManager: React.FC<UnifiedChapterManagerProps> = () => {
                                 }
                                 onSave={() => saveVideo(chapter.id!, video.id!)}
                                 onDelete={() =>
-                                  handleDeleteClick(
-                                    "video",
-                                    video.id!,
-                                    video.isNew || false
-                                  )
+                                  handleDeleteVideo(chapter.id!, video.id!)
                                 }
                                 onUpdate={(field, value) =>
                                   updateVideoField(
@@ -1648,12 +1598,12 @@ const ChapterManager: React.FC<UnifiedChapterManagerProps> = () => {
                 <div className="flex flex-col gap-4">
                   <div className="flex-1">
                     <h4 className="font-semibold text-gray-900 mb-1 text-sm sm:text-base">
-                      Unsaved Changes
+                      Modifications Non Sauvegardées
                     </h4>
                     <p className="text-xs sm:text-sm text-gray-600">
                       {pendingVideoMoves.length > 0
-                        ? `${pendingVideoMoves.length} video move(s) pending`
-                        : "You have modifications that need to be saved"}
+                        ? `${pendingVideoMoves.length} déplacement(s) de vidéo en attente`
+                        : "Vous avez des modifications qui doivent être enregistrées"}
                     </p>
                   </div>
                   <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto justify-end">
@@ -1685,7 +1635,7 @@ const ChapterManager: React.FC<UnifiedChapterManagerProps> = () => {
                       className="w-full sm:w-auto hover:bg-gray-100 border-gray-300 hover:text-gray-900 transition-all duration-200 text-sm sm:text-base py-2 sm:py-2"
                     >
                       <X className="h-4 w-4 mr-2" />
-                      Cancel
+                      Annuler
                     </Button>
                     <Button
                       onClick={handleUpload}
@@ -1696,10 +1646,10 @@ const ChapterManager: React.FC<UnifiedChapterManagerProps> = () => {
                       {isProcessingMove ? (
                         <>
                           <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2"></div>
-                          Processing...
+                          Traitement...
                         </>
                       ) : (
-                        "Save All Changes"
+                        "Enregistrer Toutes les Modifications"
                       )}
                     </Button>
                   </div>
@@ -1717,10 +1667,10 @@ const ChapterManager: React.FC<UnifiedChapterManagerProps> = () => {
               <AlertDialogHeader>
                 <AlertDialogTitle className="flex items-center gap-2">
                   <Move className="h-5 w-5" />
-                  Confirm Video Move
+                  Confirmer le Déplacement de Vidéo
                 </AlertDialogTitle>
                 <AlertDialogDescription className="space-y-3">
-                  <div>Are you sure you want to move this video?</div>
+                  <div>Êtes-vous sûr de vouloir déplacer cette vidéo ?</div>
                   <div className="bg-gray-50 p-4 rounded-lg space-y-2">
                     <div className="flex items-center gap-2">
                       <Video className="h-4 w-4" />
@@ -1729,32 +1679,32 @@ const ChapterManager: React.FC<UnifiedChapterManagerProps> = () => {
                       </span>
                     </div>
                     <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <span>From: {pendingMove?.sourceChapterTitle}</span>
+                      <span>De : {pendingMove?.sourceChapterTitle}</span>
                       <ArrowRight className="h-4 w-4" />
-                      <span>To: {pendingMove?.targetChapterTitle}</span>
+                      <span>Vers : {pendingMove?.targetChapterTitle}</span>
                     </div>
                     <div className="text-xs text-gray-500">
-                      Move Type: {pendingMove?.moveType?.replace("-", " to ")}
+                      Type de déplacement : {pendingMove?.moveType?.replace("-", " vers ")}
                     </div>
                   </div>
                   {pendingMove?.moveType !== "new-to-new" && (
                     <div className="text-sm text-amber-600">
-                      ⚠️ This action will immediately update the backend and
-                      cannot be undone easily.
+                      ⚠️ Cette action mettra immédiatement à jour le backend et
+                      ne peut pas être facilement annulée.
                     </div>
                   )}
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel disabled={isProcessingMove}>
-                  Cancel
+                  Annuler
                 </AlertDialogCancel>
                 <AlertDialogAction
                   onClick={processConfirmedVideoMove}
                   disabled={isProcessingMove}
                   className="bg-gradient-to-r from-primary to-muted hover:from-primary/90 hover:to-muted/90"
                 >
-                  {isProcessingMove ? "Moving..." : "Confirm Move"}
+                  {isProcessingMove ? "Déplacement..." : "Confirmer le Déplacement"}
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
@@ -1764,53 +1714,26 @@ const ChapterManager: React.FC<UnifiedChapterManagerProps> = () => {
           <AlertDialog open={mergeDialogOpen} onOpenChange={setMergeDialogOpen}>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Merge Chapters</AlertDialogTitle>
+                <AlertDialogTitle>Fusionner les Chapitres</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Are you sure you want to merge the selected chapters? The
-                  videos from the higher-numbered chapter will be moved to the
-                  lower-numbered chapter, and the higher-numbered chapter will
-                  be deleted. This action cannot be undone.
+                  Êtes-vous sûr de vouloir fusionner les chapitres sélectionnés ? Les
+                  vidéos du chapitre avec le numéro le plus élevé seront déplacées vers le
+                  chapitre avec le numéro le plus bas, et le chapitre avec le numéro le plus élevé sera
+                  supprimé. Cette action ne peut pas être annulée.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel
                   onClick={() => setSelectedChapters(new Set())}
                 >
-                  Cancel
+                  Annuler
                 </AlertDialogCancel>
                 <AlertDialogAction
                   onClick={handleMergeChapters}
                   disabled={isProcessingMove}
                   className="bg-gradient-to-r from-primary to-muted hover:from-primary/90 hover:to-muted/90"
                 >
-                  {isProcessingMove ? "Merging..." : "Merge Chapters"}
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-
-          {/* Delete Confirmation Dialog */}
-          <AlertDialog
-            open={deleteDialogOpen}
-            onOpenChange={setDeleteDialogOpen}
-          >
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Confirm Deletion</AlertDialogTitle>
-                <AlertDialogDescription>
-                  {itemToDelete?.type === "chapter"
-                    ? "Are you sure you want to delete this chapter? This action cannot be undone and will also delete all videos in this chapter."
-                    : "Are you sure you want to delete this video? This action cannot be undone."}
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={confirmDelete}
-                  disabled={isProcessingMove}
-                  className="bg-destructive text-white hover:bg-destructive/90"
-                >
-                  {isProcessingMove ? "Deleting..." : "Delete"}
+                  {isProcessingMove ? "Fusion en cours..." : "Fusionner les Chapitres"}
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>

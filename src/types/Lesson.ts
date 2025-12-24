@@ -3,6 +3,8 @@ export interface Lesson {
   title: string;
   description?: string;
   videoUrl: string;
+  thumbnailUrl?: string; // URL de la miniature dans S3
+  fileSize?: number; // Taille du fichier en bytes
   duration: number;
   order: number;
   isLocked: boolean;
@@ -26,4 +28,6 @@ export interface LessonSummary {
   hasActiveQuiz?: boolean;
   miniChapter: string;
   videoUrl?: string;
+  thumbnailUrl?: string; // URL de la miniature dans S3
+  fileSize?: number; // Taille du fichier en bytes
 }

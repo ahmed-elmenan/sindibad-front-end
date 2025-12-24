@@ -57,6 +57,7 @@ type CourseFormValues = {
   imgFile: File | null; // Vraie image file
   imgPreview?: string; // Base64 string pour l'aperçu
   packs: Pack[]; // Packs de réduction
+  features: string[]; // Fonctionnalités du cours
 };
 
 // Constants pour améliorer la maintenabilité
@@ -82,22 +83,102 @@ const useAddCourse = () => {
 
   return useMutation({
     mutationFn: createCourse,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin-courses"] });
+    onMutate: async (newCourseData) => {
+      // 1. Annuler les requêtes en cours pour éviter les conflits
+      await queryClient.cancelQueries({ queryKey: ["admin-courses"] });
+
+      // 2. Sauvegarder l'état précédent (pour rollback en cas d'erreur)
+      const previousCourses = queryClient.getQueryData(["admin-courses"]);
+
+      // 3. Créer un cours temporaire avec un ID unique temporaire
+      const optimisticCourse = {
+        id: `temp-${Date.now()}`,
+        title: newCourseData instanceof FormData 
+          ? (newCourseData.get('title') as string) || 'Nouveau cours'
+          : newCourseData.title || 'Nouveau cours',
+        description: newCourseData instanceof FormData 
+          ? (newCourseData.get('description') as string) || ''
+          : newCourseData.description || '',
+        price: newCourseData instanceof FormData 
+          ? parseFloat((newCourseData.get('price') as string) || '0')
+          : parseFloat(newCourseData.price || '0'),
+        category: newCourseData instanceof FormData 
+          ? (newCourseData.get('category') as string) || 'Autre'
+          : newCourseData.category || 'Autre',
+        level: newCourseData instanceof FormData 
+          ? (newCourseData.get('level') as string) || 'BEGINNER'
+          : newCourseData.level || 'BEGINNER',
+        imgUrl: '', // Pas encore disponible
+        avgRating: 0,
+        numberOfReviews: 0,
+        participants: 0,
+        duration: (() => {
+          const d = newCourseData instanceof FormData
+            ? (newCourseData.get('duration') as string | null)
+            : (newCourseData as any).duration;
+          return parseInt(String(d ?? '0'));
+        })(),
+        isOptimistic: true, // Flag pour identifier les cours optimistes
+      };
+
+      // 4. Mise à jour optimiste du cache
+      queryClient.setQueryData(["admin-courses"], (oldData: any) => {
+        if (!oldData) return [optimisticCourse];
+        return [optimisticCourse, ...oldData];
+      });
+
+      // 5. Redirection immédiate
+      navigate("/admin/courses");
+
+      // 6. Retourner le contexte pour onError et onSuccess
+      return { previousCourses, optimisticCourse };
+    },
+
+    onSuccess: (newCourse, variables, context) => {
+      // Remplacer le cours optimiste par le cours réel du serveur
+      queryClient.setQueryData(["admin-courses"], (oldData: any) => {
+        if (!oldData) return [newCourse];
+        
+        // Supprimer le cours temporaire et ajouter le vrai
+        return [
+          newCourse,
+          ...oldData.filter((c: any) => c.id !== context?.optimisticCourse.id)
+        ];
+      });
+
       toast.success("Cours créé avec succès", {
         description: "Le nouveau cours a été ajouté à la plateforme",
         duration: 4000,
       });
-      navigate("/admin/courses");
+
+      // Invalidation pour synchroniser avec le serveur
+      queryClient.invalidateQueries({ queryKey: ["admin-courses"] });
+      queryClient.invalidateQueries({ queryKey: ["courses"] });
     },
-    onError: (error: any) => {
+
+    onError: (error: any, variables, context) => {
+      // ROLLBACK: Restaurer l'état précédent
+      if (context?.previousCourses) {
+        queryClient.setQueryData(["admin-courses"], context.previousCourses);
+      }
+
+      // Afficher l'erreur à l'utilisateur
       const errorMessage =
         error?.response?.data?.message || "Échec de la création du cours";
+      
       toast.error("Erreur lors de la création", {
         description: errorMessage,
         duration: 5000,
+        action: {
+          label: "Réessayer",
+          onClick: () => navigate("/admin/courses/new"),
+        },
       });
+
       console.error("Error creating course:", error);
+
+      // Rediriger vers la page d'ajout si on est déjà sur la liste
+      navigate("/admin/courses/new");
     },
   });
 };
@@ -357,6 +438,7 @@ export default function AddCoursePage() {
       imgFile: null,
       imgPreview: "",
       packs: [],
+      features: [],
     },
     mode: "onChange", // Validation en temps réel
   });
@@ -471,6 +553,21 @@ export default function AddCoursePage() {
           formData.append("packs", JSON.stringify(data.packs));
         }
 
+        // Ajouter les fonctionnalités si présentes
+        if (data.features && data.features.length > 0) {
+          const filteredFeatures = data.features.filter(f => f.trim() !== "");
+          console.log("🔍 Features before filtering:", data.features);
+          console.log("🔍 Features after filtering:", filteredFeatures);
+          if (filteredFeatures.length > 0) {
+            formData.append("features", JSON.stringify(filteredFeatures));
+            console.log("✅ Features added to FormData:", JSON.stringify(filteredFeatures));
+          } else {
+            console.log("⚠️ No features to add (all empty)");
+          }
+        } else {
+          console.log("⚠️ No features provided");
+        }
+
         // Afficher le contenu du FormData pour le débogage
         const formDataObject: Record<string, any> = {};
         for (const [key, value] of formData.entries()) {
@@ -479,6 +576,7 @@ export default function AddCoursePage() {
               ? `${value.name} (${value.size} bytes)`
               : value;
         }
+        console.log("📦 FormData content:", formDataObject);
         await createCourseMutation.mutateAsync(formData as any);
       } catch (error) {
         console.error("Error in onSubmit:", error);
@@ -578,11 +676,11 @@ export default function AddCoursePage() {
         <div className="flex items-center gap-4">
           <Link to={`/admin/courses`}>
             <Button
-              variant="outline"
+              variant="ghost"
               size="icon"
-              className="rounded-full h-10 w-10"
+              className="group rounded-full h-11 w-11 bg-gray-100 hover:bg-orange-50 border-2 border-gray-200 hover:border-orange-200 transition-all duration-300 hover:scale-105 shadow-sm"
             >
-              <ArrowLeft className="h-5 w-5" />
+              <ArrowLeft className="h-5 w-5 text-gray-700 group-hover:text-orange-600 transition-colors duration-300" />
             </Button>
           </Link>
           <div>
@@ -1055,6 +1153,98 @@ export default function AddCoursePage() {
                   )}
                 </div>
 
+                <Separator />
+
+                {/* Section Fonctionnalités */}
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-blue-100 rounded-lg">
+                        <CheckCircle2 className="h-5 w-5 text-blue-600" />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-900">
+                          Fonctionnalités du cours
+                        </h3>
+                        <p className="text-xs text-gray-600">
+                          Ajoutez les caractéristiques et avantages du cours
+                        </p>
+                      </div>
+                    </div>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        const currentFeatures = watchedValues.features || [];
+                        setValue("features", [...currentFeatures, ""], {
+                          shouldValidate: true,
+                        });
+                      }}
+                      className="gap-2 border-blue-300 text-blue-700 hover:bg-blue-100 hover:border-blue-400 hover:text-black transition-all"
+                    >
+                      <Plus className="h-4 w-4" />
+                      Ajouter
+                    </Button>
+                  </div>
+
+                  {/* Liste des fonctionnalités */}
+                  {watchedValues.features && watchedValues.features.length > 0 ? (
+                    <div className="space-y-3">
+                      {watchedValues.features.map((feature, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center gap-3 p-3 border-2 border-blue-100 bg-blue-50/30 rounded-lg hover:border-blue-200 transition-all"
+                        >
+                          <CheckCircle2 className="h-4 w-4 text-blue-600 flex-shrink-0" />
+                          <Input
+                            type="text"
+                            value={feature}
+                            onChange={(e) => {
+                              const currentFeatures = [
+                                ...(watchedValues.features || []),
+                              ];
+                              currentFeatures[index] = e.target.value;
+                              setValue("features", currentFeatures, {
+                                shouldValidate: true,
+                              });
+                            }}
+                            className="flex-1 border-1 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
+                            placeholder="Ex: Accès à vie, Certificat de fin de cours..."
+                          />
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => {
+                              const currentFeatures =
+                                watchedValues.features || [];
+                              setValue(
+                                "features",
+                                currentFeatures.filter((_, i) => i !== index),
+                                { shouldValidate: true }
+                              );
+                            }}
+                            className="h-8 w-8 p-0 hover:bg-red-100 hover:text-red-600 flex-shrink-0"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 px-4 border-2 border-dashed border-blue-200 rounded-lg bg-blue-50/20">
+                      <CheckCircle2 className="h-12 w-12 mx-auto text-blue-300 mb-3" />
+                      <p className="text-sm text-gray-600 mb-2">
+                        Aucune fonctionnalité ajoutée
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        Cliquez sur "Ajouter une fonctionnalité" pour définir les avantages du cours
+                      </p>
+                    </div>
+                  )}
+                </div>
+
                 {/* Actions */}
                 <div className="flex flex-col sm:flex-row justify-end gap-4 pt-6 border-t">
                   <Button
@@ -1194,6 +1384,31 @@ export default function AddCoursePage() {
                           </div>
                         ))}
                       </div>
+                    </div>
+                  )}
+
+                  {/* Features Preview */}
+                  {watchedValues.features && watchedValues.features.length > 0 && (
+                    <div className="mt-4 pt-4 border-t border-orange-200">
+                      <div className="flex items-center gap-2 mb-3">
+                        <CheckCircle2 className="h-4 w-4 text-blue-600" />
+                        <span className="text-sm font-semibold text-blue-700">
+                          Fonctionnalités
+                        </span>
+                      </div>
+                      <ul className="space-y-2">
+                        {watchedValues.features
+                          .filter((f) => f.trim() !== "")
+                          .map((feature, index) => (
+                            <li
+                              key={index}
+                              className="flex items-start gap-2 text-xs text-gray-700"
+                            >
+                              <CheckCircle2 className="h-3 w-3 text-blue-500 mt-0.5 flex-shrink-0" />
+                              <span>{feature}</span>
+                            </li>
+                          ))}
+                      </ul>
                     </div>
                   )}
                 </div>

@@ -311,14 +311,19 @@ export const uploadVideos = async (
     // Add metadata as a JSON string in FormData (better than URL parameter)
     const metadataPayload = {
       chapters: metadata.chapters.map((chapter: any) => ({
+        chapterId: chapter.chapterId, // phaseNumber (devient l'order du Chapter dans le backend)
         number: chapter.number,
-        title: chapter.title,
-        description: chapter.description,
+        title: chapter.title, // Titre de la phase (devient le titre du Chapter)
+        description: chapter.description, // Description de la phase
+        chapterName: chapter.chapterName, // Nom du mini-chapitre (pour regrouper les leçons)
         videos: chapter.videos.map((video: any, videoIndex: number) => ({
           name: video.name,
           title: video.title,
           description: video.description,
           order: videoIndex + 1,
+          skills: video.skills || [],
+          referenceUrl: video.referenceUrl || "",
+          chapterName: video.chapterName, // Nom du mini-chapitre (pour la leçon)
           // Let backend calculate duration from actual file
           originalFileName: files.find((f) => f.name === video.name)?.name,
         })),
@@ -328,6 +333,8 @@ export const uploadVideos = async (
     // Add metadata as FormData field instead of URL parameter
     formData.append("metadata", JSON.stringify(metadataPayload));
     formData.append("courseId", courseId);
+
+    console.log("Uploading videos with metadata:", metadataPayload);
 
     // Send to backend endpoint
     const response = await api.post(

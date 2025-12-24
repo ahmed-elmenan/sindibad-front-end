@@ -1,5 +1,5 @@
 import api from "@/lib/axios";
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 
 export interface ExcelQuizQuestion {
   QuizCode: string; // Format: ch1-v1-q1
@@ -40,7 +40,7 @@ export interface ExcelQuizQuestion {
 
 export class QuizManagementService {
 
-  generateExcelTemplate(): Blob {
+  async generateExcelTemplate(): Promise<Blob> {
     // Create example questions with different chapter and video combinations
     const exampleQuestions = [
       {
@@ -69,116 +69,132 @@ export class QuizManagementService {
       }
     ];
 
-    const worksheet = XLSX.utils.json_to_sheet(exampleQuestions);
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Quiz Questions');
 
-    // Update column widths
-    worksheet['!cols'] = [
-      { wch: 12 },   // --------->>
-      { wch: 40 },   // --------->>
-      { wch: 20 },   // --------->>
-      { wch: 20 },   // --------->>
-      { wch: 20 },   // --------->>
-      { wch: 20 },   // --------->>
-      { wch: 15 },   // --------->>
-      { wch: 20 },   // --------->>
-      { wch: 30 },   // --------->>
-      { wch: 30 }    // --------->>
+    // Define columns with headers and widths
+    worksheet.columns = [
+      { header: 'QuizCode', key: 'QuizCode', width: 12 },
+      { header: 'Question', key: 'Question', width: 40 },
+      { header: 'Option1', key: 'Option1', width: 20 },
+      { header: 'Option2', key: 'Option2', width: 20 },
+      { header: 'Option3', key: 'Option3', width: 20 },
+      { header: 'Option4', key: 'Option4', width: 20 },
+      { header: 'CorrectOptions', key: 'CorrectOptions', width: 15 },
+      { header: 'CourseId', key: 'CourseId', width: 20 },
+      { header: 'ChapterName', key: 'ChapterName', width: 30 },
+      { header: 'VideoName', key: 'VideoName', width: 30 }
     ];
 
+    // Add data rows
+    exampleQuestions.forEach(question => {
+      worksheet.addRow(question);
+    });
+
     // Add comments for the new fields
-    worksheet['!comments'] = {
-      A1: {
-        t: 'Format: ch[chapter_number]-v[video_number]-q[question_number]\n' +
-          'Example: ch1-v1-q1 means Chapter 1, Video 1, Question 1\n\n' +
-          'Chapter Numbers: Match with your course chapters\n' +
-          'Video Numbers: Match with videos in each chapter\n' +
-          'Question Numbers: Sequential numbers for questions in each video'
-      },
-      H1: { t: 'Course ID: Unique identifier for the course' },
-      I1: { t: 'Chapter Name: Descriptive name of the chapter' },
-      J1: { t: 'Video Name: Descriptive name of the video' }
-    };
+    worksheet.getCell('A1').note = 
+      'Format: ch[chapter_number]-v[video_number]-q[question_number]\n' +
+      'Example: ch1-v1-q1 means Chapter 1, Video 1, Question 1\n\n' +
+      'Chapter Numbers: Match with your course chapters\n' +
+      'Video Numbers: Match with videos in each chapter\n' +
+      'Question Numbers: Sequential numbers for questions in each video';
+    
+    worksheet.getCell('H1').note = 'Course ID: Unique identifier for the course';
+    worksheet.getCell('I1').note = 'Chapter Name: Descriptive name of the chapter';
+    worksheet.getCell('J1').note = 'Video Name: Descriptive name of the video';
 
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Quiz Questions');
-
-    return new Blob([XLSX.write(workbook, { bookType: 'xlsx', type: 'array' })], {
+    // Generate buffer and return as Blob
+    const buffer = await workbook.xlsx.writeBuffer();
+    return new Blob([buffer], {
       type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     });
   }
 
   // Update the parseExcelFile function to validate QuizName format
   async parseExcelFile(file: File): Promise<ExcelQuizQuestion[]> {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        try {
-          if (!e.target?.result) {
-            throw new Error('Failed to read file content');
+    try {
+      const buffer = await file.arrayBuffer();
+      const workbook = new ExcelJS.Workbook();
+      await workbook.xlsx.load(buffer);
+
+      const worksheet = workbook.worksheets[0];
+      
+      if (!worksheet) {
+        throw new Error('Excel file is empty or corrupted');
+      }
+
+      const jsonData: ExcelQuizQuestion[] = [];
+      const headers: string[] = [];
+
+      // Get headers from first row
+      worksheet.getRow(1).eachCell((cell, colNumber) => {
+        headers[colNumber - 1] = cell.value?.toString() || '';
+      });
+
+      // Parse data rows (skip header row)
+      worksheet.eachRow((row, rowNumber) => {
+        if (rowNumber === 1) return; // Skip header row
+        
+        const rowData: any = {};
+        row.eachCell((cell, colNumber) => {
+          const header = headers[colNumber - 1];
+          if (header) {
+            rowData[header] = cell.value?.toString() || '';
           }
-
-          const data = new Uint8Array(e.target.result as ArrayBuffer);
-          const workbook = XLSX.read(data, { type: 'array' });
-
-          if (!workbook.SheetNames.length) {
-            throw new Error('Excel file is empty or corrupted');
-          }
-
-          const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-          const jsonData: ExcelQuizQuestion[] = XLSX.utils.sheet_to_json(worksheet);
-
-          if (!jsonData.length) {
-            throw new Error('No data found in Excel file');
-          }
-
-          // Validate required columns
-          const requiredColumns = ['QuizCode', 'Question', 'Option1', 'Option2', 'Option3', 'Option4', 'CorrectOptions'];
-          const missingColumns = requiredColumns.filter(col =>
-            !jsonData.every(row => col in row)
-          );
-
-          if (missingColumns.length > 0) {
-            throw new Error(`Missing required columns: ${missingColumns.join(', ')}`);
-          }
-
-          // Validate QuizCode format
-          const isValidQuizCode = (code: string) => /^ch\d+-v\d+-q\d+$/.test(code);
-          const invalidRows = jsonData.filter(row => !isValidQuizCode(row.QuizCode));
-
-          if (invalidRows.length > 0) {
-            throw new Error('Invalid QuizCode format. Please use format: ch1-v1-q1 (Chapter 1, Video 1, Question 1)');
-          }
-
-          // Validate that all required fields have values
-          const emptyFields = jsonData.find(row =>
-            Object.entries(row).some(([key, value]) =>
-              requiredColumns.includes(key) && (!value || value.toString().trim() === '')
-            )
-          );
-
-          if (emptyFields) {
-            throw new Error('All fields must have values. Please check for empty cells.');
-          }
-
-          resolve(jsonData);
-        } catch (error) {
-          reject(error);
+        });
+        
+        if (Object.keys(rowData).length > 0) {
+          jsonData.push(rowData as ExcelQuizQuestion);
         }
-      };
+      });
 
-      reader.onerror = () => {
-        reject(new Error('Failed to read Excel file'));
-      };
+      if (!jsonData.length) {
+        throw new Error('No data found in Excel file');
+      }
 
-      reader.readAsArrayBuffer(file);
-    });
+      // Validate required columns
+      const requiredColumns = ['QuizCode', 'Question', 'Option1', 'Option2', 'Option3', 'Option4', 'CorrectOptions'];
+      const missingColumns = requiredColumns.filter(col =>
+        !jsonData.every(row => col in row)
+      );
+
+      if (missingColumns.length > 0) {
+        throw new Error(`Missing required columns: ${missingColumns.join(', ')}`);
+      }
+
+      // Validate QuizCode format
+      const isValidQuizCode = (code: string) => /^ch\d+-v\d+-q\d+$/.test(code);
+      const invalidRows = jsonData.filter(row => !isValidQuizCode(row.QuizCode));
+
+      if (invalidRows.length > 0) {
+        throw new Error('Invalid QuizCode format. Please use format: ch1-v1-q1 (Chapter 1, Video 1, Question 1)');
+      }
+
+      // Validate that all required fields have values
+      const emptyFields = jsonData.find(row =>
+        Object.entries(row).some(([key, value]) =>
+          requiredColumns.includes(key) && (!value || value.toString().trim() === '')
+        )
+      );
+
+      if (emptyFields) {
+        throw new Error('All fields must have values. Please check for empty cells.');
+      }
+
+      return jsonData;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      }
+      throw new Error('Failed to parse Excel file');
+    }
   }
 
   async getSavedQuestions(): Promise<QuizQuestionAdminResponse[]> {
     try {
       const response = await api.get(`/admin/quiz-questions`);
       return response.data;
-    } catch (error) {
+    } catch {
       throw new Error('Failed to fetch saved questions');
     }
   }

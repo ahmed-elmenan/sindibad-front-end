@@ -77,6 +77,13 @@ function SidebarProvider({
     return isMobile ? setOpenMobile((open) => !open) : setOpen((open) => !open)
   }, [isMobile, setOpen, setOpenMobile])
 
+  // Fermer automatiquement le sidebar quand on passe en mode mobile/medium
+  React.useEffect(() => {
+    if (isMobile && open) {
+      setOpen(false)
+    }
+  }, [isMobile, open, setOpen])
+
   // Adds a keyboard shortcut to toggle the sidebar.
   React.useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {

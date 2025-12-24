@@ -41,6 +41,7 @@ const DraggableVideo: React.FC<DraggableVideoProps> = ({
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [isLoadingVideo, setIsLoadingVideo] = useState(false);
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
+  const [thumbnail, setThumbnail] = useState<string | null>(null);
 
   // Handle preview opening for both new and existing videos
   const handleOpenPreview = async () => {
@@ -103,6 +104,37 @@ const DraggableVideo: React.FC<DraggableVideoProps> = ({
     };
   }, [videoUrl]);
 
+  // Generate thumbnail for new video files
+  React.useEffect(() => {
+    if (video.file) {
+      const generateThumbnail = async () => {
+        try {
+          const videoElement = document.createElement("video");
+          const objectUrl = URL.createObjectURL(video.file!);
+          videoElement.src = objectUrl;
+          videoElement.crossOrigin = "anonymous";
+          videoElement.currentTime = 1; // Capture at 1 second
+
+          videoElement.addEventListener("loadeddata", () => {
+            const canvas = document.createElement("canvas");
+            canvas.width = videoElement.videoWidth;
+            canvas.height = videoElement.videoHeight;
+            const ctx = canvas.getContext("2d");
+            if (ctx) {
+              ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+              const thumbnailUrl = canvas.toDataURL("image/jpeg", 0.7);
+              setThumbnail(thumbnailUrl);
+            }
+            URL.revokeObjectURL(objectUrl);
+          });
+        } catch (error) {
+          console.error("Error generating thumbnail:", error);
+        }
+      };
+      generateThumbnail();
+    }
+  }, [video.file]);
+
   const [{ isDragging }, drag] = useDrag(
     () => ({
       type: ItemTypes.VIDEO,
@@ -143,186 +175,229 @@ const DraggableVideo: React.FC<DraggableVideoProps> = ({
       <div
         ref={drag as any}
         className={`
-      flex items-start gap-4 p-4 rounded-xl transition-all duration-300 group cursor-move
+      flex items-start gap-4 p-4 rounded-2xl transition-all duration-300 group cursor-move border
       ${
         isDragging
-          ? "opacity-60 scale-[0.98] shadow-2xl rotate-1"
-          : "shadow-sm hover:shadow-md"
+          ? "opacity-50 scale-[0.97] shadow-2xl rotate-1 border-primary/50"
+          : "shadow-sm hover:shadow-lg border-gray-200/50"
       }
       ${
         isNew || video.isNew
-          ? "bg-gradient-to-r from-secondary/10 to-primary/10 shadow-primary/20"
-          : "bg-white hover:bg-gradient-to-r hover:from-gray-50 hover:to-white"
+          ? "bg-gradient-to-br from-orange-50/50 via-white to-yellow-50/30 border-orange-200/30"
+          : "bg-white hover:bg-gradient-to-br hover:from-gray-50/50 hover:to-white"
       }
       ${
         video.isMoved
-          ? "bg-gradient-to-r from-orange-50 to-amber-50 shadow-orange-100/50"
+          ? "bg-gradient-to-br from-orange-50 via-amber-50/30 to-yellow-50/20 border-orange-300/40"
           : ""
       }
-      ${video.isEditing ? "ring-2 ring-primary/20" : ""}
+      ${video.isEditing ? "ring-2 ring-primary/30 border-primary/40 shadow-lg" : ""}
       `}
       >
-        <div className="flex flex-col items-center gap-2 pt-1">
+        <div className="flex flex-col items-center gap-2.5">
           <div
             className={`
-        w-10 h-10 rounded-xl flex items-center justify-center shadow-sm transition-all duration-200
+        relative w-20 aspect-square rounded-xl shadow-md transition-all duration-300 overflow-hidden group-hover:shadow-lg
         ${
           isNew || video.isNew
-            ? "bg-gradient-to-br from-primary to-muted shadow-primary/30"
+            ? "ring-2 ring-primary/20"
             : video.isMoved
-            ? "bg-gradient-to-br from-muted to-secondary shadow-muted/30"
-            : "bg-gradient-to-br from-primary to-muted shadow-primary/30"
+            ? "ring-2 ring-orange-300/40"
+            : "ring-1 ring-gray-200/50"
         }
       `}
           >
-            <Video className="h-5 w-5 text-white" />
+            {thumbnail ? (
+              <>
+                <img
+                  src={thumbnail}
+                  alt="Video thumbnail"
+                  className="absolute inset-0 w-full h-full min-h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <div className="w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-lg">
+                    <Video className="h-5 w-5 text-primary" />
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className={`w-full h-full flex items-center justify-center ${
+                isNew || video.isNew
+                  ? "bg-gradient-to-br from-primary via-primary/90 to-muted"
+                  : video.isMoved
+                  ? "bg-gradient-to-br from-orange-400 via-orange-500 to-amber-500"
+                  : "bg-gradient-to-br from-gray-400 via-gray-500 to-gray-600"
+              }`}>
+                <Video className="h-7 w-7 text-white drop-shadow-sm" />
+              </div>
+            )}
           </div>
-          <Move
-            className={`
-        h-4 w-4 transition-all duration-200
-        ${
-          isDragging
-            ? "text-primary"
-            : "text-gray-400 group-hover:text-gray-600"
-        }
-      `}
-          />
+          <div className={`
+            flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-300
+            ${isDragging 
+              ? "bg-primary/10 scale-110" 
+              : "bg-gray-100/50 group-hover:bg-primary/5 group-hover:scale-105"
+            }
+          `}>
+            <Move
+              className={`
+            h-4 w-4 transition-all duration-300
+            ${
+              isDragging
+                ? "text-primary animate-pulse"
+                : "text-gray-400 group-hover:text-primary/70"
+            }
+          `}
+            />
+          </div>
         </div>
 
         {video.isEditing ? (
-          <div className="flex-1 space-y-3 bg-gradient-to-r from-white to-gray-50 p-4 rounded-lg shadow-sm">
-            <div className="space-y-1">
-              <label className="text-xs font-semibold text-gray-700 uppercase tracking-wide">
-                Video Title
+          <div className="flex-1 space-y-4 bg-gradient-to-br from-white via-gray-50/30 to-white p-5 rounded-xl shadow-sm border border-gray-200/50">
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-gray-700 uppercase tracking-wider flex items-center gap-2">
+                <div className="w-1 h-4 bg-primary rounded-full" />
+                Titre de la Vidéo
               </label>
               <Input
                 defaultValue={video.title || ""}
-                placeholder="Enter video title..."
+                placeholder="Entrez le titre de la vidéo..."
                 onChange={(e) => onUpdate("title", e.target.value)}
                 className="
-          border-gray-300 
+          border-gray-300/60
           focus:border-primary 
           focus:ring-2 
           focus:ring-primary/20 
           transition-all 
           duration-200 
-          placeholder:text-gray-400
+          placeholder:text-gray-400/80
           text-sm
           font-medium
           bg-white
           shadow-sm
           hover:border-gray-400
+          hover:shadow
+          rounded-lg
+          h-11
           "
               />
             </div>
-            <div className="space-y-1">
-              <label className="text-xs font-semibold text-gray-700 uppercase tracking-wide">
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-gray-700 uppercase tracking-wider flex items-center gap-2">
+                <div className="w-1 h-4 bg-primary rounded-full" />
                 Description
               </label>
               <Textarea
                 defaultValue={video.description || ""}
-                placeholder="Describe this video content..."
+                placeholder="Décrivez le contenu de cette vidéo..."
                 onChange={(e) => onUpdate("description", e.target.value)}
                 rows={3}
                 className="
-          border-gray-300 
+          border-gray-300/60
           focus:border-primary 
           focus:ring-2 
           focus:ring-primary/20 
           transition-all 
           duration-200 
-          placeholder:text-gray-400
+          placeholder:text-gray-400/80
           text-sm
           bg-white
           shadow-sm
           hover:border-gray-400
+          hover:shadow
           resize-none
+          rounded-lg
           "
               />
             </div>
           </div>
         ) : (
-          <div className="flex-1">
-            <div className="flex items-center gap-2">
-              <h4 className="font-medium">
-                {video.title || video.name || "Untitled Video"}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-start justify-between gap-3 mb-2">
+              <h4 className="font-semibold text-gray-900 text-base leading-tight truncate flex-1">
+                {video.title || video.name || "Vidéo sans titre"}
               </h4>
-              <div className="flex gap-2">
+              <div className="flex gap-1.5 flex-shrink-0">
                 {(isNew || video.isNew) && (
                   <span
                     className="
-            inline-flex items-center gap-1 text-xs 
+            inline-flex items-center gap-1.5 text-xs 
             bg-gradient-to-r from-primary to-muted 
-            text-white px-2.5 py-1 rounded-full 
-            font-semibold shadow-sm
+            text-white px-3 py-1.5 rounded-full 
+            font-bold shadow-sm
             animate-pulse
+            ring-2 ring-primary/20
           "
                   >
+                    <div className="w-1.5 h-1.5 bg-white rounded-full animate-ping absolute"></div>
                     <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
-                    NEW
+                    NOUVEAU
                   </span>
                 )}
                 {video.isMoved && (
                   <span
                     className="
-            inline-flex items-center gap-1 text-xs 
-            bg-gradient-to-r from-muted to-secondary 
-            text-white px-2.5 py-1 rounded-full 
-            font-semibold shadow-sm
+            inline-flex items-center gap-1.5 text-xs 
+            bg-gradient-to-r from-orange-400 to-amber-500 
+            text-white px-3 py-1.5 rounded-full 
+            font-bold shadow-sm
+            ring-2 ring-orange-200/50
           "
                   >
                     <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
-                    MOVED
+                    DÉPLACÉ
                   </span>
                 )}
               </div>
             </div>
             {video.name && video.name !== video.title && (
-              <p className="text-sm text-muted-foreground font-mono">
+              <p className="text-xs text-gray-500 font-mono bg-gray-100/50 px-2 py-1 rounded-md inline-block mb-2">
                 {video.name}
               </p>
             )}
             {video.description && (
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-gray-600 leading-relaxed mb-3 line-clamp-2">
                 {video.description}
               </p>
             )}
-            <div className="flex items-center gap-3 text-xs text-gray-500 mt-2">
+            <div className="flex items-center gap-2 flex-wrap">
               {video.duration && (
-                <span className="inline-flex items-center gap-1 bg-gray-100 px-2 py-1 rounded-md font-medium">
-                  <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                <span className="inline-flex items-center gap-1.5 bg-gradient-to-r from-green-50 to-emerald-50 text-green-700 px-3 py-1.5 rounded-lg font-semibold text-xs shadow-sm border border-green-200/50">
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                   {formatDurationSimple(video.duration)}
                 </span>
               )}
-              <span className="inline-flex items-center gap-1 bg-gray-100 px-2 py-1 rounded-md font-medium">
-                <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
-                Order #{video.order || 0}
+              <span className="inline-flex items-center gap-1.5 bg-gradient-to-r from-primary/10 to-muted/10 text-primary px-3 py-1.5 rounded-lg font-semibold text-xs shadow-sm border border-primary/20">
+                <div className="w-2 h-2 bg-primary rounded-full"></div>
+                Position #{video.order || 0}
               </span>
               {video.isMoved && (
-                <span className="inline-flex items-center gap-1 bg-muted/20 text-muted px-2 py-1 rounded-md font-medium">
-                  <div className="w-1.5 h-1.5 bg-muted rounded-full"></div>
-                  Moved from{" "}
-                  {video.sourceChapterType === "new" ? "new" : "original"}{" "}
-                  chapter
+                <span className="inline-flex items-center gap-1.5 bg-orange-50 text-orange-700 px-3 py-1.5 rounded-lg font-medium text-xs shadow-sm border border-orange-200/50">
+                  <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                  De chapitre{" "}
+                  {video.sourceChapterType === "new" ? "nouveau" : "original"}
                 </span>
               )}
             </div>
           </div>
         )}
 
-        <div className="flex items-center gap-2 transition-all duration-200 opacity-100">
+        <div className="flex items-center gap-2 transition-all duration-200">
           {video.isEditing ? (
             <Button
               variant="ghost"
               size="sm"
               onClick={onSave}
               className="
-              bg-green-100 hover:bg-green-200 text-green-700 border border-green-300 shadow-sm
-              transition-all duration-200 font-medium px-2 sm:px-3
+              bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700
+              text-white border-0 shadow-md hover:shadow-lg
+              transition-all duration-200 font-semibold px-4 py-2 rounded-xl
+              ring-2 ring-green-200/50 hover:ring-green-300/50
             "
             >
-              <Check className="h-4 w-4 sm:mr-1" />
-              <span className="hidden sm:inline">Save</span>
+              <Check className="h-4 w-4 mr-1.5" />
+              <span>Enregistrer</span>
             </Button>
           ) : (
             <DropdownMenu>
@@ -331,36 +406,44 @@ const DraggableVideo: React.FC<DraggableVideoProps> = ({
                   variant="ghost"
                   size="sm"
                   className="
-                  h-8 w-8 p-0
-                  hover:bg-gray-100
+                  h-9 w-9 p-0 rounded-xl
+                  bg-gray-100/80 hover:bg-gray-200
                   transition-all duration-200
+                  shadow-sm hover:shadow-md
+                  border border-gray-200/50
                 "
                   title="Actions"
                 >
                   <MoreVertical className="h-4 w-4 text-gray-600" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuContent align="end" className="w-52 rounded-xl shadow-xl border-gray-200/50">
                 {(video.file || video.originalLessonId) && (
                   <DropdownMenuItem
                     onClick={handleOpenPreview}
                     disabled={isLoadingVideo}
-                    className="cursor-pointer"
+                    className="cursor-pointer rounded-lg gap-3 py-2.5 font-medium"
                   >
-                    <Eye className="h-4 w-4 mr-2 text-purple-600" />
-                    <span>{isLoadingVideo ? "Chargement..." : "Preview"}</span>
+                    <div className="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center">
+                      <Eye className="h-4 w-4 text-purple-600" />
+                    </div>
+                    <span className="text-gray-700">{isLoadingVideo ? "Chargement..." : "Aperçu"}</span>
                   </DropdownMenuItem>
                 )}
-                <DropdownMenuItem onClick={onEdit} className="cursor-pointer">
-                  <Edit className="h-4 w-4 mr-2 text-blue-500" />
-                  <span>Edit</span>
+                <DropdownMenuItem onClick={onEdit} className="cursor-pointer rounded-lg gap-3 py-2.5 font-medium">
+                  <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
+                    <Edit className="h-4 w-4 text-blue-600" />
+                  </div>
+                  <span className="text-gray-700">Modifier</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={onDelete}
-                  className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50"
+                  className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50 rounded-lg gap-3 py-2.5 font-medium"
                 >
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  <span>Delete</span>
+                  <div className="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center">
+                    <Trash2 className="h-4 w-4 text-red-600" />
+                  </div>
+                  <span>Supprimer</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

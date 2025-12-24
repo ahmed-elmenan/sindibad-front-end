@@ -5,10 +5,25 @@ import {
   getCourseChapters,
   getCoursePacks,
   getCourseSubscription,
+  getAdminCourseDetails,
   addCourseReview,
   updateCourseReview,
   deleteCourseReview
 } from '@/services/course.service';
+
+/**
+ * OPTIMIZED: Hook to fetch all admin course details in a single request
+ * This replaces the need for 4 separate hooks (useCourse, useCourseReviews, useCourseChapters, useCoursePacks)
+ * Reduces network latency and improves page load performance significantly
+ */
+export const useAdminCourseDetails = (courseId: string | undefined) => {
+  return useQuery({
+    queryKey: ['admin-course-details', courseId],
+    queryFn: () => getAdminCourseDetails(courseId!),
+    enabled: !!courseId,
+    // Les options globales s'appliquent automatiquement (staleTime: Infinity, etc.)
+  })
+}
 
 // Hook to fetch a course
 export const useCourse = (courseId: string | undefined) => {
@@ -16,7 +31,7 @@ export const useCourse = (courseId: string | undefined) => {
     queryKey: ['course', courseId],
     queryFn: () => getCourseById(courseId!),
     enabled: !!courseId,
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    // Les options globales s'appliquent automatiquement
   })
 }
 
@@ -26,7 +41,7 @@ export const useCourseReviews = (courseId: string | undefined) => {
     queryKey: ['course-reviews', courseId],
     queryFn: () => getCourseReviews(courseId!),
     enabled: !!courseId,
-    staleTime: 1000 * 60 * 2, // 2 minutes
+    staleTime: 1000 * 60 * 15, // Override: 15 minutes pour les reviews (contenu plus dynamique)
   })
 }
 
@@ -36,7 +51,7 @@ export const useCourseChapters = (courseId: string | undefined) => {
     queryKey: ['course-chapters', courseId],
     queryFn: () => getCourseChapters(courseId!),
     enabled: !!courseId,
-    staleTime: 1000 * 60 * 10, // 10 minutes
+    // Les options globales s'appliquent automatiquement
   })
 }
 
@@ -46,7 +61,7 @@ export const useCoursePacks = (courseId: string | undefined) => {
     queryKey: ['course-packs', courseId],
     queryFn: () => getCoursePacks(courseId!),
     enabled: !!courseId,
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    // Les options globales s'appliquent automatiquement
   })
 }
 
@@ -56,7 +71,7 @@ export const useCourseSubscription = (courseId: string | undefined) => {
     queryKey: ['user-data', courseId],
     queryFn: () => getCourseSubscription(courseId!),
     enabled: !!courseId,
-    staleTime: 1000 * 60 * 15, // 15 minutes
+    staleTime: 1000 * 60 * 10, // Override: 10 minutes pour subscription (contenu user-specific)
   })
 }
 

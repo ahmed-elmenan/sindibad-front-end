@@ -12,7 +12,6 @@ import {
   IconListDetails,
   IconSettings,
   IconUsers,
-  IconClipboardList,
 } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { Outlet } from "react-router-dom";
@@ -119,11 +118,6 @@ export default function DashboardLayout() {
         title: "courses",
         url: "/admin/courses",
         icon: IconListDetails,
-      },
-      {
-        title: "quizzes",
-        url: "/admin/quizzes",
-        icon: IconClipboardList,
       },
       {
         title: "students",
