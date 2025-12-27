@@ -11,7 +11,7 @@ const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
   const [showDemo, setShowDemo] = useState<boolean>(false);
 
   return (
-    <section className="relative min-h-screen h-screen flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-screen h-screen flex items-center justify-center overflow-hidden -mt-10">
       {/* Video Background for desktop, Image for mobile */}
       <video
         autoPlay

@@ -56,7 +56,7 @@ const ChooseAccountType: React.FC = () => {
   }
 
   return (
-    <div className="flex flex-col items-center pt-10">
+    <div className="flex flex-col items-center">
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold tracking-tight mb-3">{t("chooseAccountType.title")}</h1>
         <p className="text-muted-foreground max-w-md">{t("chooseAccountType.subtitle")}</p>

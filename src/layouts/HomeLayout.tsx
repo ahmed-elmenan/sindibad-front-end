@@ -13,7 +13,7 @@ export default function RootLayout() {
       {isLoading ? (
         <SindiBadLoading />
       ) : (
-        <div className="min-h-screen bg-background pt-10">
+        <div className="min-h-screen bg-background pt-20">
           <ModernNavBar />
           <Outlet />
         </div>
