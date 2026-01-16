@@ -62,12 +62,12 @@ type CourseFormValues = {
 
 // Constants pour améliorer la maintenabilité
 const LEVEL_LABELS = {
-  BEGINNER: { label: "Débutant", color: "bg-green-100 text-green-800" },
+  BEGINNER: { label: "Débutant", color: "text-gray-900" },
   INTERMEDIATE: {
     label: "Intermédiaire",
-    color: "bg-yellow-100 text-yellow-800",
+    color: "text-gray-900",
   },
-  ADVANCED: { label: "Avancé", color: "bg-red-100 text-red-800" },
+  ADVANCED: { label: "Avancé", color: "text-gray-900" },
 } as const;
 
 const FORM_SECTIONS = {
@@ -127,14 +127,11 @@ const useAddCourse = () => {
         return [optimisticCourse, ...oldData];
       });
 
-      // 5. Redirection immédiate
-      navigate("/admin/courses");
-
-      // 6. Retourner le contexte pour onError et onSuccess
+      // 5. Retourner le contexte pour onError et onSuccess
       return { previousCourses, optimisticCourse };
     },
 
-    onSuccess: (newCourse, variables, context) => {
+    onSuccess: (newCourse, _variables, context) => {
       // Remplacer le cours optimiste par le cours réel du serveur
       queryClient.setQueryData(["admin-courses"], (oldData: any) => {
         if (!oldData) return [newCourse];
@@ -154,9 +151,12 @@ const useAddCourse = () => {
       // Invalidation pour synchroniser avec le serveur
       queryClient.invalidateQueries({ queryKey: ["admin-courses"] });
       queryClient.invalidateQueries({ queryKey: ["courses"] });
+
+      // Redirection après succès
+      navigate("/admin/courses");
     },
 
-    onError: (error: any, variables, context) => {
+    onError: (error: any, _variables, context) => {
       // ROLLBACK: Restaurer l'état précédent
       if (context?.previousCourses) {
         queryClient.setQueryData(["admin-courses"], context.previousCourses);
@@ -1419,7 +1419,7 @@ export default function AddCoursePage() {
             <Card className="border-blue-200 bg-blue-50">
               <CardHeader>
                 <CardTitle className="text-blue-800 text-sm">
-                  💡 Conseils pour un bon cours
+                  Conseils pour un bon cours
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-0">

@@ -1447,7 +1447,7 @@ export default function EditCoursePage() {
             <Card className="border-blue-200 bg-blue-50">
               <CardHeader>
                 <CardTitle className="text-blue-800 text-sm">
-                  💡 Conseils pour la modification
+                  Conseils pour la modification
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-0">
