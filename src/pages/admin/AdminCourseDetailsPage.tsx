@@ -15,7 +15,10 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import {
-  useAdminCourseDetails,
+  useCourse,
+  useCourseChapters,
+  useCourseReviews,
+  useCoursePacks,
 } from "@/hooks/useCourseQueries";
 import StarRating from "@/components/course/StarRating";
 import ChapterAccordion from "@/components/course/ChapterAccordion";
@@ -32,53 +35,37 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { deleteCourse } from "@/services/course.service";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import QuizManagementPage from "./QuizManagementPage";
 import SkeletonCourseDetailsPage from "@/components/course/SkeletonCourseDetailsPage";
+import {
+  ChaptersSkeleton,
+  PacksSkeleton,
+  ReviewsSkeleton,
+} from "@/components/course/SkeletonSections";
 
 export default function AdminCourseDetailsPage() {
   const { courseId } = useParams<{ courseId: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  usePageTitle("courseDetails"); // Définit le titre de la page
+  usePageTitle("courseDetails");
 
-  // OPTIMIZED: Single query that fetches all data in one request
-  // This reduces network latency from 4 requests to 1 request
-  const {
-    data: adminData,
-    isLoading,
-    isFetching,
-    refetch: refetchAllData,
-  } = useAdminCourseDetails(courseId);
-
-  // Extract data from the combined response
-  const course = adminData?.course;
-  const reviews = adminData?.reviews || [];
-  const chapters = adminData?.chapters || [];
-  const packs = adminData?.packs || [];
+  // PROGRESSIVE LOADING: Separate queries for each section
+  // This allows displaying data as soon as it's available
+  // If course data exists in cache (from course list), it's shown immediately
+  const { data: course, isLoading: isCourseLoading } = useCourse(courseId);
+  const { data: chapters = [], isLoading: isChaptersLoading } = useCourseChapters(courseId);
+  const { data: reviews = [], isLoading: isReviewsLoading } = useCourseReviews(courseId);
+  const { data: packs = [], isLoading: isPacksLoading } = useCoursePacks(courseId);
 
   const [isQuizzesOpen, setIsQuizzesOpen] = useState(false);
-  const [isRefetching, setIsRefetching] = useState(false);
-
-  // Recharger les données quand on revient de QuizManagementPage
-  useEffect(() => {
-    if (!isQuizzesOpen && courseId) {
-      setIsRefetching(true);
-      refetchAllData().finally(() => {
-        setIsRefetching(false);
-      });
-    }
-  }, [isQuizzesOpen, courseId, refetchAllData]);
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [confirmationText, setConfirmationText] = useState("");
-
-  // Loading states are now simplified with single query
-  const isActuallyFetching = isFetching || isRefetching;
 
   const averageRating =
     reviews.length > 0
@@ -167,7 +154,8 @@ export default function AdminCourseDetailsPage() {
     }
   };
 
-  if (isLoading) {
+  // Show full skeleton only on initial load
+  if (isCourseLoading) {
     return <SkeletonCourseDetailsPage />;
   }
 
@@ -211,11 +199,6 @@ export default function AdminCourseDetailsPage() {
         onBack={() => setIsQuizzesOpen(false)}
       />
     );
-  }
-
-  // Afficher le skeleton pendant le rechargement
-  if (isActuallyFetching && !isLoading) {
-    return <SkeletonCourseDetailsPage />;
   }
 
   return (
@@ -299,62 +282,74 @@ export default function AdminCourseDetailsPage() {
           )}
 
           {/* Course Content */}
-          <Card>
-            <CardHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-2 sm:pb-3">
-              <CardTitle className="text-base sm:text-lg">Contenu du Cours</CardTitle>
-            </CardHeader>
-            <CardContent className="px-4 sm:px-6 pb-4 sm:pb-6 space-y-3 sm:space-y-4">
-              {chapters.map((chapter, index) => (
-                <ChapterAccordion
-                  key={chapter.id}
-                  chapter={chapter}
-                  index={index}
-                />
-              ))}
-            </CardContent>
-          </Card>
+          {isChaptersLoading ? (
+            <ChaptersSkeleton />
+          ) : (
+            <Card>
+              <CardHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-2 sm:pb-3">
+                <CardTitle className="text-base sm:text-lg">Contenu du Cours</CardTitle>
+              </CardHeader>
+              <CardContent className="px-4 sm:px-6 pb-4 sm:pb-6 space-y-3 sm:space-y-4">
+                {chapters.map((chapter, index) => (
+                  <ChapterAccordion
+                    key={chapter.id}
+                    chapter={chapter}
+                    index={index}
+                  />
+                ))}
+              </CardContent>
+            </Card>
+          )}
 
           {/* Packs de Réduction */}
-          <PackDisplay packs={packs} coursePrice={course.price || 0} />
+          {isPacksLoading ? (
+            <PacksSkeleton />
+          ) : (
+            <PackDisplay packs={packs} coursePrice={course.price || 0} />
+          )}
 
           {/* Reviews */}
-          <Card>
-            <CardHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-2 sm:pb-3">
-              <CardTitle className="text-base sm:text-lg">Avis des Étudiants</CardTitle>
-            </CardHeader>
-            <CardContent className="px-4 sm:px-6 pb-4 sm:pb-6">
-              {reviews.length === 0 ? (
-                <p className="text-sm sm:text-base text-gray-500 text-center py-4">
-                  Aucun avis pour le moment
-                </p>
-              ) : (
-                <div className="space-y-4 sm:space-y-6">
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mb-4 sm:mb-6">
-                    <StarRating rating={averageRating} size="lg" />
-                    <span className="text-base sm:text-lg font-medium text-gray-700">
-                      {averageRating.toFixed(1)} ({reviews.length} avis)
-                    </span>
-                  </div>
-                  <div className="space-y-3 sm:space-y-4">
-                    {reviews.map((review) => (
-                      <div
-                        key={review.id}
-                        className="border-b border-gray-100 pb-3 sm:pb-4"
-                      >
-                        <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-2">
-                          <StarRating rating={review.rating} size="sm" />
-                          <span className="text-xs sm:text-sm text-gray-500">
-                            {new Date(review.createdAt).toLocaleDateString()}
-                          </span>
+          {isReviewsLoading ? (
+            <ReviewsSkeleton />
+          ) : (
+            <Card>
+              <CardHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-2 sm:pb-3">
+                <CardTitle className="text-base sm:text-lg">Avis des Étudiants</CardTitle>
+              </CardHeader>
+              <CardContent className="px-4 sm:px-6 pb-4 sm:pb-6">
+                {reviews.length === 0 ? (
+                  <p className="text-sm sm:text-base text-gray-500 text-center py-4">
+                    Aucun avis pour le moment
+                  </p>
+                ) : (
+                  <div className="space-y-4 sm:space-y-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mb-4 sm:mb-6">
+                      <StarRating rating={averageRating} size="lg" />
+                      <span className="text-base sm:text-lg font-medium text-gray-700">
+                        {averageRating.toFixed(1)} ({reviews.length} avis)
+                      </span>
+                    </div>
+                    <div className="space-y-3 sm:space-y-4">
+                      {reviews.map((review) => (
+                        <div
+                          key={review.id}
+                          className="border-b border-gray-100 pb-3 sm:pb-4"
+                        >
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-2">
+                            <StarRating rating={review.rating} size="sm" />
+                            <span className="text-xs sm:text-sm text-gray-500">
+                              {new Date(review.createdAt).toLocaleDateString()}
+                            </span>
+                          </div>
+                          <p className="text-sm sm:text-base text-gray-700 leading-relaxed">{review.comment}</p>
                         </div>
-                        <p className="text-sm sm:text-base text-gray-700 leading-relaxed">{review.comment}</p>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                )}
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         {/* Sidebar */}
@@ -425,7 +420,7 @@ export default function AdminCourseDetailsPage() {
               className="w-full"
               >
               <Button className="w-full text-sm sm:text-base" variant="outline">
-                Gérer les Chapitres
+                Gérer les phases
               </Button>
               </Link>
               <Link
