@@ -16,7 +16,6 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import LoadingSpinner from "@/components/LoadingSpinner";
 import { Eye, EyeOff, AlertCircle } from "lucide-react";
 import { toast } from "@/components/ui/sonner";
 
@@ -201,30 +200,30 @@ export default function LoginPage() {
                 </Button>
               </div>
 
+              <div className="space-y-4">
+                <Button type="submit" className="w-full h-11" disabled={isLoading}>
+                  {isLoading ? (
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      {t("login2.loading")}
+                    </div>
+                  ) : (
+                    t("login2.login_button")
+                  )}
+                </Button>
 
-
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? (
-                  <div className="flex items-center gap-2">
-                    <LoadingSpinner />
-                    {t("login2.loading")}
-                  </div>
-                ) : (
-                  t("login2.login_button")
-                )}
-              </Button>
-
-              <div className="text-center pt-2">
-                <p className="text-sm text-muted-foreground">
-                  {t("login2.no_account")}{" "}
-                  <button
-                    type="button"
-                    onClick={() => navigate("/signup")}
-                    className="text-primary hover:underline font-medium bg-transparent border-none cursor-pointer"
-                  >
-                    {t("login2.sign_up")}
-                  </button>
-                </p>
+                <div className="text-center">
+                  <p className="text-sm text-muted-foreground">
+                    {t("login2.no_account")}{" "}
+                    <button
+                      type="button"
+                      onClick={() => navigate("/signup")}
+                      className="text-primary hover:underline font-medium bg-transparent border-none cursor-pointer"
+                    >
+                      {t("login2.sign_up")}
+                    </button>
+                  </p>
+                </div>
               </div>
             </form>
           </CardContent>
