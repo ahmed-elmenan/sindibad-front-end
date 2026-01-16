@@ -1,11 +1,25 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useState } from "react";
 
 const ModernNavBar = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const handleNavClick = (sectionId: string) => {
+    if (location.pathname !== "/") {
+      // Si on n'est pas sur la page d'accueil, naviguer avec le hash
+      navigate(`/#${sectionId}`);
+    } else {
+      // Si on est déjà sur la page d'accueil, juste scroller
+      const element = document.getElementById(sectionId);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  };
 
   return (
     <div>
@@ -36,24 +50,24 @@ const ModernNavBar = () => {
               >
                 BlackHole
               </a>
-              <a
-                href="#features"
+              <button
+                onClick={() => handleNavClick("features")}
                 className="nav-link text-muted-foreground hover:text-foreground transition-colors"
               >
                 Features
-              </a>
-              <a
-                href="#courses"
+              </button>
+              <button
+                onClick={() => handleNavClick("courses")}
                 className="nav-link text-muted-foreground hover:text-foreground transition-colors"
               >
                 Courses
-              </a>
-              <a
-                href="#about"
+              </button>
+              <button
+                onClick={() => handleNavClick("contact")}
                 className="nav-link text-muted-foreground hover:text-foreground transition-colors"
               >
-                About
-              </a>
+                Contact
+              </button>
               <Button
                 className="bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-primary-foreground border-0 rounded-xl px-6 shadow-lg hover:shadow-xl transition-all duration-200"
                 onClick={() => navigate("/signin")}
@@ -109,27 +123,33 @@ const ModernNavBar = () => {
                 >
                   BlackHole
                 </a>
-                <a
-                  href="#features"
-                  className="block text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all duration-300 py-2 px-3 rounded-lg hover:translate-x-2"
-                  onClick={() => setIsMobileMenuOpen(false)}
+                <button
+                  onClick={() => {
+                    handleNavClick("features");
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="block w-full text-left text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all duration-300 py-2 px-3 rounded-lg hover:translate-x-2"
                 >
                   Features
-                </a>
-                <a
-                  href="#courses"
-                  className="block text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all duration-300 py-2 px-3 rounded-lg hover:translate-x-2"
-                  onClick={() => setIsMobileMenuOpen(false)}
+                </button>
+                <button
+                  onClick={() => {
+                    handleNavClick("courses");
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="block w-full text-left text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all duration-300 py-2 px-3 rounded-lg hover:translate-x-2"
                 >
                   Courses
-                </a>
-                <a
-                  href="#about"
-                  className="block text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all duration-300 py-2 px-3 rounded-lg hover:translate-x-2"
-                  onClick={() => setIsMobileMenuOpen(false)}
+                </button>
+                <button
+                  onClick={() => {
+                    handleNavClick("contact");
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="block w-full text-left text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all duration-300 py-2 px-3 rounded-lg hover:translate-x-2"
                 >
-                  About
-                </a>
+                  Contact
+                </button>
                 <Button
                   className="w-full bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-primary-foreground border-0 rounded-xl px-6 py-3 shadow-lg hover:shadow-xl transition-all duration-200"
                   onClick={() => {

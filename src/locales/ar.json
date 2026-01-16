@@ -44,7 +44,18 @@
     "email_invalid": "تنسيق البريد الإلكتروني غير صحيح",
     "message_required": "الرسالة مطلوبة",
     "message_sent": "تم إرسال الرسالة بنجاح",
-    "send_error": "خطأ في الإرسال"
+    "send_error": "خطأ في الإرسال",
+    "get_in_touch": "تواصل معنا",
+    "section_description": "هل لديك أسئلة؟ نحب أن نسمع منك. أرسل لنا رسالة وسنرد في أقرب وقت ممكن.",
+    "contact_information": "معلومات الاتصال",
+    "info_description": "لا تتردد في التواصل معنا عبر أي من القنوات التالية. نحن هنا لمساعدتك!",
+    "address_title": "العنوان",
+    "phone_title": "الهاتف",
+    "email_title": "البريد الإلكتروني",
+    "hours_title": "ساعات العمل",
+    "follow_us": "تابعنا",
+    "sending": "جاري الإرسال...",
+    "send_message": "إرسال الرسالة"
   },
   "login2": {
     "title": "تسجيل الدخول",

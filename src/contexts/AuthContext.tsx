@@ -18,32 +18,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        setIsLoading(true);
-        const token = getToken();
-        if (token) {
-          const userData = await learnerService.getLearnerProfile();
-          const normalizedUser: User = {
-            id: userData.id,
-            name: `${userData.firstName} ${userData.lastName}`,
-            email: userData.email,
-            avatar: userData.avatar
-          };
-          setUser(normalizedUser);
-          setIsAuthenticated(true);
-        }
-      } catch (error) {
-        console.error('Error fetching user data:', error);
-        removeToken();
-        setUser(null);
-        setIsAuthenticated(false);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchUserData();
+    // Vérifier seulement si un token existe, sans appeler l'API
+    const token = getToken();
+    if (token) {
+      setIsAuthenticated(true);
+    }
   }, []);
 
   const logout = async () => {

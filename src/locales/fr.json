@@ -44,7 +44,18 @@
     "email_invalid": "Format d'email invalide",
     "message_required": "Le message est requis",
     "message_sent": "Message envoyé avec succès",
-    "send_error": "Erreur d'envoi"
+    "send_error": "Erreur d'envoi",
+    "get_in_touch": "Entrez en Contact",
+    "section_description": "Vous avez des questions ? Nous serions ravis de vous entendre. Envoyez-nous un message et nous vous répondrons dans les plus brefs délais.",
+    "contact_information": "Informations de Contact",
+    "info_description": "N'hésitez pas à nous contacter via l'un des canaux suivants. Nous sommes là pour vous aider !",
+    "address_title": "Adresse",
+    "phone_title": "Téléphone",
+    "email_title": "Email",
+    "hours_title": "Horaires",
+    "follow_us": "Suivez-nous",
+    "sending": "Envoi en cours...",
+    "send_message": "Envoyer le Message"
   },
   "login2": {
     "title": "Connexion",

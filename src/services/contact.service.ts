@@ -1,4 +1,3 @@
-// src/services/contactService.ts
 import api from "@/lib/axios"
 
 export async function submitContactForm(formData: {
@@ -9,7 +8,7 @@ export async function submitContactForm(formData: {
   message: string
 }): Promise<boolean> {
   try {
-    const response = await api.post("/contact", {
+    const response = await api.post("/contacts", {
       name: `${formData.firstName} ${formData.lastName}`,
       email: formData.email,
       subject: formData.subject,

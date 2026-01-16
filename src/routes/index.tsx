@@ -9,7 +9,6 @@ import HomeLayout from "@/layouts/HomeLayout";
 // Pages
 import NotFoundPage from "@/pages/NotFoundPage";
 import SignUpPage from "@/pages/auth/SignUp";
-import ContactPage from "@/pages/ContactPage";
 import Homepage from "@/pages/home/HomePage";
 import LoginPage from "@/pages/auth/SignIn";
 import CoursesPage from "@/pages/courses/CoursesPage";
@@ -72,10 +71,6 @@ export const router = createBrowserRouter([
       {
         path: "*",
         element: <NotFoundPage />,
-      },
-      {
-        path: "/contact",
-        element: <ContactPage />,
       },
       {
         path: "home",
