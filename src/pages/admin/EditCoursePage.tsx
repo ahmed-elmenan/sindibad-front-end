@@ -91,9 +91,23 @@ const useUpdateCourse = (courseId: string) => {
   return useMutation({
     mutationFn: (data: CourseFormData | FormData) =>
       updateCourse(courseId, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["course", courseId] });
-      queryClient.invalidateQueries({ queryKey: ["admin-courses"] });
+    onSuccess: (updatedCourse) => {
+      // ✅ Mise à jour immédiate du cache avec les données reçues (200 response)
+      queryClient.setQueryData(["course", courseId], updatedCourse);
+      
+      // ✅ Mise à jour de la liste des cours admin
+      queryClient.setQueryData(["admin-courses"], (oldData: any) => {
+        if (!oldData) return oldData;
+        return oldData.map((course: any) => 
+          course.id === courseId ? updatedCourse : course
+        );
+      });
+      
+      // Invalider les autres caches liés (chapitres, reviews, packs)
+      queryClient.invalidateQueries({ queryKey: ["course-chapters", courseId] });
+      queryClient.invalidateQueries({ queryKey: ["course-reviews", courseId] });
+      queryClient.invalidateQueries({ queryKey: ["course-packs", courseId] });
+      
       toast.success("Cours mis à jour avec succès", {
         description: "Les modifications ont été enregistrées",
         duration: 4000,
