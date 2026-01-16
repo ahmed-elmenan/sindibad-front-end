@@ -17,8 +17,6 @@ export default function HomePage() {
   const [isLoading, setIsLoading] = useState(() => {
     // Vérifier si c'est la première visite de la session
     const hasVisitedHome = sessionStorage.getItem("hasVisitedHome");
-    console.log("hasVisitedHome:", hasVisitedHome);
-    console.log("isLoading sera:", !hasVisitedHome);
     return hasVisitedHome === null; // Afficher le loading seulement si c'est null (jamais visité)
   });
   const navigate = useNavigate();
@@ -30,16 +28,12 @@ export default function HomePage() {
 
     // Si c'est la première visite, afficher l'animation puis marquer comme visité
     if (isLoading) {
-      console.log("Animation SindiBad activée - première visite");
       const timer = setTimeout(() => {
-        console.log("Fin de l'animation - marquage comme visité");
         setIsLoading(false);
         sessionStorage.setItem("hasVisitedHome", "true");
       }, 2000);
 
       return () => clearTimeout(timer);
-    } else {
-      console.log("Pas d'animation - déjà visité");
     }
   }, [isLoading]);
 

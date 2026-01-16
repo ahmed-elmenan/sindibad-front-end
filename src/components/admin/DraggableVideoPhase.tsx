@@ -61,7 +61,6 @@ const DraggableVideoPhase: React.FC<DraggableVideoPhaseProps> = ({
   // Generate thumbnail when video is loaded
   useEffect(() => {
     const generateThumbnail = async () => {
-      
       // Priorité 1: Utiliser la miniature depuis S3 (déjà générée par le backend)
       if (video.thumbnailUrl) {
         setThumbnail(video.thumbnailUrl);
@@ -95,9 +94,6 @@ const DraggableVideoPhase: React.FC<DraggableVideoPhaseProps> = ({
       }
       // Priorité 3: Pour les vidéos existantes sans miniature - Afficher icône
       else if (video.videoUrl) {
-        console.log(
-          `📹 Vidéo existante sans miniature: ${video.title}, affichage icône`
-        );
         setThumbnail(""); // Will show video icon placeholder
       } else {
         console.warn(`⚠️ Aucune source vidéo disponible pour: ${video.title}`);
@@ -120,12 +116,12 @@ const DraggableVideoPhase: React.FC<DraggableVideoPhaseProps> = ({
         isDragging: monitor.isDragging(),
       }),
     }),
-    [video, chapterId, phaseId]
+    [video, chapterId, phaseId],
   );
 
   const handlePreview = async () => {
     setDropdownOpen(false);
-    
+
     try {
       if (video.file) {
         // Pour les nouveaux fichiers (pas encore uploadés), créer URL temporaire
@@ -134,9 +130,10 @@ const DraggableVideoPhase: React.FC<DraggableVideoPhaseProps> = ({
         setShowPreview(true);
       } else if (video.videoUrl) {
         // Pour les vidéos déjà uploadées sur S3, récupérer l'URL présignée depuis le backend
-        console.log("🎬 Fetching presigned URL for admin preview:", video.videoUrl);
-        const presignedUrl = await getPresignedUrlForVideo({ videoUrl: video.videoUrl });
-        
+        const presignedUrl = await getPresignedUrlForVideo({
+          videoUrl: video.videoUrl,
+        });
+
         if (!presignedUrl) {
           console.error("❌ Presigned URL is null or empty");
           toast.error({
@@ -145,12 +142,12 @@ const DraggableVideoPhase: React.FC<DraggableVideoPhaseProps> = ({
           });
           return;
         }
-        
-        console.log("✅ Presigned URL received for admin preview");
         setVideoUrl(presignedUrl);
         setShowPreview(true);
       } else {
-        console.error("Aucune source vidéo disponible pour la prévisualisation");
+        console.error(
+          "Aucune source vidéo disponible pour la prévisualisation",
+        );
         toast.error({
           title: "Erreur",
           description: "Aucune source vidéo disponible",
@@ -185,7 +182,7 @@ const DraggableVideoPhase: React.FC<DraggableVideoPhaseProps> = ({
 
   const handleDelete = () => {
     setDropdownOpen(false);
-    
+
     // Si la vidéo est déjà uploadée (a un originalLessonId), afficher modal de confirmation
     if (video.originalLessonId) {
       setShowDeleteModal(true);
@@ -197,7 +194,7 @@ const DraggableVideoPhase: React.FC<DraggableVideoPhaseProps> = ({
 
   const handleConfirmDelete = async () => {
     if (!video.originalLessonId) return;
-    
+
     setIsDeleting(true);
     try {
       // Appel API pour supprimer la leçon (qui supprimera aussi la vidéo et thumbnail dans S3)
@@ -206,17 +203,19 @@ const DraggableVideoPhase: React.FC<DraggableVideoPhaseProps> = ({
       // Fermer le modal et appeler le callback de suppression
       setShowDeleteModal(false);
       onDelete(video.id!);
-      
+
       toast.success({
         title: "Vidéo supprimée",
         description: `La vidéo "${video.title}" a été supprimée avec succès`,
       });
-      
     } catch (error) {
-      console.error('❌ Erreur suppression:', error);
+      console.error("❌ Erreur suppression:", error);
       toast.error({
         title: "Erreur de suppression",
-        description: error instanceof Error ? error.message : "Impossible de supprimer la vidéo",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Impossible de supprimer la vidéo",
       });
     } finally {
       setIsDeleting(false);
@@ -251,8 +250,8 @@ const DraggableVideoPhase: React.FC<DraggableVideoPhaseProps> = ({
             video.isNew
               ? "bg-gradient-to-r from-orange-50/80 via-yellow-50/50 to-white border-2 border-orange-300/50"
               : video.isMoved
-              ? "bg-gradient-to-r from-orange-50/50 to-white border-2 border-orange-200/40"
-              : "bg-white border-2 border-gray-200/60"
+                ? "bg-gradient-to-r from-orange-50/50 to-white border-2 border-orange-200/40"
+                : "bg-white border-2 border-gray-200/60"
           }
           ${!isDragging ? "hover:border-primary/30" : ""}
           rounded-xl overflow-hidden
@@ -444,7 +443,7 @@ const DraggableVideoPhase: React.FC<DraggableVideoPhaseProps> = ({
             videoUrl={videoUrl}
             videoTitle={video.title}
           />,
-          document.body
+          document.body,
         )}
 
       {/* Video Edit Modal */}
@@ -456,7 +455,7 @@ const DraggableVideoPhase: React.FC<DraggableVideoPhaseProps> = ({
             video={video}
             onSave={handleSaveEdit}
           />,
-          document.body
+          document.body,
         )}
 
       {/* Skills Modal */}
@@ -469,7 +468,7 @@ const DraggableVideoPhase: React.FC<DraggableVideoPhaseProps> = ({
             existingSkills={existingSkills}
             onSave={handleSaveSkills}
           />,
-          document.body
+          document.body,
         )}
 
       {/* Delete Confirmation Modal */}
@@ -496,7 +495,9 @@ const DraggableVideoPhase: React.FC<DraggableVideoPhaseProps> = ({
                       Êtes-vous sûr de vouloir supprimer cette vidéo ?
                     </p>
                     <div className="bg-gray-50 rounded-lg p-3 space-y-1">
-                      <p className="text-sm font-semibold text-gray-900">{video.title}</p>
+                      <p className="text-sm font-semibold text-gray-900">
+                        {video.title}
+                      </p>
                       {video.duration && (
                         <p className="text-xs text-gray-600">
                           Durée: {formatDurationSimple(video.duration)}
@@ -515,7 +516,9 @@ const DraggableVideoPhase: React.FC<DraggableVideoPhaseProps> = ({
                   <p className="text-sm text-red-800 font-medium flex items-start gap-2">
                     <span className="text-lg">⚠️</span>
                     <span>
-                      Cette action est irréversible. La vidéo, la miniature et toutes les données associées seront définitivement supprimées de S3 et de la base de données.
+                      Cette action est irréversible. La vidéo, la miniature et
+                      toutes les données associées seront définitivement
+                      supprimées de S3 et de la base de données.
                     </span>
                   </p>
                 </div>
@@ -551,7 +554,7 @@ const DraggableVideoPhase: React.FC<DraggableVideoPhaseProps> = ({
               </div>
             </div>
           </div>,
-          document.body
+          document.body,
         )}
     </>
   );

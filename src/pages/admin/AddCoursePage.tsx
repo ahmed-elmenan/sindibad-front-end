@@ -93,30 +93,36 @@ const useAddCourse = () => {
       // 3. Créer un cours temporaire avec un ID unique temporaire
       const optimisticCourse = {
         id: `temp-${Date.now()}`,
-        title: newCourseData instanceof FormData 
-          ? (newCourseData.get('title') as string) || 'Nouveau cours'
-          : newCourseData.title || 'Nouveau cours',
-        description: newCourseData instanceof FormData 
-          ? (newCourseData.get('description') as string) || ''
-          : newCourseData.description || '',
-        price: newCourseData instanceof FormData 
-          ? parseFloat((newCourseData.get('price') as string) || '0')
-          : parseFloat(newCourseData.price || '0'),
-        category: newCourseData instanceof FormData 
-          ? (newCourseData.get('category') as string) || 'Autre'
-          : newCourseData.category || 'Autre',
-        level: newCourseData instanceof FormData 
-          ? (newCourseData.get('level') as string) || 'BEGINNER'
-          : newCourseData.level || 'BEGINNER',
-        imgUrl: '', // Pas encore disponible
+        title:
+          newCourseData instanceof FormData
+            ? (newCourseData.get("title") as string) || "Nouveau cours"
+            : newCourseData.title || "Nouveau cours",
+        description:
+          newCourseData instanceof FormData
+            ? (newCourseData.get("description") as string) || ""
+            : newCourseData.description || "",
+        price:
+          newCourseData instanceof FormData
+            ? parseFloat((newCourseData.get("price") as string) || "0")
+            : parseFloat(newCourseData.price || "0"),
+        category:
+          newCourseData instanceof FormData
+            ? (newCourseData.get("category") as string) || "Autre"
+            : newCourseData.category || "Autre",
+        level:
+          newCourseData instanceof FormData
+            ? (newCourseData.get("level") as string) || "BEGINNER"
+            : newCourseData.level || "BEGINNER",
+        imgUrl: "", // Pas encore disponible
         avgRating: 0,
         numberOfReviews: 0,
         participants: 0,
         duration: (() => {
-          const d = newCourseData instanceof FormData
-            ? (newCourseData.get('duration') as string | null)
-            : (newCourseData as any).duration;
-          return parseInt(String(d ?? '0'));
+          const d =
+            newCourseData instanceof FormData
+              ? (newCourseData.get("duration") as string | null)
+              : (newCourseData as any).duration;
+          return parseInt(String(d ?? "0"));
         })(),
         isOptimistic: true, // Flag pour identifier les cours optimistes
       };
@@ -135,11 +141,11 @@ const useAddCourse = () => {
       // Remplacer le cours optimiste par le cours réel du serveur
       queryClient.setQueryData(["admin-courses"], (oldData: any) => {
         if (!oldData) return [newCourse];
-        
+
         // Supprimer le cours temporaire et ajouter le vrai
         return [
           newCourse,
-          ...oldData.filter((c: any) => c.id !== context?.optimisticCourse.id)
+          ...oldData.filter((c: any) => c.id !== context?.optimisticCourse.id),
         ];
       });
 
@@ -165,7 +171,7 @@ const useAddCourse = () => {
       // Afficher l'erreur à l'utilisateur
       const errorMessage =
         error?.response?.data?.message || "Échec de la création du cours";
-      
+
       toast.error("Erreur lors de la création", {
         description: errorMessage,
         duration: 5000,
@@ -256,7 +262,7 @@ const ImageUploader = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [dragActive, setDragActive] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(
-    currentImage || null
+    currentImage || null,
   );
 
   const handleFileSelect = useCallback(
@@ -292,7 +298,7 @@ const ImageUploader = ({
         onImageSelect(null);
       }
     },
-    [onImageSelect]
+    [onImageSelect],
   );
 
   const handleDrag = useCallback((e: React.DragEvent) => {
@@ -315,7 +321,7 @@ const ImageUploader = ({
         handleFileSelect(e.dataTransfer.files[0]);
       }
     },
-    [handleFileSelect]
+    [handleFileSelect],
   );
 
   const handleInputChange = useCallback(
@@ -324,7 +330,7 @@ const ImageUploader = ({
         handleFileSelect(e.target.files[0]);
       }
     },
-    [handleFileSelect]
+    [handleFileSelect],
   );
 
   const removeImage = useCallback(() => {
@@ -478,7 +484,7 @@ export default function AddCoursePage() {
         setValue("imgPreview", "", { shouldValidate: true });
       }
     },
-    [setValue]
+    [setValue],
   );
 
   // Gestionnaire pour la sélection de catégorie
@@ -493,7 +499,7 @@ export default function AddCoursePage() {
         setValue("category", value, { shouldValidate: true });
       }
     },
-    [setValue]
+    [setValue],
   );
 
   // Gestionnaire pour la catégorie personnalisée
@@ -502,7 +508,7 @@ export default function AddCoursePage() {
       setCustomCategory(value);
       setValue("category", value, { shouldValidate: true });
     },
-    [setValue]
+    [setValue],
   );
 
   // Gestionnaire de soumission optimisé
@@ -525,7 +531,7 @@ export default function AddCoursePage() {
           setImageError(
             errors.includes("L'image du cours est obligatoire")
               ? "L'image du cours est obligatoire"
-              : ""
+              : "",
           );
           return false;
         }
@@ -555,19 +561,11 @@ export default function AddCoursePage() {
 
         // Ajouter les fonctionnalités si présentes
         if (data.features && data.features.length > 0) {
-          const filteredFeatures = data.features.filter(f => f.trim() !== "");
-          console.log("🔍 Features before filtering:", data.features);
-          console.log("🔍 Features after filtering:", filteredFeatures);
+          const filteredFeatures = data.features.filter((f) => f.trim() !== "");
           if (filteredFeatures.length > 0) {
             formData.append("features", JSON.stringify(filteredFeatures));
-            console.log("✅ Features added to FormData:", JSON.stringify(filteredFeatures));
-          } else {
-            console.log("⚠️ No features to add (all empty)");
           }
-        } else {
-          console.log("⚠️ No features provided");
         }
-
         // Afficher le contenu du FormData pour le débogage
         const formDataObject: Record<string, any> = {};
         for (const [key, value] of formData.entries()) {
@@ -576,14 +574,13 @@ export default function AddCoursePage() {
               ? `${value.name} (${value.size} bytes)`
               : value;
         }
-        console.log("📦 FormData content:", formDataObject);
         await createCourseMutation.mutateAsync(formData as any);
       } catch (error) {
         console.error("Error in onSubmit:", error);
         // L'erreur est déjà gérée dans le hook useAddCourse
       }
     },
-    [createCourseMutation, selectedImageFile]
+    [createCourseMutation, selectedImageFile],
   );
 
   // Gestionnaire pour annuler avec confirmation si le formulaire a été modifié
@@ -591,7 +588,7 @@ export default function AddCoursePage() {
     if (isDirty) {
       if (
         window.confirm(
-          "Vous avez des modifications non sauvegardées. Êtes-vous sûr de vouloir quitter ?"
+          "Vous avez des modifications non sauvegardées. Êtes-vous sûr de vouloir quitter ?",
         )
       ) {
         navigate("/admin/courses");
@@ -876,7 +873,7 @@ export default function AddCoursePage() {
                                   </div>
                                 </div>
                               </SelectItem>
-                            )
+                            ),
                           )}
                         </SelectContent>
                       </Select>
@@ -952,13 +949,13 @@ export default function AddCoursePage() {
                           minLearners:
                             currentPacks.length > 0
                               ? Math.max(
-                                  ...currentPacks.map((p) => p.maxLearners)
+                                  ...currentPacks.map((p) => p.maxLearners),
                                 ) + 1
                               : 5,
                           maxLearners:
                             currentPacks.length > 0
                               ? Math.max(
-                                  ...currentPacks.map((p) => p.maxLearners)
+                                  ...currentPacks.map((p) => p.maxLearners),
                                 ) + 10
                               : 10,
                           discountPercentage: 0,
@@ -1002,9 +999,9 @@ export default function AddCoursePage() {
                                   setValue(
                                     "packs",
                                     currentPacks.filter(
-                                      (p) => p.id !== pack.id
+                                      (p) => p.id !== pack.id,
                                     ),
-                                    { shouldValidate: true }
+                                    { shouldValidate: true },
                                   );
                                 }}
                                 className="h-8 w-8 p-0 hover:bg-red-100 hover:text-red-600"
@@ -1029,7 +1026,7 @@ export default function AddCoursePage() {
                                       ...(watchedValues.packs || []),
                                     ];
                                     const packIndex = currentPacks.findIndex(
-                                      (p) => p.id === pack.id
+                                      (p) => p.id === pack.id,
                                     );
                                     if (packIndex !== -1) {
                                       currentPacks[packIndex].minLearners =
@@ -1059,7 +1056,7 @@ export default function AddCoursePage() {
                                       ...(watchedValues.packs || []),
                                     ];
                                     const packIndex = currentPacks.findIndex(
-                                      (p) => p.id === pack.id
+                                      (p) => p.id === pack.id,
                                     );
                                     if (packIndex !== -1) {
                                       currentPacks[packIndex].maxLearners =
@@ -1091,7 +1088,7 @@ export default function AddCoursePage() {
                                         ...(watchedValues.packs || []),
                                       ];
                                       const packIndex = currentPacks.findIndex(
-                                        (p) => p.id === pack.id
+                                        (p) => p.id === pack.id,
                                       );
                                       if (packIndex !== -1) {
                                         currentPacks[
@@ -1189,7 +1186,8 @@ export default function AddCoursePage() {
                   </div>
 
                   {/* Liste des fonctionnalités */}
-                  {watchedValues.features && watchedValues.features.length > 0 ? (
+                  {watchedValues.features &&
+                  watchedValues.features.length > 0 ? (
                     <div className="space-y-3">
                       {watchedValues.features.map((feature, index) => (
                         <div
@@ -1222,7 +1220,7 @@ export default function AddCoursePage() {
                               setValue(
                                 "features",
                                 currentFeatures.filter((_, i) => i !== index),
-                                { shouldValidate: true }
+                                { shouldValidate: true },
                               );
                             }}
                             className="h-8 w-8 p-0 hover:bg-red-100 hover:text-red-600 flex-shrink-0"
@@ -1239,7 +1237,8 @@ export default function AddCoursePage() {
                         Aucune fonctionnalité ajoutée
                       </p>
                       <p className="text-xs text-gray-500">
-                        Cliquez sur "Ajouter une fonctionnalité" pour définir les avantages du cours
+                        Cliquez sur "Ajouter une fonctionnalité" pour définir
+                        les avantages du cours
                       </p>
                     </div>
                   )}
@@ -1388,29 +1387,30 @@ export default function AddCoursePage() {
                   )}
 
                   {/* Features Preview */}
-                  {watchedValues.features && watchedValues.features.length > 0 && (
-                    <div className="mt-4 pt-4 border-t border-orange-200">
-                      <div className="flex items-center gap-2 mb-3">
-                        <CheckCircle2 className="h-4 w-4 text-blue-600" />
-                        <span className="text-sm font-semibold text-blue-700">
-                          Fonctionnalités
-                        </span>
+                  {watchedValues.features &&
+                    watchedValues.features.length > 0 && (
+                      <div className="mt-4 pt-4 border-t border-orange-200">
+                        <div className="flex items-center gap-2 mb-3">
+                          <CheckCircle2 className="h-4 w-4 text-blue-600" />
+                          <span className="text-sm font-semibold text-blue-700">
+                            Fonctionnalités
+                          </span>
+                        </div>
+                        <ul className="space-y-2">
+                          {watchedValues.features
+                            .filter((f) => f.trim() !== "")
+                            .map((feature, index) => (
+                              <li
+                                key={index}
+                                className="flex items-start gap-2 text-xs text-gray-700"
+                              >
+                                <CheckCircle2 className="h-3 w-3 text-blue-500 mt-0.5 flex-shrink-0" />
+                                <span>{feature}</span>
+                              </li>
+                            ))}
+                        </ul>
                       </div>
-                      <ul className="space-y-2">
-                        {watchedValues.features
-                          .filter((f) => f.trim() !== "")
-                          .map((feature, index) => (
-                            <li
-                              key={index}
-                              className="flex items-start gap-2 text-xs text-gray-700"
-                            >
-                              <CheckCircle2 className="h-3 w-3 text-blue-500 mt-0.5 flex-shrink-0" />
-                              <span>{feature}</span>
-                            </li>
-                          ))}
-                      </ul>
-                    </div>
-                  )}
+                    )}
                 </div>
               </CardContent>
             </Card>

@@ -101,8 +101,6 @@ export const getPresignedUrlForVideo = async (video: { videoUrl: string }) => {
   );
 
   const data = response.data;
-
-  console.log("Received presigned URL:", data.presignedUrl);
   return data.presignedUrl;
 };
 
@@ -131,7 +129,6 @@ export const deleteVideo = async (videoId: string): Promise<void> => {
     throw new Error("Invalid video ID provided");
   }
   try {
-    console.log(`Deleting video with ID: ${videoId}`);
     await api.delete(`/lessons/${videoId}`);
   } catch (error) {
     console.error("Failed to delete video:", error);
@@ -333,9 +330,7 @@ export const uploadVideos = async (
     // Add metadata as FormData field instead of URL parameter
     formData.append("metadata", JSON.stringify(metadataPayload));
     formData.append("courseId", courseId);
-
-    console.log("Uploading videos with metadata:", metadataPayload);
-
+    
     // Send to backend endpoint
     const response = await api.post(
       `/admin/courses/${courseId}/upload-videos`,

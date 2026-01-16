@@ -58,6 +58,7 @@ export function getPopularCourses(): Promise<Course[]> {
 export const getCourseById = async (id: string): Promise<Course | null> => {
   try {
     const res = await api.get(`/courses/${id}`);
+    console.log("Course details:", res.data);
     return res.data;
   } catch (error) {
     console.error("Error fetching course:", error);
@@ -273,8 +274,6 @@ export const createCourse = async (
               "Content-Type": "application/json",
             },
           };
-
-    console.log(courseData);
 
     const res = await api.post("/courses", courseData, config);
     return res.data;

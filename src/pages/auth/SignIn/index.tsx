@@ -75,8 +75,6 @@ export default function LoginPage() {
 
         toast.success(t("login2.login_success"));
 
-        console.log("User role:", userData.role);
-
         if (userData.role === "ORGANISATION") {
           setTimeout(() => {
             navigate("/organisation/dashboard");

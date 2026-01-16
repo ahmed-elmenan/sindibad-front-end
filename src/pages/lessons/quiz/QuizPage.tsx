@@ -253,8 +253,6 @@ const VideoQuiz: React.FC<Props> = ({
           ...prev,
           [questionId]: timeSpent,
         }));
-
-        console.log(`Question ${questionId}: temps passé = ${timeSpent}s`);
       }
     },
     [questionStartTimes]
@@ -507,9 +505,7 @@ const VideoQuiz: React.FC<Props> = ({
   const handleDownloadCertificate = useCallback(async () => {
   setDownloadingCertificate(true);
   try {
-    // Ajouter des logs pour déboguer
-    console.log("Téléchargement du certificat pour le cours:", courseId);
-    
+    // Ajouter des logs pour déboguer    
     const blob = await certificateService.downloadCertificate(courseId);
     
     // Créer une URL pour le blob et déclencher le téléchargement
@@ -770,7 +766,6 @@ const VideoQuiz: React.FC<Props> = ({
         }
       }
     } else if (quizType === "FINAL_QUIZ" && quizId) {
-      console.log("Navigating after FINAL_QUIZ");
       return;
     }
     // Trouver le chapitre contenant la leçon courante

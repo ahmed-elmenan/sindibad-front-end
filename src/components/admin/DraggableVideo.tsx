@@ -57,8 +57,6 @@ const DraggableVideo: React.FC<DraggableVideoProps> = ({
     if (video.originalLessonId && !video.file) {
       setIsLoadingVideo(true);
       try {
-        console.log("Fetching presigned URL for video:", video.videoUrl);
-
         if (video.videoUrl) {
           // Call backend to get presigned URL
           const presignedUrl = await getPresignedUrlForVideo({

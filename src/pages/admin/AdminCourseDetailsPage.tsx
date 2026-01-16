@@ -370,7 +370,7 @@ export default function AdminCourseDetailsPage() {
                 <div className="flex items-center gap-2">
                   <Users className="h-3 w-3 sm:h-4 sm:w-4 text-gray-500 flex-shrink-0" />
                   <span className="text-xs sm:text-sm text-gray-700 truncate">
-                    {course.participants}
+                    {course.participants || 0} inscrit{(course.participants || 0) > 1 ? "s" : ""}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">

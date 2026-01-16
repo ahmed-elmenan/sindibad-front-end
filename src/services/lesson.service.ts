@@ -50,7 +50,6 @@ export async function getNextResource(
 export async function deleteLesson(lessonId: string): Promise<void> {
   try {
     await api.delete(`/lessons/${lessonId}`);
-    console.log(`✅ Leçon ${lessonId} supprimée avec succès`);
   } catch (error) {
     console.error(`❌ Erreur lors de la suppression de la leçon ${lessonId}:`, error);
     handleApiError(error);
@@ -63,7 +62,8 @@ function handleApiError(error: unknown): never {
 
   if (axiosError.response?.data && typeof axiosError.response.data === 'object') {
     // Handle structured error response
-    message = axiosError.response.data.error || axiosError.response.data.message || 'Unknown error';
+    const errorData = axiosError.response.data as { error?: string; message?: string };
+    message = errorData.error || errorData.message || 'Unknown error';
   } else if (typeof axiosError.response?.data === 'string') {
     // Handle string error response
     message = axiosError.response.data;
