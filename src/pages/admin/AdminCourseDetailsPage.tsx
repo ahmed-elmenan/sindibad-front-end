@@ -29,7 +29,6 @@ import { BookOpen } from "lucide-react";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -141,45 +140,30 @@ export default function AdminCourseDetailsPage() {
 
     setIsDeleting(true);
 
-    // 1. Sauvegarder l'état précédent pour rollback
-    const previousCourses = queryClient.getQueryData(["admin-courses"]);
-
     try {
-      // 2. Mise à jour optimiste : supprimer immédiatement du cache
+      // 1. Effectuer la suppression côté serveur d'abord
+      await deleteCourse(courseId);
+
+      // 2. Mettre à jour le cache pour retirer le cours supprimé
       queryClient.setQueryData(["admin-courses"], (oldData: any) => {
         if (!oldData) return oldData;
         return oldData.filter((c: any) => c.id !== courseId);
       });
 
-      // 3. Fermer le modal immédiatement
-      setDeleteDialogOpen(false);
-      setConfirmationText("");
+      // 3. Invalider les caches pour synchroniser avec le serveur
+      queryClient.invalidateQueries({ queryKey: ["admin-courses"] });
+      queryClient.invalidateQueries({ queryKey: ["courses"] });
 
-      // 4. Rediriger immédiatement vers la liste des cours
-      navigate("/admin/courses");
-
-      // 5. Afficher le toast de succès
+      // 4. Afficher le toast de succès
       toast.success("Cours supprimé avec succès", {
         description:
           "Le cours et tout son contenu ont été supprimés définitivement.",
       });
 
-      // 6. Effectuer la suppression en arrière-plan
-      await deleteCourse(courseId);
-
-      // 7. Invalider les caches pour synchroniser avec le serveur
-      queryClient.invalidateQueries({ queryKey: ["admin-courses"] });
-      queryClient.invalidateQueries({ queryKey: ["courses"] });
+      // 5. Rediriger vers la liste des cours (cela va unmount le composant et fermer le modal automatiquement)
+      navigate("/admin/courses");
     } catch (error: any) {
       console.error("Error deleting course:", error);
-
-      // ROLLBACK: Restaurer l'état précédent
-      if (previousCourses) {
-        queryClient.setQueryData(["admin-courses"], previousCourses);
-      }
-
-      // Rediriger vers la page du cours
-      navigate(`/admin/courses/${courseId}`);
 
       toast.error("Erreur lors de la suppression", {
         description:
@@ -692,14 +676,15 @@ export default function AdminCourseDetailsPage() {
             >
               Annuler
             </AlertDialogCancel>
-            <AlertDialogAction
+            <Button
               onClick={handleDeleteCourse}
               disabled={isDeleting || confirmationText !== course?.title}
               className="bg-red-600 hover:bg-red-700 focus:ring-red-600 disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto text-sm sm:text-base"
             >
               {isDeleting ? (
                 <>
-                  <span className="truncate">Suppression...</span>
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2 flex-shrink-0" />
+                  <span className="truncate">Suppression en cours...</span>
                 </>
               ) : (
                 <>
@@ -707,7 +692,7 @@ export default function AdminCourseDetailsPage() {
                   <span className="truncate">Supprimer</span>
                 </>
               )}
-            </AlertDialogAction>
+            </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
