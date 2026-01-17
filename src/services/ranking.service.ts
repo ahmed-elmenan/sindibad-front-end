@@ -28,7 +28,7 @@ export async function getLearnersRanking(
     }
 
     const response: AxiosResponse<PaginatedResponse<LearnerRanking>> =
-      await api.get(`/${userRole}/ranking`, { params });
+      await api.get("/learners/ranking", { params });
     return response.data;
   } catch (error) {
     handleApiError(error);

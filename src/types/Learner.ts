@@ -31,7 +31,6 @@ export interface LearnerRanking {
   score: number;
   formationScore?: number;
   ranking: number;
-  formationName?: string;
 }
 
 export interface RawLearner {

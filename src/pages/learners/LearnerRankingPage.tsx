@@ -1,12 +1,16 @@
 import { useState, useEffect, useCallback } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   getLearnersRanking,
   getCoursesForRanking,
 } from "@/services/ranking.service";
+import { deleteLearner } from "@/services/learner.service";
 import { useDebounce } from "@/hooks/useDebounce";
+import { useAuth } from "@/hooks/useAuth";
 import type { RankingFilters } from "@/types/Ranking";
+import type { LearnerRanking } from "@/types/Learner";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import { toast } from "sonner";
 
 // Import des composants extraits
 import {
@@ -17,13 +21,20 @@ import {
   RankingHeader as HeaderComponent,
 } from "@/components/ranking";
 
+// Import des nouveaux composants
+import LearnerFormModal from "@/components/learners/LearnerFormModal";
+import DeleteLearnerDialog from "@/components/learners/DeleteLearnerDialog";
+
 export default function LearnersRankingPage({
-  userRole,
+  userRole: userRoleProp,
 }: {
   userRole?: string;
 }) {
-  // useTranslation n'est plus utilisé ici car les textes sont gérés dans les composants
-  // mais on garde l'import pour une utilisation éventuelle future
+  // Get user role from auth context if not provided as prop
+  const { user } = useAuth();
+  const userRole = userRoleProp || user?.role;
+
+  console.log("LearnerRankingPage - userRole:", userRole, "user:", user);
 
   // États pour les filtres et la pagination
   const [searchTerm, setSearchTerm] = useState("");
@@ -31,6 +42,15 @@ export default function LearnersRankingPage({
   const [formationFilter, setFormationFilter] = useState<string>("ALL");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+
+  // États pour les modals
+  const [isFormModalOpen, setIsFormModalOpen] = useState(false);
+  const [formModalMode, setFormModalMode] = useState<"add" | "view" | "edit">("add");
+  const [selectedLearner, setSelectedLearner] = useState<LearnerRanking | undefined>();
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const queryClient = useQueryClient();
 
   // Debounce de la recherche pour éviter trop de requêtes
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
@@ -82,6 +102,56 @@ export default function LearnersRankingPage({
     setFormationFilter(value);
   }, []);
 
+  // Handlers pour les actions sur les learners
+  const handleAddLearner = () => {
+    setSelectedLearner(undefined);
+    setFormModalMode("add");
+    setIsFormModalOpen(true);
+  };
+
+  const handleViewLearner = (learner: LearnerRanking) => {
+    setSelectedLearner(learner);
+    setFormModalMode("view");
+    setIsFormModalOpen(true);
+  };
+
+  const handleEditLearner = (learner: LearnerRanking) => {
+    setSelectedLearner(learner);
+    setFormModalMode("edit");
+    setIsFormModalOpen(true);
+  };
+
+  const handleDeleteLearner = (learner: LearnerRanking) => {
+    setSelectedLearner(learner);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const confirmDeleteLearner = async () => {
+    if (!selectedLearner) return;
+
+    setIsDeleting(true);
+    try {
+      await deleteLearner(selectedLearner.id);
+      toast.success("Succès", {
+        description: "L'apprenant a été supprimé avec succès",
+      });
+      // Rafraîchir les données
+      queryClient.invalidateQueries({ queryKey: ["learnersRanking"] });
+      setIsDeleteDialogOpen(false);
+    } catch (error: any) {
+      toast.error("Erreur", {
+        description: error.message || "Impossible de supprimer l'apprenant",
+      });
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleFormSuccess = () => {
+    // Rafraîchir les données après ajout/modification
+    queryClient.invalidateQueries({ queryKey: ["learnersRanking"] });
+  };
+
   // Gestion d'erreur
   if (isError) {
     return <ErrorBoundary err={error} />;
@@ -109,11 +179,30 @@ export default function LearnersRankingPage({
           formations={formations}
           isLoadingFormations={isLoadingFormations}
           resetFilters={resetFilters}
+          onAddLearner={handleAddLearner}
+          userRole={userRole}
         />
 
         <NoDataComponent
           hasActiveFilters={hasActiveFilters}
           resetFilters={resetFilters}
+        />
+
+        {/* Modals */}
+        <LearnerFormModal
+          open={isFormModalOpen}
+          onClose={() => setIsFormModalOpen(false)}
+          mode={formModalMode}
+          learner={selectedLearner}
+          onSuccess={handleFormSuccess}
+        />
+
+        <DeleteLearnerDialog
+          open={isDeleteDialogOpen}
+          onClose={() => setIsDeleteDialogOpen(false)}
+          onConfirm={confirmDeleteLearner}
+          learnerName={selectedLearner?.fullName || ""}
+          isDeleting={isDeleting}
         />
       </div>
     );
@@ -139,6 +228,8 @@ export default function LearnersRankingPage({
         totalItems={learnersPage?.totalElements}
         displayedItems={learnersPage?.content.length}
         isLoading={isLoading}
+        onAddLearner={handleAddLearner}
+        userRole={userRole}
       />
 
       <TableComponent
@@ -148,6 +239,9 @@ export default function LearnersRankingPage({
         currentPage={currentPage}
         selectedFormation={selectedFormation}
         userRole={userRole}
+        onViewLearner={handleViewLearner}
+        onEditLearner={handleEditLearner}
+        onDeleteLearner={handleDeleteLearner}
       />
 
       {totalPages > 1 && (
@@ -159,6 +253,23 @@ export default function LearnersRankingPage({
           setItemsPerPage={setItemsPerPage}
         />
       )}
+
+      {/* Modals */}
+      <LearnerFormModal
+        open={isFormModalOpen}
+        onClose={() => setIsFormModalOpen(false)}
+        mode={formModalMode}
+        learner={selectedLearner}
+        onSuccess={handleFormSuccess}
+      />
+
+      <DeleteLearnerDialog
+        open={isDeleteDialogOpen}
+        onClose={() => setIsDeleteDialogOpen(false)}
+        onConfirm={confirmDeleteLearner}
+        learnerName={selectedLearner?.fullName || ""}
+        isDeleting={isDeleting}
+      />
     </div>
   );
 }

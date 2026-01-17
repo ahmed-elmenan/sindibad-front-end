@@ -134,7 +134,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "students",
-        element: <LearnerRankingPage />,
+        element: <LearnerRankingPage userRole="organisation" />,
       },
       {
         path: "management-access-resources",
@@ -173,7 +173,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "students",
-        element: <LearnerRankingPage />,
+        element: <LearnerRankingPage userRole="admin" />,
       },
       {
         path: "management-access-resources",

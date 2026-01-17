@@ -77,9 +77,9 @@ export default function AdminCoursesPage() {
             </div>
             {/* Add New Course Button */}
             <Link to="/admin/courses/new">
-              <Button className="bg-gradient-to-r from-primary via-muted to-secondary text-white hover:shadow-xl hover:scale-105 transition-all duration-300 shadow-lg flex items-center group">
-                <Plus className="w-5 h-5 mr-2 group-hover:rotate-90 transition-transform duration-300" />
-                <span className="font-semibold">Ajouter un cours</span>
+              <Button className="bg-primary hover:bg-primary/90 flex items-center gap-2">
+                <Plus className="h-4 w-4" />
+                <span>Ajouter un cours</span>
               </Button>
             </Link>
           </div>

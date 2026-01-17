@@ -67,3 +67,22 @@ export const getLearnerCourses = async (id: string): Promise<LearnerCourse[]> =>
     throw new Error(error.response?.data?.message || 'Error fetching learner courses');
   }
 };
+
+export const updateLearner = async (id: string, data: Partial<Learner>): Promise<Learner> => {
+  try {
+    const res = await api.put(`/learners/${id}`, data);
+    return res.data;
+  } catch (error: any) {
+    console.error('Error updating learner:', error);
+    throw new Error(error.response?.data?.message || 'Error updating learner');
+  }
+};
+
+export const deleteLearner = async (id: string): Promise<void> => {
+  try {
+    await api.delete(`/learners/${id}`);
+  } catch (error: any) {
+    console.error('Error deleting learner:', error);
+    throw new Error(error.response?.data?.message || 'Error deleting learner');
+  }
+};

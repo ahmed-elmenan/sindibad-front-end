@@ -609,6 +609,10 @@
         "label": "Téléphone",
         "placeholder": "+212 600 000 000"
       },
+      "phoneNumber": {
+        "label": "Téléphone",
+        "placeholder": "+212 600 000 000"
+      },
       "city": {
         "label": "Ville",
         "placeholder": "Votre ville"
@@ -632,12 +636,25 @@
       },
       "gender": {
         "label": "Genre",
+        "placeholder": "Sélectionnez votre genre",
         "options": {
-          "male": "Homme",
-          "female": "Femme"
+          "male": "Garçon",
+          "female": "Fille"
         }
       }
     },
+    "view": "Voir",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "cancel": "Annuler",
+    "close": "Fermer",
+    "add": "Ajouter",
+    "update": "Mettre à jour",
+    "loading": "Chargement...",
+    "deleting": "Suppression...",
+    "success": "Succès",
+    "error": "Erreur",
+    "unexpectedError": "Une erreur inattendue s'est produite",
     "terms": {
       "label": "J'accepte les",
       "link": "conditions générales et la politique de confidentialité",
@@ -708,13 +725,7 @@
       },
       "footer": "En créant un compte, vous reconnaissez avoir lu, compris et accepté d'être lié par ces Conditions Générales d'Utilisation.",
       "lastUpdate": "Dernière mise à jour : Juillet 2025"
-    },
-    "edit": "Modifier",
-    "save": "Enregistrer",
-    "cancel": "Annuler",
-    "delete": "Supprimer",
-    "deleting": "en cours de suppression...",
-    "retry": "Réessayer"
+    }
   },
   "errors": {
     "currentPassword": {
@@ -744,7 +755,7 @@
     "email": "Adresse email invalide",
     "url": "URL invalide",
     "phone": "Numéro de téléphone invalide",
-    "password": "Le mot de passe doit contenir au moins une majuscule, un chiffre et un symbole",
+    "passwordStrength": "Le mot de passe doit contenir au moins une majuscule, un chiffre et un symbole",
     "passwordMismatch": "Les mots de passe ne correspondent pas",
     "organisationIdRequired": "ID organisation requis",
     "organisationTypeRequired": "Type d'organisation requis",
@@ -1053,8 +1064,8 @@
     "filterByGender": "Filtrer par genre",
     "filterByFormation": "Filtrer par une formation...",
     "allGenders": "Tous les genres",
-    "male": "Homme",
-    "female": "Femme",
+    "male": "Garçon",
+    "female": "Fille",
     "rank": "Rang",
     "avatar": "Photo",
     "fullName": "Nom complet",
@@ -1078,7 +1089,21 @@
     "loading": "Chargement des données...",
     "noResultsWithFilters": "Aucun résultat avec les filtres sélectionnés",
     "formationScore": "Score de la formation",
-    "rankingFor": "Classement pour"
+    "rankingFor": "Classement pour",
+    "actions": "Actions"
+  },
+  "learners": {
+    "addLearner": "Ajouter un apprenant",
+    "editLearner": "Modifier l'apprenant",
+    "viewLearner": "Voir l'apprenant",
+    "deleteLearner": "Supprimer l'apprenant",
+    "viewLearnerDescription": "Consultez les informations de l'apprenant",
+    "editLearnerDescription": "Modifiez les informations de l'apprenant",
+    "addSuccess": "Apprenant ajouté avec succès",
+    "updateSuccess": "Apprenant mis à jour avec succès",
+    "deleteConfirmation": "Êtes-vous sûr de vouloir supprimer {{name}} ?",
+    "deleteWarning": "Cette action est irréversible.",
+    "learnerAddedSuccessfully": "L'apprenant a été ajouté avec succès"
   },
   "pagination": {
     "previous": "Précédent",
@@ -1124,9 +1149,9 @@
     "reviewDescription": "Vérifiez les réponses correctes avant de voir votre score final",
     "correct": "Correct",
     "incorrect": "Incorrect",
-    "correctAnswer": "Réponse correcte",
+    "correctAnswerText": "Réponse correcte",
     "yourChoice": "Votre choix",
-    "yourAnswer": "Votre réponse",
+    "yourAnswerText": "Votre réponse",
     "noAnswer": "Pas de réponse",
     "viewResults": "Voir mon score final",
     "points": "pts",
@@ -1135,6 +1160,8 @@
   "quizPoints": "Points",
   "quizIncorrect": "Réponse incorrecte",
   "quizYourChoice": "Votre choix",
+  "quizCorrectAnswer": "Bonne réponse",
+  "quizYourAnswer": "Votre réponse",
   "quizViewResults": "Résultats du quiz",
   "lessonPage": {
     "noVideoFoundTitle": "Aucune vidéo trouvée pour cette leçon",

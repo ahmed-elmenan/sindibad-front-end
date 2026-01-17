@@ -10,9 +10,16 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
 
 // Moved outside component for better performance
-import { Crown, Trophy, Medal, Star } from "lucide-react";
+import { Crown, Trophy, Medal, Star, MoreVertical, Eye, Edit, Trash2 } from "lucide-react";
 import type { CourseRanking, LearnerRanking } from "@/types";
 import { useNavigate } from "react-router-dom";
 
@@ -23,6 +30,9 @@ interface RankingTableProps {
   currentPage: number;
   selectedFormation?: CourseRanking;
   userRole?: string;
+  onViewLearner?: (learner: LearnerRanking) => void;
+  onEditLearner?: (learner: LearnerRanking) => void;
+  onDeleteLearner?: (learner: LearnerRanking) => void;
 }
 
 const getRankingIcon = (ranking: number) => {
@@ -72,9 +82,25 @@ export default function RankingTable({
   currentPage,
   selectedFormation,
   userRole,
+  onViewLearner,
+  onEditLearner,
+  onDeleteLearner,
 }: RankingTableProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
+
+  // Debug: log userRole to check the actual value
+  console.log("RankingTable - userRole:", userRole, "Type:", typeof userRole);
+
+  // Support for different role naming conventions
+  const canManageLearners = 
+    userRole === "admin" || 
+    userRole === "ADMIN" ||
+    userRole === "organisations" || 
+    userRole === "organisation" ||
+    userRole === "ORGANISATION";
+
+  console.log("RankingTable - canManageLearners:", canManageLearners);
 
   const getInitials = (fullName: string) =>
     fullName
@@ -100,6 +126,10 @@ export default function RankingTable({
 
   if (selectedFormation) {
     headers.push(t("learnerRanking.globalScore") ?? "Score global");
+  }
+
+  if (canManageLearners) {
+    headers.push(t("learnerRanking.actions") ?? "Actions");
   }
 
   const colCount = headers.length;
@@ -197,6 +227,15 @@ export default function RankingTable({
                           <div className="h-6 w-12 bg-gray-200 rounded-full animate-pulse mx-auto" />
                         </TableCell>
                       )}
+
+                      {/* Actions column for loading state */}
+                      {canManageLearners && (
+                        <TableCell
+                          className={`text-center border-b border-gray-300 ${colWidthClass}`}
+                        >
+                          <div className="h-8 w-8 bg-gray-200 rounded animate-pulse mx-auto" />
+                        </TableCell>
+                      )}
                     </TableRow>
                   ))
                 : learners.map((learner, idx) => {
@@ -205,7 +244,7 @@ export default function RankingTable({
                     return (
                       <TableRow
                         key={learner.id}
-                        className={`${
+                        className={`hover:bg-gray-50 transition-colors ${
                           userRole === "admin" || userRole === "organisations"
                             ? "cursor-pointer"
                             : ""
@@ -335,6 +374,51 @@ export default function RankingTable({
                                   : undefined
                               )}
                             </Badge>
+                          </TableCell>
+                        )}
+
+                        {/* Actions column */}
+                        {canManageLearners && (
+                          <TableCell
+                            className={`text-center ${
+                              isLastRow ? "" : "border-b border-gray-300"
+                            } ${colWidthClass}`}
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-8 w-8 p-0 border-0 hover:bg-transparent"
+                                >
+                                  <MoreVertical className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem
+                                  onClick={() => onViewLearner?.(learner)}
+                                  className="cursor-pointer hover:bg-gray-100 hover:text-black focus:bg-gray-100 focus:text-black"
+                                >
+                                  <Eye className="mr-2 h-4 w-4" />
+                                  {t("common.view") ?? "Voir"}
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  onClick={() => onEditLearner?.(learner)}
+                                  className="cursor-pointer hover:bg-gray-100 hover:text-black focus:bg-gray-100 focus:text-black"
+                                >
+                                  <Edit className="mr-2 h-4 w-4" />
+                                  {t("common.edit") ?? "Modifier"}
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  onClick={() => onDeleteLearner?.(learner)}
+                                  className="cursor-pointer text-destructive focus:text-destructive hover:bg-gray-100 focus:bg-gray-100"
+                                >
+                                  <Trash2 className="mr-2 h-4 w-4" />
+                                  {t("common.delete") ?? "Supprimer"}
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
                           </TableCell>
                         )}
                       </TableRow>
