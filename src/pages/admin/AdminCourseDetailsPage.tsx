@@ -13,6 +13,9 @@ import {
   Trash2,
   AlertTriangle,
   CheckCircle2,
+  ChevronDown,
+  ChevronRight,
+  Eye,
 } from "lucide-react";
 import {
   useCourse,
@@ -21,7 +24,6 @@ import {
   useCoursePacks,
 } from "@/hooks/useCourseQueries";
 import StarRating from "@/components/course/StarRating";
-import ChapterAccordion from "@/components/course/ChapterAccordion";
 import PackDisplay from "@/components/course/PackDisplay";
 import { BookOpen } from "lucide-react";
 import { usePageTitle } from "@/hooks/usePageTitle";
@@ -37,7 +39,9 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useState } from "react";
 import { deleteCourse } from "@/services/course.service";
+import { getPresignedUrlForVideo } from "@/services/chapter.service";
 import { toast } from "sonner";
+import VideoPreviewModal from "@/components/admin/VideoPreviewModal";
 import { useQueryClient } from "@tanstack/react-query";
 import QuizManagementPage from "./QuizManagementPage";
 import SkeletonCourseDetailsPage from "@/components/course/SkeletonCourseDetailsPage";
@@ -66,6 +70,46 @@ export default function AdminCourseDetailsPage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [confirmationText, setConfirmationText] = useState("");
+  
+  // États pour gérer l'expansion des phases et chapitres
+  const [expandedPhases, setExpandedPhases] = useState<Record<string, boolean>>({});
+  const [expandedChapters, setExpandedChapters] = useState<Record<string, boolean>>({});
+  
+  // États pour le modal vidéo
+  const [showVideoPreview, setShowVideoPreview] = useState(false);
+  const [currentVideoUrl, setCurrentVideoUrl] = useState("");
+  const [currentVideoTitle, setCurrentVideoTitle] = useState("");
+  
+  // Fonctions pour toggle l'expansion
+  const togglePhase = (phaseId: string) => {
+    setExpandedPhases(prev => ({ ...prev, [phaseId]: !prev[phaseId] }));
+  };
+  
+  const toggleChapter = (key: string) => {
+    setExpandedChapters(prev => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  // Fonction pour visualiser une vidéo avec URL autorisée
+  const handleViewVideo = async (lesson: any) => {
+    try {
+      setCurrentVideoTitle(lesson.title);
+      const presignedUrl = await getPresignedUrlForVideo({ videoUrl: lesson.videoUrl });
+      setCurrentVideoUrl(presignedUrl);
+      setShowVideoPreview(true);
+    } catch (error) {
+      console.error('Error getting presigned URL:', error);
+      toast.error("Erreur", {
+        description: "Impossible de récupérer l'URL de la vidéo"
+      });
+    }
+  };
+
+  // Fermer le modal vidéo
+  const handleCloseVideoPreview = () => {
+    setShowVideoPreview(false);
+    setCurrentVideoUrl("");
+    setCurrentVideoTitle("");
+  };
 
   const averageRating =
     reviews.length > 0
@@ -284,19 +328,163 @@ export default function AdminCourseDetailsPage() {
           {/* Course Content */}
           {isChaptersLoading ? (
             <ChaptersSkeleton />
+          ) : chapters.length === 0 ? (
+            <Card>
+              <CardHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-2 sm:pb-3">
+                <CardTitle className="text-base sm:text-lg">Contenu du Cours</CardTitle>
+              </CardHeader>
+              <CardContent className="px-4 sm:px-6 pb-4 sm:pb-6">
+                <div className="text-center py-8">
+                  <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                    <BookOpen className="w-8 h-8 text-gray-400" />
+                  </div>
+                  <p className="text-sm sm:text-base text-gray-500">
+                    Aucune phase n'a été créée pour ce cours
+                  </p>
+                  <Link to={`/admin/courses/${courseId}/chapters`}>
+                    <Button className="mt-4" variant="outline">
+                      Créer des phases
+                    </Button>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
           ) : (
             <Card>
               <CardHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-2 sm:pb-3">
                 <CardTitle className="text-base sm:text-lg">Contenu du Cours</CardTitle>
               </CardHeader>
               <CardContent className="px-4 sm:px-6 pb-4 sm:pb-6 space-y-3 sm:space-y-4">
-                {chapters.map((chapter, index) => (
-                  <ChapterAccordion
-                    key={chapter.id}
-                    chapter={chapter}
-                    index={index}
-                  />
-                ))}
+                {chapters.map((phase, phaseIndex) => {
+                  // Regrouper les lessons par miniChapter
+                  const chaptersGrouped = phase.lessons?.reduce((acc: any, lesson: any) => {
+                    const miniChapter = lesson.miniChapter || "Sans chapitre";
+                    if (!acc[miniChapter]) {
+                      acc[miniChapter] = [];
+                    }
+                    acc[miniChapter].push(lesson);
+                    return acc;
+                  }, {}) || {};
+
+                  const isPhaseExpanded = expandedPhases[phase.id] ?? true;
+
+                  return (
+                    <div key={phase.id} className="border rounded-lg overflow-hidden">
+                      {/* Phase Header - Cliquable */}
+                      <div 
+                        className="bg-gradient-to-r from-primary/5 to-orange-50/50 px-4 py-3 border-b cursor-pointer hover:from-primary/10 hover:to-orange-50 transition-colors"
+                        onClick={() => togglePhase(phase.id)}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            {isPhaseExpanded ? (
+                              <ChevronDown className="w-4 h-4 text-primary flex-shrink-0" />
+                            ) : (
+                              <ChevronRight className="w-4 h-4 text-primary flex-shrink-0" />
+                            )}
+                            <span className="font-bold text-primary text-sm">
+                              Phase {phaseIndex + 1}
+                            </span>
+                            <span className="text-sm font-semibold text-gray-800">
+                              {phase.title}
+                            </span>
+                          </div>
+                          <Badge variant="secondary" className="text-xs">
+                            {Object.keys(chaptersGrouped).length} chapitre{Object.keys(chaptersGrouped).length > 1 ? 's' : ''}
+                          </Badge>
+                        </div>
+                        {phase.description && isPhaseExpanded && (
+                          <p className="text-xs text-gray-600 mt-1 ml-6">{phase.description}</p>
+                        )}
+                      </div>
+
+                      {/* Chapitres dans la phase - Affichés uniquement si la phase est ouverte */}
+                      {isPhaseExpanded && (
+                        <div className="divide-y">
+                          {Object.entries(chaptersGrouped).map(([miniChapter, lessons]: [string, any], chapterIndex) => {
+                            const chapterKey = `${phase.id}-${miniChapter}`;
+                            const isChapterExpanded = expandedChapters[chapterKey] ?? true;
+
+                            return (
+                              <div key={chapterKey} className="bg-white">
+                                {/* Chapitre Header - Cliquable */}
+                                <div 
+                                  className="px-4 py-2.5 bg-gray-50/50 cursor-pointer hover:bg-gray-100/50 transition-colors"
+                                  onClick={() => toggleChapter(chapterKey)}
+                                >
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                      {isChapterExpanded ? (
+                                        <ChevronDown className="w-3.5 h-3.5 text-gray-600 flex-shrink-0" />
+                                      ) : (
+                                        <ChevronRight className="w-3.5 h-3.5 text-gray-600 flex-shrink-0" />
+                                      )}
+                                      <span className="text-xs font-semibold text-gray-600">
+                                        Chapitre {chapterIndex + 1}:
+                                      </span>
+                                      <span className="text-sm font-medium text-gray-800">
+                                        {miniChapter}
+                                      </span>
+                                    </div>
+                                    <Badge variant="outline" className="text-xs">
+                                      {lessons.length} vidéo{lessons.length > 1 ? 's' : ''}
+                                    </Badge>
+                                  </div>
+                                </div>
+
+                                {/* Vidéos du chapitre - Affichées uniquement si le chapitre est ouvert */}
+                                {isChapterExpanded && (
+                                  <div className="px-4 py-2 space-y-2">
+                                    {lessons
+                                      .sort((a: any, b: any) => a.order - b.order)
+                                      .map((lesson: any, lessonIndex: number) => (
+                                        <div
+                                          key={lesson.id}
+                                          className="flex items-center justify-between gap-3 p-2 rounded-md hover:bg-gray-50 transition-colors group"
+                                        >
+                                          <div className="flex items-center gap-3 flex-1 min-w-0">
+                                            <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-semibold flex items-center justify-center">
+                                              {lessonIndex + 1}
+                                            </span>
+                                            <div className="flex-1 min-w-0">
+                                              <p className="text-sm font-medium text-gray-800 truncate">
+                                                {lesson.title}
+                                              </p>
+                                              {lesson.duration && (
+                                                <div className="flex items-center gap-1 mt-0.5">
+                                                  <Clock className="w-3 h-3 text-gray-400" />
+                                                  <span className="text-xs text-gray-500">
+                                                    {Math.floor(lesson.duration / 60)}:{(lesson.duration % 60).toString().padStart(2, '0')}
+                                                  </span>
+                                                </div>
+                                              )}
+                                            </div>
+                                          </div>
+                                          {/* Bouton Eye pour visualiser */}
+                                          {lesson.videoUrl && (
+                                            <button
+                                              onClick={(e: React.MouseEvent) => {
+                                                e.stopPropagation();
+                                                handleViewVideo(lesson);
+                                              }}
+                                              className="flex-shrink-0 p-1.5 rounded-md hover:bg-primary/10 transition-colors opacity-0 group-hover:opacity-100"
+                                              title="Visualiser la vidéo"
+                                            >
+                                              <Eye className="w-4 h-4 text-primary" />
+                                            </button>
+                                          )}
+                                        </div>
+                                      ))}
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </CardContent>
             </Card>
           )}
@@ -523,6 +711,14 @@ export default function AdminCourseDetailsPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Video Preview Modal */}
+      <VideoPreviewModal
+        isOpen={showVideoPreview}
+        onClose={handleCloseVideoPreview}
+        videoUrl={currentVideoUrl}
+        videoTitle={currentVideoTitle}
+      />
     </div>
   );
 }

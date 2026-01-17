@@ -970,12 +970,12 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
             </div>
           </CardHeader>
 
-          <CardContent className="p-6 md:p-8 space-y-8">
+          <CardContent className="p-4 md:p-6 space-y-4">
             {/* Upload Area */}
-            <div className="space-y-6">
-              <div className="flex items-center gap-3">
-                <div className="w-1 h-6 bg-gradient-to-b from-primary to-muted rounded-full"></div>
-                <h3 className="text-xl font-semibold bg-gradient-to-r from-primary to-muted bg-clip-text text-transparent">
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <div className="w-1 h-5 bg-gradient-to-b from-primary to-muted rounded-full"></div>
+                <h3 className="text-lg font-semibold bg-gradient-to-r from-primary to-muted bg-clip-text text-transparent">
                   {t("admin.phaseManager.addContent", "Ajouter du Contenu Vidéo")}
                 </h3>
               </div>
@@ -983,7 +983,7 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
               <div
                 {...getRootProps()}
                 className={`
-                  relative overflow-hidden border-2 border-dashed rounded-2xl p-8 md:p-12 text-center cursor-pointer 
+                  relative overflow-hidden border-2 border-dashed rounded-2xl p-4 md:p-6 text-center cursor-pointer 
                   transition-all duration-300 group
                   ${
                     isDragActive
@@ -993,23 +993,23 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
                 `}
               >
                 <input {...getInputProps()} />
-                <div className="relative z-10 space-y-6">
+                <div className="relative z-10 space-y-3">
                   
                   {/* Upload Icon */}
                   <div
-                    className={`w-20 h-20 mx-auto rounded-2xl flex items-center justify-center transition-all duration-300 ${
+                    className={`w-14 h-14 mx-auto rounded-xl flex items-center justify-center transition-all duration-300 ${
                       isDragActive
                         ? "bg-gradient-to-br from-primary to-muted text-white scale-110 shadow-xl"
                         : "bg-gradient-to-br from-gray-100 to-gray-200 text-gray-600 group-hover:from-orange-100 group-hover:to-yellow-100 group-hover:text-primary group-hover:shadow-md"
                     }`}
                   >
-                    <Upload className="w-10 h-10" />
+                    <Upload className="w-7 h-7" />
                   </div>
 
                   {/* Main Title */}
                   <div>
                     <h4
-                      className={`text-xl md:text-2xl font-bold mb-2 transition-colors ${
+                      className={`text-lg md:text-xl font-bold mb-1 transition-colors ${
                         isDragActive ? "text-primary" : "text-gray-900 group-hover:text-primary"
                       }`}
                     >
@@ -1017,71 +1017,71 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
                         ? t("admin.phaseManager.dropHere", "Déposez vos fichiers ici")
                         : t("admin.phaseManager.dragDrop", "Glissez-déposez vos vidéos")}
                     </h4>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-xs text-gray-500">
                       ou cliquez pour parcourir vos fichiers
                     </p>
                   </div>
 
                   {/* Format Badge */}
-                  <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-full px-4 py-2 text-sm font-medium text-blue-700">
-                    <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></span>
-                    Format obligatoire : ph1-ch1-v1.mp4
+                  <div className="inline-flex items-center gap-1.5 bg-blue-50 border border-blue-200 rounded-full px-3 py-1.5 text-xs font-medium text-blue-700">
+                    <span className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse"></span>
+                    Format : ph1-ch1-v1.mp4
                   </div>
 
                   {/* Nomenclature Guide */}
-                  <div className="max-w-2xl mx-auto">
-                    <div className="bg-gradient-to-br from-orange-50 to-amber-50 border-2 border-orange-200 rounded-xl p-6 shadow-sm">
+                  <div className="max-w-xl mx-auto">
+                    <div className="bg-gradient-to-br from-orange-50 to-amber-50 border border-orange-200 rounded-lg p-3 shadow-sm">
                       {/* Title */}
-                      <div className="flex items-center gap-2 mb-4">
-                        <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center flex-shrink-0">
-                          <span className="text-white text-lg font-bold">📋</span>
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="w-6 h-6 bg-orange-500 rounded-md flex items-center justify-center flex-shrink-0">
+                          <span className="text-white text-sm font-bold">📋</span>
                         </div>
-                        <h5 className="text-base md:text-lg font-bold text-orange-900">
+                        <h5 className="text-sm font-bold text-orange-900">
                           Guide de nomenclature
                         </h5>
                       </div>
 
                       {/* Format Pattern */}
-                      <div className="bg-white/80 backdrop-blur-sm rounded-lg p-4 mb-4 border border-orange-200/50">
-                        <p className="text-center text-lg md:text-xl font-mono font-bold text-gray-800 mb-3">
+                      <div className="bg-white/80 backdrop-blur-sm rounded-md p-2 mb-2 border border-orange-200/50">
+                        <p className="text-center text-base font-mono font-bold text-gray-800 mb-2">
                           ph<span className="text-primary">1</span>-ch<span className="text-primary">1</span>-v<span className="text-primary">1</span>.mp4
                         </p>
-                        <div className="grid grid-cols-1 gap-2 text-sm">
-                          <div className="flex items-center gap-3">
-                            <span className="inline-flex items-center justify-center w-12 h-8 bg-primary/10 rounded-md font-mono font-bold text-primary">
+                        <div className="grid grid-cols-1 gap-1 text-xs">
+                          <div className="flex items-center gap-2">
+                            <span className="inline-flex items-center justify-center w-10 h-6 bg-primary/10 rounded font-mono font-bold text-primary text-xs">
                               ph1
                             </span>
                             <span className="text-gray-700 flex-1">
-                              → <span className="font-semibold text-gray-900">Phase 1</span> (numéro de la phase)
+                              → <span className="font-semibold text-gray-900">Phase 1</span>
                             </span>
                           </div>
-                          <div className="flex items-center gap-3">
-                            <span className="inline-flex items-center justify-center w-12 h-8 bg-primary/10 rounded-md font-mono font-bold text-primary">
+                          <div className="flex items-center gap-2">
+                            <span className="inline-flex items-center justify-center w-10 h-6 bg-primary/10 rounded font-mono font-bold text-primary text-xs">
                               ch1
                             </span>
                             <span className="text-gray-700 flex-1">
-                              → <span className="font-semibold text-gray-900">Chapitre 1</span> (numéro du chapitre)
+                              → <span className="font-semibold text-gray-900">Chapitre 1</span>
                             </span>
                           </div>
-                          <div className="flex items-center gap-3">
-                            <span className="inline-flex items-center justify-center w-12 h-8 bg-primary/10 rounded-md font-mono font-bold text-primary">
+                          <div className="flex items-center gap-2">
+                            <span className="inline-flex items-center justify-center w-10 h-6 bg-primary/10 rounded font-mono font-bold text-primary text-xs">
                               v1
                             </span>
                             <span className="text-gray-700 flex-1">
-                              → <span className="font-semibold text-gray-900">Vidéo 1</span> (numéro de la vidéo)
+                              → <span className="font-semibold text-gray-900">Vidéo 1</span>
                             </span>
                           </div>
                         </div>
                       </div>
 
                       {/* Warning Alert */}
-                      <div className="bg-red-500 rounded-lg p-4 text-white">
-                        <div className="flex items-start gap-3">
-                          <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
+                      <div className="bg-red-500 rounded-md p-2 text-white">
+                        <div className="flex items-start gap-2">
+                          <AlertCircle className="h-4 w-4 flex-shrink-0 mt-0.5" />
                           <div>
-                            <p className="font-bold text-sm mb-1">ATTENTION IMPORTANTE</p>
-                            <p className="text-xs text-red-50">
-                              Respectez strictement cette nomenclature. Tout fichier non conforme sera rejeté lors de l'upload.
+                            <p className="font-bold text-xs mb-0.5">ATTENTION</p>
+                            <p className="text-[10px] text-red-50">
+                              Respectez strictement cette nomenclature. Tout fichier non conforme sera rejeté.
                             </p>
                           </div>
                         </div>
@@ -1090,15 +1090,9 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
                   </div>
 
                   {/* Supported Formats */}
-                  <div className="flex items-center justify-center gap-2 text-xs text-gray-500">
-                    <span>Formats acceptés :</span>
-                    <div className="flex gap-2">
-                      {['.mp4'].map((format) => (
-                        <span key={format} className="px-2 py-1 bg-gray-100 rounded-md font-mono">
-                          {format}
-                        </span>
-                      ))}
-                    </div>
+                  <div className="flex items-center justify-center gap-1.5 text-[10px] text-gray-500">
+                    <span>Format accepté :</span>
+                    <span className="px-1.5 py-0.5 bg-gray-100 rounded font-mono">.mp4</span>
                   </div>
                 </div>
               </div>

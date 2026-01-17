@@ -335,34 +335,34 @@ const DraggableVideoPhase: React.FC<DraggableVideoPhaseProps> = ({
                     </DropdownMenuTrigger>
                     <DropdownMenuContent
                       align="end"
-                      className="w-40 sm:w-44 rounded-xl shadow-xl border-2 border-gray-200/50 bg-white/95 backdrop-blur-md"
+                      className="w-40 sm:w-44 rounded-lg shadow-lg border border-gray-200 bg-white"
                     >
                       <DropdownMenuItem
                         onClick={handlePreview}
-                        className="rounded-lg hover:bg-blue-50 cursor-pointer transition-all duration-200 text-xs font-semibold"
+                        className="rounded-md hover:bg-gray-100 data-[highlighted]:bg-gray-100 data-[highlighted]:text-gray-900 cursor-pointer transition-colors text-xs font-medium text-gray-900"
                       >
-                        <Eye className="mr-2 h-3.5 w-3.5 text-blue-600" />
+                        <Eye className="mr-2 h-4 w-4 text-gray-900" />
                         Prévisualiser
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={handleEditInfo}
-                        className="rounded-lg hover:bg-green-50 cursor-pointer transition-all duration-200 text-xs font-semibold"
+                        className="rounded-md hover:bg-gray-100 data-[highlighted]:bg-gray-100 data-[highlighted]:text-gray-900 cursor-pointer transition-colors text-xs font-medium text-gray-900"
                       >
-                        <Edit className="mr-2 h-3.5 w-3.5 text-green-600" />
+                        <Edit className="mr-2 h-4 w-4 text-gray-900" />
                         Modifier Info
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={handleEditSkills}
-                        className="rounded-lg hover:bg-purple-50 cursor-pointer transition-all duration-200 text-xs font-semibold"
+                        className="rounded-md hover:bg-gray-100 data-[highlighted]:bg-gray-100 data-[highlighted]:text-gray-900 cursor-pointer transition-colors text-xs font-medium text-gray-900"
                       >
-                        <Edit className="mr-2 h-3.5 w-3.5 text-purple-600" />
+                        <Edit className="mr-2 h-4 w-4 text-gray-900" />
                         Modifier Skills
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={handleDelete}
-                        className="rounded-lg hover:bg-red-50 cursor-pointer transition-all duration-200 text-xs font-semibold"
+                        className="rounded-md hover:bg-gray-100 data-[highlighted]:bg-gray-100 data-[highlighted]:text-red-600 cursor-pointer transition-colors text-xs font-medium text-red-600 hover:text-red-700"
                       >
-                        <Trash2 className="mr-2 h-3.5 w-3.5 text-red-600" />
+                        <Trash2 className="mr-2 h-4 w-4 text-red-600" />
                         Supprimer
                       </DropdownMenuItem>
                     </DropdownMenuContent>

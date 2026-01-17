@@ -172,7 +172,7 @@ const SkillsModal: React.FC<SkillsModalProps> = ({
                   value={selectedExistingSkill}
                   onValueChange={setSelectedExistingSkill}
                 >
-                  <SelectTrigger className="flex-1 h-11 border-2 hover:border-primary/50 transition-all bg-white">
+                  <SelectTrigger className="flex-1 h-14 py-0 border-2 hover:border-primary/50 transition-all bg-white" style={{height: "44px"}}>
                     <SelectValue
                       placeholder={t(
                         "admin.skills.selectExisting",
@@ -180,7 +180,7 @@ const SkillsModal: React.FC<SkillsModalProps> = ({
                       )}
                     />
                   </SelectTrigger>
-                  <SelectContent className="max-h-[200px]">
+                  <SelectContent className="max-h-[220px]">
                     {availableExistingSkills.map((skill) => (
                       <SelectItem 
                         key={skill.id} 
@@ -200,7 +200,7 @@ const SkillsModal: React.FC<SkillsModalProps> = ({
                   className="h-11 w-11 border-2 hover:bg-blue-50 hover:border-blue-500 transition-all disabled:opacity-50"
                   title="Ajouter"
                 >
-                  <Plus className="h-5 w-5" />
+                  <Plus className="h-5 w-5 text-gray-900" />
                 </Button>
               </div>
             ) : (
@@ -242,7 +242,7 @@ const SkillsModal: React.FC<SkillsModalProps> = ({
                 className="h-11 w-11 border-2 hover:bg-green-50 hover:border-green-500 transition-all disabled:opacity-50"
                 title="Créer"
               >
-                <Plus className="h-5 w-5" />
+                <Plus className="h-5 w-5 text-gray-900" />
               </Button>
             </div>
           </div>
