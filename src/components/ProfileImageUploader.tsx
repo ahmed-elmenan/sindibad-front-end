@@ -151,7 +151,7 @@ const base64ToFile = (base64: string, filename: string): File | null => {
 
 interface ProfileImageUploaderProps {
   onChange?: (file: File | undefined) => void;
-  value?: File;
+  value?: File | string; // Can be a File object or a URL string
   className?: string;
   maxSizeMB?: number;
 }
@@ -185,11 +185,21 @@ const ProfileImageUploader: React.FC<ProfileImageUploaderProps> = ({
   useEffect(() => {
     // If there's an initial value, set the preview URL
     if (value) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        setPreviewUrl(reader.result as string);
-      };
-      reader.readAsDataURL(value);
+      // Check if value is a File object or a string URL
+      if (value instanceof File) {
+        // It's a File object, read it as DataURL
+        const reader = new FileReader();
+        reader.onload = () => {
+          setPreviewUrl(reader.result as string);
+        };
+        reader.readAsDataURL(value);
+      } else if (typeof value === 'string') {
+        // It's already a URL string (from existing learner data)
+        setPreviewUrl(value);
+      }
+    } else {
+      // Reset preview if value is cleared
+      setPreviewUrl(null);
     }
     return () => {
       // Clean up the URL object when the component unmounts
@@ -197,7 +207,7 @@ const ProfileImageUploader: React.FC<ProfileImageUploaderProps> = ({
         URL.revokeObjectURL(previewUrl);
       }
     };
-  }, [previewUrl, value]);
+  }, [value]);
 
   // Handle file drop
   const onDrop = useCallback(

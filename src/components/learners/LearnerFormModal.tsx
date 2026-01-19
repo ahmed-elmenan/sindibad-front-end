@@ -3,10 +3,16 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { Eye, EyeOff } from "lucide-react";
+import { RotateCcw } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { getAllOrganisations } from "@/services/organisation.service";
-import { getLearnerProfileById, updateLearner, uploadProfilePicture } from "@/services/learner.service";
+import { 
+  getLearnerProfileById, 
+  updateLearner, 
+  uploadProfilePicture,
+  sendPasswordResetEmail,
+  toggleLearnerActiveStatus 
+} from "@/services/learner.service";
 import { useAuth } from "@/hooks/useAuth";
 
 import {
@@ -32,6 +38,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import ProfileImageUploader from "@/components/ProfileImageUploader";
 
 import { signUpLearnerSchema } from "@/schemas/signUpLearnerFormSchema";
@@ -56,8 +63,8 @@ export default function LearnerFormModal({
 }: LearnerFormModalProps) {
   const { t } = useTranslation();
   const { user } = useAuth();
-  const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isResettingPassword, setIsResettingPassword] = useState(false);
   const [initialValues, setInitialValues] = useState<any>(null);
 
   const isReadOnly = mode === "view";
@@ -93,7 +100,6 @@ export default function LearnerFormModal({
       gender: "male",
       phoneNumber: "",
       email: "",
-      password: "",
       organisationId: userOrganisationId || "",
       profilePicture: "",
       city: "",
@@ -113,7 +119,6 @@ export default function LearnerFormModal({
         gender: learnerDetails.gender?.toLowerCase() || "male",
         phoneNumber: learnerDetails.phoneNumber || "",
         email: learnerDetails.email || "",
-        password: "",
         organisationId: "", // Will be set from organisation data if available
         profilePicture: learnerDetails.profilePicture || "",
         city: "",
@@ -144,8 +149,6 @@ export default function LearnerFormModal({
         // Check if any values have changed
         const hasChanges = initialValues && Object.keys(data).some((key) => {
           const k = key as keyof SignUpLearnerFormValues;
-          // Skip password if empty
-          if (k === "password" && !data[k]) return false;
           return data[k] !== initialValues[k];
         });
 
@@ -167,11 +170,6 @@ export default function LearnerFormModal({
           gender: data.gender.toUpperCase() as "MALE" | "FEMALE",
           isActive: data.isActive,
         };
-
-        // Only include password if provided
-        if (data.password) {
-          updateData.password = data.password;
-        }
 
         await updateLearner(learner.id, updateData);
         
@@ -218,6 +216,45 @@ export default function LearnerFormModal({
       });
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleResetPassword = async () => {
+    if (!learner?.id) return;
+    
+    setIsResettingPassword(true);
+    try {
+      await sendPasswordResetEmail(learner.id);
+      toast.success(t("common.success"), {
+        description: t("learners.resetPasswordSuccess") ?? "Email de réinitialisation envoyé avec succès",
+      });
+    } catch (error: any) {
+      console.error("Reset password error:", error);
+      toast.error(t("common.error"), {
+        description: error.message || t("common.unexpectedError"),
+      });
+    } finally {
+      setIsResettingPassword(false);
+    }
+  };
+
+  const handleToggleActive = async (isActive: boolean) => {
+    if (!learner?.id) return;
+    
+    try {
+      await toggleLearnerActiveStatus(learner.id, isActive);
+      form.setValue("isActive", isActive);
+      toast.success(t("common.success"), {
+        description: isActive 
+          ? t("learners.activateSuccess") ?? "Apprenant activé avec succès"
+          : t("learners.deactivateSuccess") ?? "Apprenant désactivé avec succès",
+      });
+      onSuccess?.(); // Refresh the table
+    } catch (error: any) {
+      console.error("Toggle active status error:", error);
+      toast.error(t("common.error"), {
+        description: error.message || t("common.unexpectedError"),
+      });
     }
   };
 
@@ -455,96 +492,118 @@ export default function LearnerFormModal({
               </div>
             </div>
 
-            {/* Passwords - Only for add/edit mode */}
-            {!isReadOnly && (
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <FormLabel className="text-sm font-medium">
-                      {t("common.form.password.label")}{" "}
-                      <span className="text-destructive">*</span>
-                    </FormLabel>
-                    <FormField
-                      control={form.control}
-                      name="password"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <div className="relative">
-                              <Input
-                                type={showPassword ? "text" : "password"}
-                                placeholder={t(
-                                  "common.form.password.placeholder",
-                                )}
-                                {...field}
-                                className="h-11 pr-10"
+            {/* Organisation and Reset Password/Active Status Controls */}
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <FormLabel className="text-sm font-medium">
+                    {t("learners.organisation") ?? "Organisation"}{" "}
+                    <span className="text-destructive">*</span>
+                  </FormLabel>
+                  <FormField
+                    control={form.control}
+                    name="organisationId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Select
+                            value={field.value}
+                            onValueChange={field.onChange}
+                            disabled={isReadOnly || isLoadingOrganisations || isOrganisationUser}
+                          >
+                            <SelectTrigger className="!h-11 w-full">
+                              <SelectValue
+                                placeholder={
+                                  isLoadingOrganisations
+                                    ? (t("common.loading") ?? "Chargement...")
+                                    : (t("learners.selectOrganisation") ??
+                                      "Sélectionner une organisation")
+                                }
                               />
-                              <button
-                                type="button"
-                                onClick={() => setShowPassword(!showPassword)}
-                                className="absolute right-3 top-1/2 -translate-y-1/2"
-                              >
-                                {showPassword ? (
-                                  <EyeOff className="h-4 w-4 text-muted-foreground" />
-                                ) : (
-                                  <Eye className="h-4 w-4 text-muted-foreground" />
-                                )}
-                              </button>
-                            </div>
-                          </FormControl>
-                          <CustomFormMessage>
-                            {form.formState.errors.password?.message}
-                          </CustomFormMessage>
-                        </FormItem>
-                      )}
-                    />
-                  </div>
+                            </SelectTrigger>
+                            <SelectContent>
+                              {organisations.map((org) => (
+                                <SelectItem key={org.id} value={org.id}>
+                                  {org.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <CustomFormMessage>
+                          {form.formState.errors.organisationId?.message}
+                        </CustomFormMessage>
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
+                {/* Reset Password Button - Only for edit mode */}
+                {isEdit && !isReadOnly && (
                   <div className="space-y-2">
                     <FormLabel className="text-sm font-medium">
-                      {t("learners.organisation") ?? "Organisation"}{" "}
-                      <span className="text-destructive">*</span>
+                      {t("learners.resetPassword") ?? "Réinitialiser le mot de passe"}
                     </FormLabel>
-                    <FormField
-                      control={form.control}
-                      name="organisationId"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <Select
-                              value={field.value}
-                              onValueChange={field.onChange}
-                              disabled={isReadOnly || isLoadingOrganisations || isOrganisationUser}
-                            >
-                              <SelectTrigger className="!h-11 w-full">
-                                <SelectValue
-                                  placeholder={
-                                    isLoadingOrganisations
-                                      ? (t("common.loading") ?? "Chargement...")
-                                      : (t("learners.selectOrganisation") ??
-                                        "Sélectionner une organisation")
-                                  }
-                                />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {organisations.map((org) => (
-                                  <SelectItem key={org.id} value={org.id}>
-                                    {org.name}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </FormControl>
-                          <CustomFormMessage>
-                            {form.formState.errors.organisationId?.message}
-                          </CustomFormMessage>
-                        </FormItem>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleResetPassword}
+                      disabled={isResettingPassword}
+                      className="h-11 w-full"
+                    >
+                      {isResettingPassword ? (
+                        <>
+                          <span className="loading loading-spinner loading-sm mr-2"></span>
+                          {t("common.loading")}
+                        </>
+                      ) : (
+                        <>
+                          <RotateCcw className="h-4 w-4 mr-2" />
+                          {t("learners.sendResetLink") ?? "Envoyer lien de réinitialisation"}
+                        </>
                       )}
-                    />
+                    </Button>
                   </div>
-                </div>
+                )}
               </div>
-            )}
+
+              {/* Active Status Switch - Only for edit mode */}
+              {isEdit && (
+                <div className="flex items-center justify-between pt-4 pb-2 border-t">
+                  <div className="space-y-1">
+                    <FormLabel className="text-sm font-medium">
+                      {t("learners.accountStatus") ?? "Statut du compte"}
+                    </FormLabel>
+                    <p className="text-sm text-muted-foreground">
+                      {form.watch("isActive") 
+                        ? (t("learners.accountActive") ?? "Compte actif")
+                        : (t("learners.accountInactive") ?? "Compte inactif")
+                      }
+                    </p>
+                  </div>
+                  <FormField
+                    control={form.control}
+                    name="isActive"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={(checked) => {
+                              field.onChange(checked);
+                              if (!isReadOnly) {
+                                handleToggleActive(checked);
+                              }
+                            }}
+                            disabled={isReadOnly}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              )}
+            </div>
 
             {/* Action Buttons */}
             <div className="flex justify-end gap-4 pt-6">

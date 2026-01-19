@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import { CalendarIcon, Eye, EyeOff, CheckCircle2, Upload, X } from "lucide-react";
+import { CalendarIcon, CheckCircle2, Upload, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { getAllOrganisations } from "@/services/organisation.service";
@@ -52,9 +52,7 @@ export default function AddLearnerModal({
   onClose,
   onSuccess,
 }: AddLearnerModalProps) {
-  console.log("🔄 AddLearnerModal rendu, open:", open);
   const { t } = useTranslation();
-  const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [previewImage, setPreviewImage] = useState<string>("");
@@ -75,7 +73,6 @@ export default function AddLearnerModal({
       gender: "male",
       phoneNumber: "",
       email: "",
-      password: "",
       organisationId: "",
       profilePicture: "",
       acceptTerms: true,
@@ -108,7 +105,6 @@ export default function AddLearnerModal({
   };
 
   const onSubmit = async (data: SignUpLearnerFormValues) => {
-    console.log("🚀 onSubmit appelé avec les données:", data);
     setIsSubmitting(true);
     try {
       const dataToSend = {
@@ -116,10 +112,8 @@ export default function AddLearnerModal({
         isActive: true,
         gender: data.gender.toUpperCase() as "MALE" | "FEMALE",
       };
-      console.log("📤 Données préparées pour l'envoi:", dataToSend);
 
       const result = await registerLearner(dataToSend);
-      console.log("✅ Résultat de registerLearner:", result);
       
       if (result.success) {
         console.log("✨ Succès - Affichage du toast et redirection");
@@ -415,42 +409,7 @@ export default function AddLearnerModal({
                 <h3 className="text-lg font-semibold text-gray-900">Informations du compte</h3>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Mot de passe */}
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium text-gray-700">
-                        Mot de passe <span className="text-red-500">*</span>
-                      </FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <Input
-                            type={showPassword ? "text" : "password"}
-                            placeholder="••••••••"
-                            {...field}
-                            className="h-11 border-gray-300 focus:border-primary pr-10"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                          >
-                            {showPassword ? (
-                              <EyeOff className="h-5 w-5" />
-                            ) : (
-                              <Eye className="h-5 w-5" />
-                            )}
-                          </button>
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
+              <div className="grid grid-cols-1 gap-4">
                 {/* Organisation */}
                 <FormField
                   control={form.control}

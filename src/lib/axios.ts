@@ -84,10 +84,20 @@ api.interceptors.response.use(
         // Si le refresh échoue, déconnecter l'utilisateur
         processQueue(refreshError, null)
         localStorage.removeItem('accessToken')
+        localStorage.removeItem('userEmail')
+        localStorage.removeItem('userRole')
         
-        // Rediriger vers la page de connexion
+        // Afficher un message à l'utilisateur
         if (typeof window !== 'undefined') {
-          window.location.href = '/signin'
+          // Utiliser un événement personnalisé pour notifier l'expiration de session
+          window.dispatchEvent(new CustomEvent('sessionExpired', { 
+            detail: { message: 'Your session has expired. Please login again.' }
+          }))
+          
+          // Rediriger vers la page de connexion après un court délai
+          setTimeout(() => {
+            window.location.href = '/signin'
+          }, 1000)
         }
         
         return Promise.reject(refreshError)

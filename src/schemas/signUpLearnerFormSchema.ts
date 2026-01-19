@@ -49,14 +49,6 @@ export const signUpLearnerSchema = z
       .min(1, { message: "errors.required" })
       .email({ message: "errors.emailFormat" }),
 
-    password: z
-      .string()
-      .min(8, "errors.password.min_length")
-      .regex(
-        /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/,
-        "errors.password.requirements"
-      ),
-
     organisationId: z.string().min(1, { message: "errors.required" }),
 
     profilePicture: z.any().optional(),

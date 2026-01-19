@@ -103,3 +103,23 @@ export const uploadProfilePicture = async (id: string, file: File): Promise<stri
     throw new Error(error.response?.data?.message || 'Error uploading profile picture');
   }
 };
+
+export const sendPasswordResetEmail = async (id: string): Promise<void> => {
+  try {
+    await api.post(`/learners/${id}/reset-password`);
+  } catch (error: any) {
+    console.error('Error sending password reset email:', error);
+    throw new Error(error.response?.data?.message || 'Error sending password reset email');
+  }
+};
+
+export const toggleLearnerActiveStatus = async (id: string, isActive: boolean): Promise<void> => {
+  try {
+    await api.patch(`/learners/${id}/active-status`, null, {
+      params: { isActive }
+    });
+  } catch (error: any) {
+    console.error('Error toggling active status:', error);
+    throw new Error(error.response?.data?.message || 'Error toggling active status');
+  }
+};
