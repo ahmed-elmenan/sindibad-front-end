@@ -86,3 +86,20 @@ export const deleteLearner = async (id: string): Promise<void> => {
     throw new Error(error.response?.data?.message || 'Error deleting learner');
   }
 };
+
+export const uploadProfilePicture = async (id: string, file: File): Promise<string> => {
+  try {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    const res = await api.post(`/learners/${id}/profile-picture`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return res.data;
+  } catch (error: any) {
+    console.error('Error uploading profile picture:', error);
+    throw new Error(error.response?.data?.message || 'Error uploading profile picture');
+  }
+};

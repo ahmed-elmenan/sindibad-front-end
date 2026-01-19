@@ -737,7 +737,7 @@
       "uppercase": "Le mot de passe doit contenir au moins une lettre majuscule",
       "number": "Le mot de passe doit contenir au moins un chiffre",
       "special": "Le mot de passe doit contenir au moins un caractère spécial",
-      "requirements": "Le mot de passe ne répond pas aux exigences de sécurité"
+      "requirements": "Le mot de passe doit contenir au moins 8 caractères, une majuscule, un chiffre et un caractère spécial"
     },
     "confirmPassword": {
       "required": "La confirmation du mot de passe est requise",
@@ -1093,7 +1093,7 @@
     "actions": "Actions"
   },
   "learners": {
-    "addLearner": "Ajouter un apprenant",
+    "addLearner": "Ajouter un apprenant test2",
     "editLearner": "Modifier l'apprenant",
     "viewLearner": "Voir l'apprenant",
     "deleteLearner": "Supprimer l'apprenant",
@@ -1103,7 +1103,9 @@
     "updateSuccess": "Apprenant mis à jour avec succès",
     "deleteConfirmation": "Êtes-vous sûr de vouloir supprimer {{name}} ?",
     "deleteWarning": "Cette action est irréversible.",
-    "learnerAddedSuccessfully": "L'apprenant a été ajouté avec succès"
+    "learnerAddedSuccessfully": "L'apprenant a été ajouté avec succès",
+    "organisation": "Organisation",
+    "selectOrganisation": "Sélectionner une organisation"
   },
   "pagination": {
     "previous": "Précédent",

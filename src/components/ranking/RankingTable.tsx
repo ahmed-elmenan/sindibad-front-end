@@ -89,18 +89,10 @@ export default function RankingTable({
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  // Debug: log userRole to check the actual value
-  console.log("RankingTable - userRole:", userRole, "Type:", typeof userRole);
-
   // Support for different role naming conventions
   const canManageLearners = 
-    userRole === "admin" || 
     userRole === "ADMIN" ||
-    userRole === "organisations" || 
-    userRole === "organisation" ||
     userRole === "ORGANISATION";
-
-  console.log("RankingTable - canManageLearners:", canManageLearners);
 
   const getInitials = (fullName: string) =>
     fullName

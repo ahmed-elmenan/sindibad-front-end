@@ -47,7 +47,7 @@ export default function DeleteLearnerDialog({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter className="sm:justify-center">
-          <AlertDialogCancel disabled={isDeleting}>
+          <AlertDialogCancel disabled={isDeleting} className="hover:bg-gray-100">
             {t("common.cancel")}
           </AlertDialogCancel>
           <AlertDialogAction

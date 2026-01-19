@@ -3,16 +3,15 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { format } from "date-fns";
-import { CalendarIcon, User, Eye, EyeOff, CheckCircle } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Eye, EyeOff } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { getAllOrganisations } from "@/services/organisation.service";
 
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
-  DialogTitle,
 } from "@/components/ui/dialog";
 import {
   Form,
@@ -24,12 +23,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -37,8 +30,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
 import ProfileImageUploader from "@/components/ProfileImageUploader";
 
 import { signUpLearnerSchema } from "@/schemas/signUpLearnerFormSchema";
@@ -63,16 +54,23 @@ export default function LearnerFormModal({
 }: LearnerFormModalProps) {
   const { t } = useTranslation();
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
 
   const isReadOnly = mode === "view";
   const isEdit = mode === "edit";
 
+  // Fetch organisations
+  const { data: organisations = [], isLoading: isLoadingOrganisations } =
+    useQuery({
+      queryKey: ["organisations"],
+      queryFn: getAllOrganisations,
+    });
+
   // Initialize form with validation schema
   const form = useForm<SignUpLearnerFormValues>({
     resolver: zodResolver(signUpLearnerSchema),
+    mode: "onSubmit",
+    reValidateMode: "onChange",
     defaultValues: {
       firstName: learner?.fullName?.split(" ")[0] || "",
       lastName: learner?.fullName?.split(" ").slice(1).join(" ") || "",
@@ -81,16 +79,24 @@ export default function LearnerFormModal({
       phoneNumber: "",
       email: learner?.username || "",
       password: "",
-      confirmPassword: "",
+      organisationId: "",
       profilePicture: learner?.avatarUrl || "",
-      acceptTerms: isEdit || isReadOnly,
+      city: "",
+      organisationName: "",
+      acceptTerms: true,
     },
   });
 
   const onSubmit = async (data: SignUpLearnerFormValues) => {
-    if (isReadOnly) return;
+    console.log("✅ Form submitted successfully!");
+    console.log("📋 Form data:", data);
+    console.log("❌ Form errors:", form.formState.errors);
     
+    if (isReadOnly) return;
+
     setIsSubmitting(true);
+    console.log("🚀 Submitting new learner:", data);
+
     try {
       const dataToSend = {
         ...data,
@@ -105,16 +111,14 @@ export default function LearnerFormModal({
         });
       } else {
         // Create new learner
+        console.log("Submitting new learner:", dataToSend);
         const result = await registerLearner(dataToSend);
         if (result.success) {
-          setIsSuccess(true);
           toast.success(t("common.success"), {
             description: t("learners.addSuccess"),
           });
-          setTimeout(() => {
-            onSuccess?.();
-            onClose();
-          }, 2000);
+          onSuccess?.();
+          onClose();
         } else {
           toast.error(t("common.error"), {
             description: result.message,
@@ -140,53 +144,12 @@ export default function LearnerFormModal({
     return <FormMessage>{children}</FormMessage>;
   };
 
-  const getTitle = () => {
-    switch (mode) {
-      case "add":
-        return t("learners.addLearner");
-      case "edit":
-        return t("learners.editLearner");
-      case "view":
-        return t("learners.viewLearner");
-      default:
-        return "";
-    }
-  };
-
-  if (isSuccess) {
-    return (
-      <Dialog open={open} onOpenChange={onClose}>
-        <DialogContent className="max-w-md">
-          <div className="p-6 text-center space-y-6">
-            <div className="mx-auto w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center">
-              <CheckCircle className="w-8 h-8 text-accent" />
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold text-accent mb-2">
-                {t("signUp.signUpOrganisation.stepSummary.success.title")}
-              </h2>
-              <p className="text-muted-foreground">
-                {t("learners.learnerAddedSuccessfully")}
-              </p>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-    );
-  }
-
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-3xl sm:max-w-4xl w-[75vw] max-h-[90vh] overflow-y-auto bg-white">
         <DialogHeader>
-          <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-            <User className="w-6 h-6 text-primary" />
-          </div>
-          <DialogTitle className="text-2xl font-bold text-center">
-            {getTitle()}
-          </DialogTitle>
           <DialogDescription className="text-center">
-            {mode === "add" && t("signUp.signUpLearner.description")}
+            {mode === "add"}
             {mode === "view" && t("learners.viewLearnerDescription")}
             {mode === "edit" && t("learners.editLearnerDescription")}
           </DialogDescription>
@@ -204,7 +167,9 @@ export default function LearnerFormModal({
                     <FormItem>
                       <FormControl>
                         <ProfileImageUploader
-                          onChange={(file: File | undefined) => field.onChange(file)}
+                          onChange={(file: File | undefined) =>
+                            field.onChange(file)
+                          }
                           value={field.value}
                         />
                       </FormControl>
@@ -283,48 +248,17 @@ export default function LearnerFormModal({
                     control={form.control}
                     name="dateOfBirth"
                     render={({ field }) => (
-                      <FormItem className="flex flex-col">
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button
-                                variant="outline"
-                                disabled={isReadOnly}
-                                className={cn(
-                                  "h-11 w-full justify-start text-left font-normal",
-                                  !field.value && "text-muted-foreground"
-                                )}
-                              >
-                                <CalendarIcon className="mr-2 h-4 w-4" />
-                                {field.value ? (
-                                  format(new Date(field.value), "PPP")
-                                ) : (
-                                  <span>
-                                    {t("common.form.dateOfBirth.placeholder")}
-                                  </span>
-                                )}
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                              mode="single"
-                              selected={
-                                field.value ? new Date(field.value) : undefined
-                              }
-                              onSelect={(date: Date | undefined) => {
-                                field.onChange(
-                                  date ? format(date, "yyyy-MM-dd") : ""
-                                );
-                              }}
-                              autoFocus
-                              disabled={(date: Date) =>
-                                date > new Date() ||
-                                date < new Date("1900-01-01")
-                              }
-                            />
-                          </PopoverContent>
-                        </Popover>
+                      <FormItem>
+                        <FormControl>
+                          <Input
+                            type="date"
+                            {...field}
+                            className="h-11"
+                            disabled={isReadOnly}
+                            max={new Date().toISOString().split("T")[0]}
+                            min="1900-01-01"
+                          />
+                        </FormControl>
                         <CustomFormMessage>
                           {form.formState.errors.dateOfBirth?.message}
                         </CustomFormMessage>
@@ -349,9 +283,11 @@ export default function LearnerFormModal({
                             onValueChange={field.onChange}
                             disabled={isReadOnly}
                           >
-                            <SelectTrigger className="h-11">
+                            <SelectTrigger className="!h-11 w-full">
                               <SelectValue
-                                placeholder={t("common.form.gender.placeholder")}
+                                placeholder={t(
+                                  "common.form.gender.placeholder",
+                                )}
                               />
                             </SelectTrigger>
                             <SelectContent>
@@ -415,7 +351,9 @@ export default function LearnerFormModal({
                         <FormControl>
                           <Input
                             type="tel"
-                            placeholder={t("common.form.phoneNumber.placeholder")}
+                            placeholder={t(
+                              "common.form.phoneNumber.placeholder",
+                            )}
                             {...field}
                             className="h-11"
                             disabled={isReadOnly}
@@ -449,7 +387,9 @@ export default function LearnerFormModal({
                             <div className="relative">
                               <Input
                                 type={showPassword ? "text" : "password"}
-                                placeholder={t("common.form.password.placeholder")}
+                                placeholder={t(
+                                  "common.form.password.placeholder",
+                                )}
                                 {...field}
                                 className="h-11 pr-10"
                               />
@@ -476,66 +416,47 @@ export default function LearnerFormModal({
 
                   <div className="space-y-2">
                     <FormLabel className="text-sm font-medium">
-                      {t("common.form.confirmPassword.label")}{" "}
+                      {t("learners.organisation") ?? "Organisation"}{" "}
                       <span className="text-destructive">*</span>
                     </FormLabel>
                     <FormField
                       control={form.control}
-                      name="confirmPassword"
+                      name="organisationId"
                       render={({ field }) => (
                         <FormItem>
                           <FormControl>
-                            <div className="relative">
-                              <Input
-                                type={showConfirmPassword ? "text" : "password"}
-                                placeholder={t(
-                                  "common.form.confirmPassword.placeholder"
-                                )}
-                                {...field}
-                                className="h-11 pr-10"
-                              />
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  setShowConfirmPassword(!showConfirmPassword)
-                                }
-                                className="absolute right-3 top-1/2 -translate-y-1/2"
-                              >
-                                {showConfirmPassword ? (
-                                  <EyeOff className="h-4 w-4 text-muted-foreground" />
-                                ) : (
-                                  <Eye className="h-4 w-4 text-muted-foreground" />
-                                )}
-                              </button>
-                            </div>
+                            <Select
+                              value={field.value}
+                              onValueChange={field.onChange}
+                              disabled={isReadOnly || isLoadingOrganisations}
+                            >
+                              <SelectTrigger className="!h-11 w-full">
+                                <SelectValue
+                                  placeholder={
+                                    isLoadingOrganisations
+                                      ? (t("common.loading") ?? "Chargement...")
+                                      : (t("learners.selectOrganisation") ??
+                                        "Sélectionner une organisation")
+                                  }
+                                />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {organisations.map((org) => (
+                                  <SelectItem key={org.id} value={org.id}>
+                                    {org.name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
                           </FormControl>
                           <CustomFormMessage>
-                            {form.formState.errors.confirmPassword?.message}
+                            {form.formState.errors.organisationId?.message}
                           </CustomFormMessage>
                         </FormItem>
                       )}
                     />
                   </div>
                 </div>
-              </div>
-            )}
-
-            {/* Terms and Conditions - Only for add mode */}
-            {mode === "add" && (
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="acceptTerms"
-                  checked={form.watch("acceptTerms")}
-                  className="border-2 border-primary"
-                  onCheckedChange={(checked) => {
-                    form.setValue("acceptTerms", checked as boolean, {
-                      shouldValidate: true,
-                    });
-                  }}
-                />
-                <Label htmlFor="acceptTerms" className="text-sm">
-                  {t("signUp.signUpLearner.acceptTerms")}
-                </Label>
               </div>
             )}
 

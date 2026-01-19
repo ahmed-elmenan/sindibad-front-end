@@ -42,7 +42,7 @@ export const signUpLearnerSchema = z
       .string()
       .min(8, { message: "errors.phoneMinLength" })
       .max(15, { message: "errors.phoneMaxLength" })
-      .regex(/^[+]?[0-9\s\-]+$/, { message: "errors.phoneFormat" }),
+      .regex(/^[+]?[0-9\s-]+$/, { message: "errors.phoneFormat" }),
 
     email: z
       .string()
@@ -51,13 +51,13 @@ export const signUpLearnerSchema = z
 
     password: z
       .string()
-      .min(8, "errors.minLength")
+      .min(8, "errors.password.min_length")
       .regex(
         /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/,
-        "errors.password"
+        "errors.password.requirements"
       ),
 
-    confirmPassword: z.string().min(1, { message: "errors.required" }),
+    organisationId: z.string().min(1, { message: "errors.required" }),
 
     profilePicture: z.any().optional(),
 
@@ -78,10 +78,13 @@ export const signUpLearnerSchema = z
     acceptTerms: z.boolean().refine((value) => value === true, {
       message: "errors.termsRequired",
     }),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "errors.passwordMismatch",
-    path: ["confirmPassword"],
   });
 
 export type SignUpLearnerFormValues = z.infer<typeof signUpLearnerSchema>;
+
+// Schema for admin - acceptTerms is required but has default value
+export const signUpLearnerSchemaForAdmin = signUpLearnerSchema.extend({
+  acceptTerms: z.boolean().default(true),
+});
+
+export type SignUpLearnerFormValuesForAdmin = z.infer<typeof signUpLearnerSchemaForAdmin>;

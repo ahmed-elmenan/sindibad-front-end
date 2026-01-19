@@ -43,7 +43,6 @@ export default function ChapterAccordion({
     setSelectedVideoTitle(lesson.title || "Aperçu vidéo");
     
     try {
-      console.log("🎬 Requesting presigned URL for:", lesson.videoUrl);
       const presignedUrl = await getPresignedUrlForVideo({ videoUrl: lesson.videoUrl });
       
       if (!presignedUrl) {
@@ -54,7 +53,6 @@ export default function ChapterAccordion({
         return;
       }
       
-      console.log("✅ Presigned URL received, opening modal");
       setVideoUrl(presignedUrl);
       setIsPreviewModalOpen(true);
     } catch (error: any) {

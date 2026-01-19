@@ -65,32 +65,50 @@ export const logoutUser = (): void => {
 };
 
 export const registerLearner = async (learnerData: LearnerPayload) => {
-  try {
-    // Format the date to dd/MM/yyyy if it exists
-    const formattedData = {
-      ...learnerData,
-      dateOfBirth: learnerData.dateOfBirth ? new Date(learnerData.dateOfBirth).toLocaleDateString('fr-FR') : undefined
-    };
-    
-    // Ensure isActive is explicitly set as a boolean
-    const dataWithActive = {
-      ...formattedData,
-      isActive: false, // Explicitly set as boolean to match backend constraint
-    };
-    const response = await api.post("/learners/register", dataWithActive);
 
+  try {
+    // Build the request object with only fields expected by backend
+    const dataToSend = {
+      firstName: learnerData.firstName,
+      lastName: learnerData.lastName,
+      email: learnerData.email,
+      phoneNumber: learnerData.phoneNumber,
+      password: learnerData.password,
+      dateOfBirth: learnerData.dateOfBirth ? new Date(learnerData.dateOfBirth).toLocaleDateString('fr-FR') : '',
+      gender: learnerData.gender,
+      ...(learnerData.profilePicture && { profilePicture: learnerData.profilePicture }),
+      ...(learnerData.organisationId && { organisationId: learnerData.organisationId }),
+    };
+
+    console.log("Registering learner with data:", dataToSend);
+    const response = await api.post("/learners/register", dataToSend);
+    
     return { success: true, data: response.data };
   } catch (error) {
+    console.error("💥 Erreur dans registerLearner:", error);
     if (isAxiosError(error) && error.response) {
-      const errorMessage = error.response.data?.message || error.message;
-      console.error("Error registering learner:", errorMessage);
+      const errorData = error.response.data;
+      const errorMessage = errorData?.error || errorData?.message || error.message;
+      console.error("❌ Erreur backend:", errorMessage);
+      
       if (error.response.status === 409) {
-        // Assuming 409 Conflict for user already exists
+        // 409 Conflict - User already exists or duplicate data
         return {
           success: false,
-          message: "User with this email already exists.",
+          message: errorMessage || "A user with this email already exists.",
+          field: errorData?.field // May contain which field caused the conflict
         };
       }
+      
+      if (error.response.status === 400) {
+        // 400 Bad Request - Validation errors
+        return {
+          success: false,
+          message: errorMessage || "Invalid data provided.",
+          errors: errorData // May contain field-level errors
+        };
+      }
+      
       return { success: false, message: errorMessage };
     } else {
       console.error("Error registering learner:", error);

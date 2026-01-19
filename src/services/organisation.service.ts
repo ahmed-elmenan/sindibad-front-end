@@ -553,3 +553,18 @@ function handleApiError(error: unknown): never {
   console.error("API Error:", message);
   throw new Error(message);
 }
+
+export interface OrganisationList {
+  id: string;
+  name: string;
+}
+
+export const getAllOrganisations = async (): Promise<OrganisationList[]> => {
+  try {
+    const res = await api.get('/organisations/list');
+    return res.data;
+  } catch (error: any) {
+    console.error('Error fetching organisations:', error);
+    throw new Error(error.response?.data?.message || 'Error fetching organisations');
+  }
+};

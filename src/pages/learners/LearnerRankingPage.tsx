@@ -22,8 +22,7 @@ import {
 } from "@/components/ranking";
 
 // Import des nouveaux composants
-import LearnerFormModal from "@/components/learners/LearnerFormModal";
-import DeleteLearnerDialog from "@/components/learners/DeleteLearnerDialog";
+import { LearnerFormModal, DeleteLearnerDialog } from "@/components/learners";
 
 export default function LearnersRankingPage({
   userRole: userRoleProp,
@@ -33,8 +32,6 @@ export default function LearnersRankingPage({
   // Get user role from auth context if not provided as prop
   const { user } = useAuth();
   const userRole = userRoleProp || user?.role;
-
-  console.log("LearnerRankingPage - userRole:", userRole, "user:", user);
 
   // États pour les filtres et la pagination
   const [searchTerm, setSearchTerm] = useState("");
@@ -261,14 +258,6 @@ export default function LearnersRankingPage({
         mode={formModalMode}
         learner={selectedLearner}
         onSuccess={handleFormSuccess}
-      />
-
-      <DeleteLearnerDialog
-        open={isDeleteDialogOpen}
-        onClose={() => setIsDeleteDialogOpen(false)}
-        onConfirm={confirmDeleteLearner}
-        learnerName={selectedLearner?.fullName || ""}
-        isDeleting={isDeleting}
       />
     </div>
   );

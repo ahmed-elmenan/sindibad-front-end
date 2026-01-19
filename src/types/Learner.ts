@@ -8,6 +8,7 @@ export interface Learner {
   email: string;
   phone: string;
   avatar?: string;
+  organisationId?: string;
 }
 
 export interface LearnerPayload {
@@ -20,6 +21,7 @@ export interface LearnerPayload {
   dateOfBirth: string;
   gender: "MALE" | "FEMALE";
   isActive: boolean;
+  organisationId?: string;
 }
 
 export interface LearnerRanking {

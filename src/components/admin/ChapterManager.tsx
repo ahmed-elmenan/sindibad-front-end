@@ -808,8 +808,6 @@ const ChapterManager: React.FC<UnifiedChapterManagerProps> = () => {
             duration: 5000,
           });
         }
-      } else {
-        console.log("No changes detected for chapter, skipping update request");
       }
 
       // Clean up stored original values
@@ -986,8 +984,6 @@ const ChapterManager: React.FC<UnifiedChapterManagerProps> = () => {
             duration: 5000,
           });
         }
-      } else {
-        console.log("No changes detected for video, skipping update request");
       }
 
       // Clean up stored original values
