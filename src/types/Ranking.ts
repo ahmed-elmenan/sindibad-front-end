@@ -4,4 +4,5 @@ export interface RankingFilters {
   gender?: string;
   search?: string;
   formationId?: string;
+  organisationId?: string;
 }

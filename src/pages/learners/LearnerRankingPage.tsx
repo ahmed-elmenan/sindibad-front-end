@@ -5,6 +5,7 @@ import {
   getCoursesForRanking,
 } from "@/services/ranking.service";
 import { deleteLearner } from "@/services/learner.service";
+import { getAllOrganisations } from "@/services/organisation.service";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useAuth } from "@/hooks/useAuth";
 import type { RankingFilters } from "@/types/Ranking";
@@ -37,6 +38,7 @@ export default function LearnersRankingPage({
   const [searchTerm, setSearchTerm] = useState("");
   const [genderFilter, setGenderFilter] = useState<string>("ALL");
   const [formationFilter, setFormationFilter] = useState<string>("ALL");
+  const [organisationFilter, setOrganisationFilter] = useState<string>("ALL");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
@@ -59,6 +61,21 @@ export default function LearnersRankingPage({
     staleTime: 5 * 60 * 1000, // Cache pendant 5 minutes
   });
 
+  // Vérifier si l'utilisateur est admin ou super admin
+  const canFilterByOrganisation = 
+    userRole === "admin" || 
+    userRole === "ADMIN" ||
+    userRole === "super_admin" ||
+    userRole === "SUPER_ADMIN";
+
+  // Chargement des organisations (uniquement pour admin/super admin)
+  const { data: organisations = [], isLoading: isLoadingOrganisations } = useQuery({
+    queryKey: ["organisations"],
+    queryFn: getAllOrganisations,
+    staleTime: 5 * 60 * 1000,
+    enabled: canFilterByOrganisation, // Ne charge que si l'utilisateur est admin
+  });
+
   // Construction des filtres pour l'API
   const filters: RankingFilters = {
     page: currentPage - 1,
@@ -66,6 +83,7 @@ export default function LearnersRankingPage({
     gender: genderFilter !== "ALL" ? genderFilter : undefined,
     search: debouncedSearchTerm || undefined,
     formationId: formationFilter !== "ALL" ? formationFilter : undefined,
+    organisationId: canFilterByOrganisation && organisationFilter !== "ALL" ? organisationFilter : undefined,
   };
 
   // Chargement des learners avec tous les filtres
@@ -84,13 +102,14 @@ export default function LearnersRankingPage({
   // Reset à la première page quand les filtres changent
   useEffect(() => {
     setCurrentPage(1);
-  }, [debouncedSearchTerm, genderFilter, formationFilter, itemsPerPage]);
+  }, [debouncedSearchTerm, genderFilter, formationFilter, organisationFilter, itemsPerPage]);
 
   // Fonction pour réinitialiser tous les filtres
   const resetFilters = useCallback(() => {
     setSearchTerm("");
     setGenderFilter("ALL");
     setFormationFilter("ALL");
+    setOrganisationFilter("ALL");
     setCurrentPage(1);
   }, []);
 
@@ -159,7 +178,8 @@ export default function LearnersRankingPage({
     const hasActiveFilters = !!(
       searchTerm ||
       genderFilter !== "ALL" ||
-      formationFilter !== "ALL"
+      formationFilter !== "ALL" ||
+      (canFilterByOrganisation && organisationFilter !== "ALL")
     );
 
     return (
@@ -175,6 +195,10 @@ export default function LearnersRankingPage({
           setFormationFilter={handleFormationChange}
           formations={formations}
           isLoadingFormations={isLoadingFormations}
+          organisationFilter={canFilterByOrganisation ? organisationFilter : undefined}
+          setOrganisationFilter={canFilterByOrganisation ? setOrganisationFilter : undefined}
+          organisations={canFilterByOrganisation ? organisations : undefined}
+          isLoadingOrganisations={canFilterByOrganisation ? isLoadingOrganisations : undefined}
           resetFilters={resetFilters}
           onAddLearner={handleAddLearner}
           userRole={userRole}
@@ -221,6 +245,10 @@ export default function LearnersRankingPage({
         setFormationFilter={handleFormationChange}
         formations={formations}
         isLoadingFormations={isLoadingFormations}
+        organisationFilter={canFilterByOrganisation ? organisationFilter : undefined}
+        setOrganisationFilter={canFilterByOrganisation ? setOrganisationFilter : undefined}
+        organisations={canFilterByOrganisation ? organisations : undefined}
+        isLoadingOrganisations={canFilterByOrganisation ? isLoadingOrganisations : undefined}
         resetFilters={resetFilters}
         totalItems={learnersPage?.totalElements}
         displayedItems={learnersPage?.content.length}

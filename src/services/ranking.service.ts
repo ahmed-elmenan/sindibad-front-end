@@ -27,6 +27,10 @@ export async function getLearnersRanking(
       params.formationId = filters.formationId;
     }
 
+    if (filters.organisationId && filters.organisationId !== "ALL") {
+      params.organisationId = filters.organisationId;
+    }
+
     const response: AxiosResponse<PaginatedResponse<LearnerRanking>> =
       await api.get("/learners/ranking", { params });
     return response.data;

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslation } from "react-i18next";
@@ -6,6 +6,8 @@ import { toast } from "sonner";
 import { Eye, EyeOff } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { getAllOrganisations } from "@/services/organisation.service";
+import { getLearnerProfileById, updateLearner } from "@/services/learner.service";
+import { useAuth } from "@/hooks/useAuth";
 
 import {
   Dialog,
@@ -53,11 +55,17 @@ export default function LearnerFormModal({
   onSuccess,
 }: LearnerFormModalProps) {
   const { t } = useTranslation();
+  const { user } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [initialValues, setInitialValues] = useState<any>(null);
 
   const isReadOnly = mode === "view";
   const isEdit = mode === "edit";
+
+  // Check if user is an organisation
+  const isOrganisationUser = user?.role === "ORGANISATION";
+  const userOrganisationId = isOrganisationUser ? user?.id : null;
 
   // Fetch organisations
   const { data: organisations = [], isLoading: isLoadingOrganisations } =
@@ -66,56 +74,123 @@ export default function LearnerFormModal({
       queryFn: getAllOrganisations,
     });
 
+  // Fetch full learner details for edit mode
+  const { data: learnerDetails, isLoading: isLoadingLearner } = useQuery({
+    queryKey: ["learner", learner?.id],
+    queryFn: () => getLearnerProfileById(learner!.id),
+    enabled: Boolean(isEdit && learner?.id),
+  });
+
   // Initialize form with validation schema
   const form = useForm<SignUpLearnerFormValues>({
     resolver: zodResolver(signUpLearnerSchema),
     mode: "onSubmit",
     reValidateMode: "onChange",
     defaultValues: {
-      firstName: learner?.fullName?.split(" ")[0] || "",
-      lastName: learner?.fullName?.split(" ").slice(1).join(" ") || "",
+      firstName: "",
+      lastName: "",
       dateOfBirth: "",
       gender: "male",
       phoneNumber: "",
-      email: learner?.username || "",
+      email: "",
       password: "",
-      organisationId: "",
-      profilePicture: learner?.avatarUrl || "",
+      organisationId: userOrganisationId || "",
+      profilePicture: "",
       city: "",
       organisationName: "",
       acceptTerms: true,
+      isActive: true,
     },
   });
 
+  // Load learner data into form when available
+  useEffect(() => {
+    if (isEdit && learnerDetails) {
+      const values = {
+        firstName: learnerDetails.firstName || "",
+        lastName: learnerDetails.lastName || "",
+        dateOfBirth: learnerDetails.dateOfBirth || "",
+        gender: learnerDetails.gender?.toLowerCase() || "male",
+        phoneNumber: learnerDetails.phoneNumber || "",
+        email: learnerDetails.email || "",
+        password: "",
+        organisationId: "", // Will be set from organisation data if available
+        profilePicture: learnerDetails.profilePicture || "",
+        city: "",
+        organisationName: "",
+        acceptTerms: true,
+        isActive: learnerDetails.isActive ?? true,
+      };
+      
+      // Store initial values for comparison
+      setInitialValues(values);
+      
+      // Set form values
+      Object.keys(values).forEach((key) => {
+        form.setValue(key as keyof SignUpLearnerFormValues, values[key as keyof typeof values]);
+      });
+    } else if (!isEdit && userOrganisationId) {
+      form.setValue("organisationId", userOrganisationId);
+    }
+  }, [isEdit, learnerDetails, form, userOrganisationId]);
+
   const onSubmit = async (data: SignUpLearnerFormValues) => {
-    console.log("✅ Form submitted successfully!");
-    console.log("📋 Form data:", data);
-    console.log("❌ Form errors:", form.formState.errors);
-    
     if (isReadOnly) return;
 
     setIsSubmitting(true);
-    console.log("🚀 Submitting new learner:", data);
 
     try {
-      const dataToSend = {
-        ...data,
-        isActive: true,
-        gender: data.gender.toUpperCase() as "MALE" | "FEMALE",
-      };
-
       if (isEdit && learner) {
-        // Update learner - à implémenter selon votre API
-        toast.success(t("common.success"), {
-          description: t("learners.updateSuccess"),
+        // Check if any values have changed
+        const hasChanges = initialValues && Object.keys(data).some((key) => {
+          const k = key as keyof SignUpLearnerFormValues;
+          // Skip password if empty
+          if (k === "password" && !data[k]) return false;
+          return data[k] !== initialValues[k];
         });
+
+        if (!hasChanges) {
+          toast.info(t("common.info"), {
+            description: t("learners.noChanges") ?? "Aucune modification détectée",
+          });
+          setIsSubmitting(false);
+          return;
+        }
+
+        // Prepare update data - only changed fields
+        const updateData: any = {
+          firstName: data.firstName,
+          lastName: data.lastName,
+          email: data.email,
+          phoneNumber: data.phoneNumber,
+          dateOfBirth: data.dateOfBirth,
+          gender: data.gender.toUpperCase() as "MALE" | "FEMALE",
+          isActive: data.isActive,
+        };
+
+        // Only include password if provided
+        if (data.password) {
+          updateData.password = data.password;
+        }
+
+        await updateLearner(learner.id, updateData);
+        toast.success(t("common.success"), {
+          description: t("learners.updateSuccess") ?? "Apprenant mis à jour avec succès",
+        });
+        onSuccess?.();
+        onClose();
       } else {
         // Create new learner
-        console.log("Submitting new learner:", dataToSend);
+        const dataToSend = {
+          ...data,
+          isActive: data.isActive ?? true,
+          gender: data.gender.toUpperCase() as "MALE" | "FEMALE",
+        };
+
         const result = await registerLearner(dataToSend);
         if (result.success) {
           toast.success(t("common.success"), {
-            description: t("learners.addSuccess"),
+            description: t("learners.addSuccess") ?? "Apprenant ajouté avec succès",
           });
           onSuccess?.();
           onClose();
@@ -125,10 +200,10 @@ export default function LearnerFormModal({
           });
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Submission error:", error);
       toast.error(t("common.error"), {
-        description: t("common.unexpectedError"),
+        description: error.message || t("common.unexpectedError"),
       });
     } finally {
       setIsSubmitting(false);
@@ -428,7 +503,7 @@ export default function LearnerFormModal({
                             <Select
                               value={field.value}
                               onValueChange={field.onChange}
-                              disabled={isReadOnly || isLoadingOrganisations}
+                              disabled={isReadOnly || isLoadingOrganisations || isOrganisationUser}
                             >
                               <SelectTrigger className="!h-11 w-full">
                                 <SelectValue

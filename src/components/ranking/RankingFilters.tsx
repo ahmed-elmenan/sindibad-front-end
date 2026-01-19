@@ -16,6 +16,11 @@ interface Formation {
   name: string;
 }
 
+interface Organisation {
+  id: string;
+  name: string;
+}
+
 interface RankingFiltersProps {
   searchTerm: string;
   setSearchTerm: (term: string) => void;
@@ -25,6 +30,10 @@ interface RankingFiltersProps {
   setFormationFilter: (formationId: string) => void;
   formations: Formation[];
   isLoadingFormations: boolean;
+  organisationFilter?: string;
+  setOrganisationFilter?: (organisationId: string) => void;
+  organisations?: Organisation[];
+  isLoadingOrganisations?: boolean;
   resetFilters: () => void;
   totalItems?: number;
   displayedItems?: number;
@@ -42,6 +51,10 @@ export default function RankingFilters({
   setFormationFilter,
   formations,
   isLoadingFormations,
+  organisationFilter,
+  setOrganisationFilter,
+  organisations = [],
+  isLoadingOrganisations = false,
   resetFilters,
   totalItems,
   displayedItems,
@@ -50,7 +63,7 @@ export default function RankingFilters({
   userRole,
 }: RankingFiltersProps) {
   const { t } = useTranslation();
-  const hasActiveFilters = searchTerm || genderFilter !== "ALL" || formationFilter !== "ALL";
+  const hasActiveFilters = searchTerm || genderFilter !== "ALL" || formationFilter !== "ALL" || (organisationFilter && organisationFilter !== "ALL");
   
   // Support for different role naming conventions
   const canAddLearner = 
@@ -59,6 +72,12 @@ export default function RankingFilters({
     userRole === "organisations" || 
     userRole === "organisation" ||
     userRole === "ORGANISATION";
+
+  const canFilterByOrganisation = 
+    userRole === "admin" || 
+    userRole === "ADMIN" ||
+    userRole === "super_admin" ||
+    userRole === "SUPER_ADMIN";
 
   return (
     <Card>
@@ -146,6 +165,34 @@ export default function RankingFilters({
                 ))}
               </SelectContent>
             </Select>
+
+            {/* Organisation Filter - Only for Admin/Super Admin */}
+            {canFilterByOrganisation && organisationFilter && setOrganisationFilter && (
+              <Select
+                value={organisationFilter}
+                onValueChange={setOrganisationFilter}
+                disabled={isLoadingOrganisations}
+              >
+                <SelectTrigger className="w-full sm:w-[280px]">
+                  <SelectValue
+                    placeholder={
+                      t("learnerRanking.filterByOrganisation") ??
+                      "Filtrer par organisation..."
+                    }
+                  />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL">
+                    {t("learnerRanking.allOrganisations") ?? "Toutes les organisations"}
+                  </SelectItem>
+                  {organisations.map((organisation) => (
+                    <SelectItem key={organisation.id} value={organisation.id}>
+                      {organisation.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
 
             {/* Reset Filters Button */}
             {hasActiveFilters && (

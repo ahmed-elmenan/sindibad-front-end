@@ -1090,10 +1090,15 @@
     "noResultsWithFilters": "Aucun résultat avec les filtres sélectionnés",
     "formationScore": "Score de la formation",
     "rankingFor": "Classement pour",
-    "actions": "Actions"
+    "actions": "Actions",
+    "filterByOrganisation": "Filtrer par organisation",
+    "allOrganisations": "Toutes les organisations",
+    "status": "Statut",
+    "active": "Actif",
+    "inactive": "Inactif"
   },
   "learners": {
-    "addLearner": "Ajouter un apprenant test2",
+    "addLearner": "Ajouter un apprenant",
     "editLearner": "Modifier l'apprenant",
     "viewLearner": "Voir l'apprenant",
     "deleteLearner": "Supprimer l'apprenant",

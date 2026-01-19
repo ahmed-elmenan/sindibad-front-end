@@ -1,13 +1,5 @@
 import { useTranslation } from "react-i18next";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -90,9 +82,18 @@ export default function RankingTable({
   const navigate = useNavigate();
 
   // Support for different role naming conventions
+  console.log("User role:", userRole);
+  console.log("User role:", userRole);
+  console.log("User role:", userRole);
+  console.log("User role:", userRole);
+
   const canManageLearners = 
     userRole === "ADMIN" ||
-    userRole === "ORGANISATION";
+    userRole === "admin" ||
+    userRole === "SUPER_ADMIN" ||
+    userRole === "super_admin" ||
+    userRole === "ORGANISATION" ||
+    userRole === "organisation"
 
   const getInitials = (fullName: string) =>
     fullName
@@ -120,121 +121,150 @@ export default function RankingTable({
     headers.push(t("learnerRanking.globalScore") ?? "Score global");
   }
 
+  // Add status column
+  headers.push(t("learnerRanking.status") ?? "Statut");
+
   if (canManageLearners) {
     headers.push(t("learnerRanking.actions") ?? "Actions");
   }
 
-  const colCount = headers.length;
-  const getColWidthClass = (colCount: number) => {
-    switch (colCount) {
-      case 5:
-        return "w-1/5";
-      case 6:
-        return "w-1/6";
-      default:
-        return "w-auto";
+  // Calculate optimal column widths with inline styles for table-fixed layout
+  const getColumnWidth = (index: number, label: string): string => {
+    // Rank column
+    if (index === 0) return "10%";
+    
+    // Avatar column
+    if (index === 1) return "10%";
+    
+    // Full Name
+    if (index === 2) return "24%";
+    
+    // Username
+    if (index === 3) return "20%";
+    
+    // Score columns
+    if (label.includes("Score") || label.includes("score")) {
+      return "16%";
     }
+    
+    // Status column
+    if (label === (t("learnerRanking.status") ?? "Statut")) {
+      return "12%";
+    }
+    
+    // Actions column
+    if (label === (t("learnerRanking.actions") ?? "Actions")) {
+      return "8%";
+    }
+    
+    return "auto";
   };
-  const colWidthClass = getColWidthClass(colCount);
 
   return (
-    <Card className="p-0">
-      <CardContent className="p-0 w-full"> 
-        <div className="overflow-x-auto w-full">
-          <Table className="w-full table-fixed m-0"> 
-            <TableHeader className="sticky top-0 bg-card z-10 m-0 p-0"> {/* Ajoute m-0 p-0 */}
-              <TableRow>
-                {headers.map((label, i) => {
-                  // Check if this is the Score global header
-                  const isGlobalScoreHeader =
-                    label === t("learnerRanking.globalScore") ||
-                    label === "Score global";
-
-                  // Apply different width based on whether a formation is selected
-                  const widthClass = isGlobalScoreHeader
-                    ? selectedFormation
-                      ? "!w-[13rem]"
-                      : "!w-[16rem]"
-                    : colWidthClass;
-
-                  return (
-                    <TableHead
-                      key={i}
-                      className={`text-center border-b border-gray-300 bg-[#f8fafc] font-semibold ${widthClass}`}
-                    >
-                      {label}
-                    </TableHead>
-                  );
-                })}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+    <div style={{ width: '100%', maxWidth: '100%' }}>
+      <Card className="p-0" style={{ width: '100%', maxWidth: '100%' }}>
+        <CardContent className="p-0" style={{ width: '100%', maxWidth: '100%' }}>
+          <div style={{ width: '100%', maxWidth: '100%', overflow: 'auto' }}>
+            <table 
+              className="caption-bottom text-sm"
+              style={{ 
+                tableLayout: 'fixed',
+                width: '100%',
+                maxWidth: '100%',
+                display: 'table'
+              }}
+            >
+            <colgroup>
+              {headers.map((label, i) => (
+                <col key={i} style={{ width: getColumnWidth(i, label) }} />
+              ))}
+            </colgroup>
+            <thead className="sticky top-0 bg-[#f8fafc] z-10">
+              <tr className="border-b">
+                {headers.map((label, i) => (
+                  <th
+                    key={i}
+                    className="text-center border-b border-gray-300 bg-[#f8fafc] font-semibold h-10 px-2 align-middle"
+                  >
+                    {label}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="[&_tr:last-child]:border-0">
               {isLoading
                 ? Array.from({ length: itemsPerPage }).map((_, idx) => (
-                    <TableRow
+                    <tr
                       key={`loading-${idx}`}
                     >
                       {/* Rang */}
-                      <TableCell
-                        className={`text-center border-b border-gray-300 ${colWidthClass}`}
+                      <td
+                        className="text-center border-b border-gray-300 p-2"
                       >
                         <div className="flex justify-center items-center">
                           <div className="h-5 w-5 rounded-full bg-gray-200 animate-pulse" />
                         </div>
-                      </TableCell>
+                      </td>
 
                       {/* Avatar */}
-                      <TableCell
-                        className={`text-center border-b border-gray-300 ${colWidthClass}`}
+                      <td
+                        className="text-center border-b border-gray-300 p-2"
                       >
                         <div className="h-10 w-10 rounded-full bg-gray-200 animate-pulse mx-auto" />
-                      </TableCell>
+                      </td>
 
                       {/* Nom complet */}
-                      <TableCell
-                        className={`text-center border-b border-gray-300 ${colWidthClass}`}
+                      <td
+                        className="text-center border-b border-gray-300 p-2"
                       >
                         <div className="h-4 w-32 bg-gray-200 rounded animate-pulse mx-auto" />
-                      </TableCell>
+                      </td>
 
                       {/* Nom d'utilisateur */}
-                      <TableCell
-                        className={`text-center border-b border-gray-300 ${colWidthClass}`}
+                      <td
+                        className="text-center border-b border-gray-300 p-2"
                       >
                         <div className="h-4 w-24 bg-gray-200 rounded animate-pulse mx-auto" />
-                      </TableCell>
+                      </td>
 
                       {/* Score formation ou global */}
-                      <TableCell
-                        className={`text-center border-b border-gray-300 ${colWidthClass}`}
+                      <td
+                        className="text-center border-b border-gray-300 p-2"
                       >
                         <div className="h-6 w-12 bg-gray-200 rounded-full animate-pulse mx-auto" />
-                      </TableCell>
+                      </td>
 
                       {/* Score global ssi formation sélectionnée */}
                       {selectedFormation && (
-                        <TableCell
-                          className={`text-center border-b border-gray-300 ${colWidthClass}`}
+                        <td
+                          className="text-center border-b border-gray-300 p-2"
                         >
                           <div className="h-6 w-12 bg-gray-200 rounded-full animate-pulse mx-auto" />
-                        </TableCell>
+                        </td>
                       )}
+
+                      {/* Status column for loading state */}
+                      <td
+                        className="text-center border-b border-gray-300 p-2"
+                      >
+                        <div className="h-6 w-16 bg-gray-200 rounded-full animate-pulse mx-auto" />
+                      </td>
 
                       {/* Actions column for loading state */}
                       {canManageLearners && (
-                        <TableCell
-                          className={`text-center border-b border-gray-300 ${colWidthClass}`}
+                        <td
+                          className="text-center border-b border-gray-300 p-2"
                         >
                           <div className="h-8 w-8 bg-gray-200 rounded animate-pulse mx-auto" />
-                        </TableCell>
+                        </td>
                       )}
-                    </TableRow>
+                    </tr>
                   ))
                 : learners.map((learner, idx) => {
                     const isLastRow = idx === learners.length - 1;
 
                     return (
-                      <TableRow
+                      <tr
                         key={learner.id}
                         className={`hover:bg-gray-50 transition-colors ${
                           userRole === "admin" || userRole === "organisations"
@@ -250,23 +280,23 @@ export default function RankingTable({
                         }}
                       >
                         {/* Rang */}
-                        <TableCell
-                          className={`text-center ${
+                        <td
+                          className={`text-center p-2 ${
                             isLastRow ? "" : "border-b border-gray-300"
-                          } ${colWidthClass}`}
+                          }`}
                         >
                           <div className="flex justify-center items-center">
                             {getRankingIcon(
                               idx + 1 + (currentPage - 1) * itemsPerPage
                             )}
                           </div>
-                        </TableCell>
+                        </td>
 
                         {/* Avatar */}
-                        <TableCell
-                          className={`text-center ${
+                        <td
+                          className={`text-center p-2 ${
                             isLastRow ? "" : "border-b border-gray-300"
-                          } ${colWidthClass}`}
+                          }`}
                         >
                           <Avatar className="h-10 w-10 mx-auto">
                             <AvatarImage
@@ -277,35 +307,35 @@ export default function RankingTable({
                               {getInitials(learner.fullName)}
                             </AvatarFallback>
                           </Avatar>
-                        </TableCell>
+                        </td>
 
                         {/* Nom complet */}
-                        <TableCell
-                          className={`text-center ${
+                        <td
+                          className={`text-center p-2 ${
                             isLastRow ? "" : "border-b border-gray-300"
-                          } ${colWidthClass}`}
+                          }`}
                         >
                           <span className="font-medium">
                             {learner.fullName}
                           </span>
-                        </TableCell>
+                        </td>
 
                         {/* Nom d'utilisateur */}
-                        <TableCell
-                          className={`text-center ${
+                        <td
+                          className={`text-center p-2 ${
                             isLastRow ? "" : "border-b border-gray-300"
-                          } ${colWidthClass}`}
+                          }`}
                         >
                           <span className="text-muted-foreground">
                             @{learner.username}
                           </span>
-                        </TableCell>
+                        </td>
 
                         {/* Score formation ou global */}
-                        <TableCell
-                          className={`text-center ${
+                        <td
+                          className={`text-center p-2 ${
                             isLastRow ? "" : "border-b border-gray-300"
-                          } ${colWidthClass}`}
+                          }`}
                         >
                           <Badge
                             variant={
@@ -338,14 +368,14 @@ export default function RankingTable({
                                     : undefined
                                 )}
                           </Badge>
-                        </TableCell>
+                        </td>
 
                         {/* Score global ssi formation sélectionnée */}
                         {selectedFormation && (
-                          <TableCell
-                            className={`text-center ${
+                          <td
+                            className={`text-center p-2 ${
                               isLastRow ? "" : "border-b border-gray-300"
-                            } ${colWidthClass}`}
+                            }`}
                           >
                             <Badge
                               variant={
@@ -366,15 +396,31 @@ export default function RankingTable({
                                   : undefined
                               )}
                             </Badge>
-                          </TableCell>
+                          </td>
                         )}
+
+                        {/* Status column */}
+                        <td
+                          className={`text-center p-2 ${
+                            isLastRow ? "" : "border-b border-gray-300"
+                          }`}
+                        >
+                          <Badge
+                            variant={learner.isActive ? "default" : "secondary"}
+                            className="font-medium"
+                          >
+                            {learner.isActive
+                              ? (t("learnerRanking.active") ?? "Actif")
+                              : (t("learnerRanking.inactive") ?? "Inactif")}
+                          </Badge>
+                        </td>
 
                         {/* Actions column */}
                         {canManageLearners && (
-                          <TableCell
-                            className={`text-center ${
+                          <td
+                            className={`text-center p-2 ${
                               isLastRow ? "" : "border-b border-gray-300"
-                            } ${colWidthClass}`}
+                            }`}
                             onClick={(e) => e.stopPropagation()}
                           >
                             <DropdownMenu>
@@ -411,15 +457,16 @@ export default function RankingTable({
                                 </DropdownMenuItem>
                               </DropdownMenuContent>
                             </DropdownMenu>
-                          </TableCell>
+                          </td>
                         )}
-                      </TableRow>
+                      </tr>
                     );
                   })}
-            </TableBody>
-          </Table>
+            </tbody>
+          </table>
         </div>
       </CardContent>
     </Card>
+    </div>
   );
 }

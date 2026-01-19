@@ -78,6 +78,8 @@ export const signUpLearnerSchema = z
     acceptTerms: z.boolean().refine((value) => value === true, {
       message: "errors.termsRequired",
     }),
+
+    isActive: z.boolean().default(true).optional(),
   });
 
 export type SignUpLearnerFormValues = z.infer<typeof signUpLearnerSchema>;

@@ -33,6 +33,7 @@ export interface LearnerRanking {
   score: number;
   formationScore?: number;
   ranking: number;
+  isActive?: boolean;
 }
 
 export interface RawLearner {
