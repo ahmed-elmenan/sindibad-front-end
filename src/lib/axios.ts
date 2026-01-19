@@ -32,9 +32,29 @@ const processQueue = (error: unknown, token: string | null = null) => {
 
 // Interceptor pour attacher le token JWT
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('accessToken')
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`
+  // Liste des endpoints publics qui ne nécessitent pas d'authentification
+  const publicEndpoints = [
+    '/auth/login',
+    '/auth/signup',
+    '/auth/activate-account',
+    '/auth/activate-account-reset-password',
+    '/auth/activate-and-reset-password',
+    '/auth/send-otp',
+    '/auth/verify-otp',
+    '/auth/reset-password',
+    '/auth/refresh-token'
+  ]
+  
+  // Ne pas ajouter le token pour les endpoints publics
+  const isPublicEndpoint = publicEndpoints.some(endpoint => 
+    config.url?.includes(endpoint)
+  )
+  
+  if (!isPublicEndpoint) {
+    const token = localStorage.getItem('accessToken')
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`
+    }
   }
   return config
 })

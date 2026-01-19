@@ -50,7 +50,7 @@ export default function ActivateAndResetPasswordPage() {
 
     try {
       // Call API to activate and reset password
-      await api.post("/auth/activate-and-reset-password", {
+      await api.post("/auth/activate-account-reset-password", {
         token,
         newPassword,
       });
