@@ -112,7 +112,7 @@ export default function LoginPage() {
 
   return (
     <div
-      className={`flex items-center justify-center p-4 mt-15 ${
+      className={`flex items-center justify-center p-4  !bg-gray-50 min-h-screen mt-[-50px] ${
         isRTL ? "rtl" : "ltr"
       }`}
       style={{ backgroundColor: "var(--background2)" }}
