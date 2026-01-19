@@ -1384,7 +1384,11 @@
     "processing": "Activation en cours...",
     "success": "Votre compte a été activé avec succès !",
     "error": "Erreur lors de l'activation du compte.",
-    "missingToken": "Token d'activation manquant."
+    "missingToken": "Token d'activation manquant.",
+    "setPassword": "Définir votre mot de passe",
+    "setPasswordDescription": "Veuillez créer un mot de passe pour activer votre compte",
+    "passwordSetSuccess": "Votre compte a été activé et votre mot de passe a été défini avec succès !",
+    "passwordSetError": "Erreur lors de la définition du mot de passe."
   },
   "switchedTabs": {
     "warningTitle": "Attention importante",
@@ -1395,6 +1399,16 @@
     "account": "Mon Compte",
     "notifications": "Notifications",
     "logout": "Se Déconnecter"
+  },
+  "auth": {
+    "newPassword": "Nouveau mot de passe",
+    "confirmPassword": "Confirmer le mot de passe",
+    "enterNewPassword": "Entrez votre nouveau mot de passe",
+    "confirmNewPassword": "Confirmez votre nouveau mot de passe",
+    "setPassword": "Définir le mot de passe",
+    "settingPassword": "Définition en cours...",
+    "passwordTooShort": "Le mot de passe doit contenir au moins 8 caractères",
+    "passwordsDoNotMatch": "Les mots de passe ne correspondent pas"
   },
   "waitingAdminMessage": "Veuillez attendre l'activation du prochain chapitre par l'administrateur.",
   "waiting": "Veuillez patienter..."

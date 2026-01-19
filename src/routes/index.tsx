@@ -32,6 +32,7 @@ import PhaseManager from "@/components/admin/PhaseManager";
 
 import ErrorBoundary from "@/components/ErrorBoundary";
 import ActivateAccountPage from "@/pages/auth/ActivateAccount";
+import ActivateAndResetPasswordPage from "@/pages/auth/ActivateAndResetPassword";
 import ManagementAccessToCourseResources from "@/pages/organisation/ManagementAccessToCourseResources";
 import AddCoursePage from "@/pages/admin/AddCoursePage";
 import QuestionManagementPage from "@/pages/admin/QuestionManagementPage";
@@ -59,6 +60,10 @@ export const router = createBrowserRouter([
       {
         path: "activate-account",
         element: <ActivateAccountPage />,
+      },
+      {
+        path: "activate-and-reset-password",
+        element: <ActivateAndResetPasswordPage />,
       },
       {
         path: "activate-account/reset-password",
