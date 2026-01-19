@@ -416,7 +416,7 @@ const ProfileImageUploader: React.FC<ProfileImageUploaderProps> = ({
 
       {/* Cropping Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md bg-white">
           <DialogHeader>
             <DialogTitle>
               {t("profileImageUploader.cropDialog.title")}
@@ -427,7 +427,7 @@ const ProfileImageUploader: React.FC<ProfileImageUploaderProps> = ({
           </DialogHeader>
 
           {/* Cropper */}
-          <div className="relative h-64 w-full mt-4 bg-muted rounded-md overflow-hidden">
+          <div className="relative h-64 w-full mt-4 bg-white border border-gray-200 rounded-md overflow-hidden">
             {imageSource && (
               <Cropper
                 image={imageSource}
@@ -439,6 +439,11 @@ const ProfileImageUploader: React.FC<ProfileImageUploaderProps> = ({
                 onZoomChange={setZoom}
                 cropShape="round"
                 showGrid={false}
+                style={{
+                  containerStyle: {
+                    backgroundColor: '#ffffff'
+                  }
+                }}
               />
             )}
           </div>

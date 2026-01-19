@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { Eye, EyeOff } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { getAllOrganisations } from "@/services/organisation.service";
-import { getLearnerProfileById, updateLearner } from "@/services/learner.service";
+import { getLearnerProfileById, updateLearner, uploadProfilePicture } from "@/services/learner.service";
 import { useAuth } from "@/hooks/useAuth";
 
 import {
@@ -75,7 +75,7 @@ export default function LearnerFormModal({
     });
 
   // Fetch full learner details for edit mode
-  const { data: learnerDetails, isLoading: isLoadingLearner } = useQuery({
+  const { data: learnerDetails } = useQuery({
     queryKey: ["learner", learner?.id],
     queryFn: () => getLearnerProfileById(learner!.id),
     enabled: Boolean(isEdit && learner?.id),
@@ -174,13 +174,24 @@ export default function LearnerFormModal({
         }
 
         await updateLearner(learner.id, updateData);
+        
+        // Upload profile picture if changed
+        if (data.profilePicture && data.profilePicture !== initialValues?.profilePicture) {
+          try {
+            await uploadProfilePicture(learner.id, data.profilePicture);
+          } catch (error) {
+            console.error("Error uploading profile picture:", error);
+            // Continue anyway, the learner was updated
+          }
+        }
+        
         toast.success(t("common.success"), {
           description: t("learners.updateSuccess") ?? "Apprenant mis à jour avec succès",
         });
         onSuccess?.();
         onClose();
       } else {
-        // Create new learner
+        // Create new learner - send everything including profile picture in one request
         const dataToSend = {
           ...data,
           isActive: data.isActive ?? true,

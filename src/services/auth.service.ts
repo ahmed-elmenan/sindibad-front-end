@@ -64,11 +64,12 @@ export const logoutUser = (): void => {
   removeToken();
 };
 
-export const registerLearner = async (learnerData: LearnerPayload) => {
-
+export const registerLearner = async (learnerData: LearnerPayload & { profilePicture?: File }) => {
   try {
-    // Build the request object with only fields expected by backend
-    const dataToSend = {
+    const formData = new FormData();
+    
+    // Add learner data as JSON string
+    const learnerDto = {
       firstName: learnerData.firstName,
       lastName: learnerData.lastName,
       email: learnerData.email,
@@ -76,12 +77,24 @@ export const registerLearner = async (learnerData: LearnerPayload) => {
       password: learnerData.password,
       dateOfBirth: learnerData.dateOfBirth ? new Date(learnerData.dateOfBirth).toLocaleDateString('fr-FR') : '',
       gender: learnerData.gender,
-      ...(learnerData.profilePicture && { profilePicture: learnerData.profilePicture }),
+      isActive: learnerData.isActive ?? true,
       ...(learnerData.organisationId && { organisationId: learnerData.organisationId }),
     };
+    
+    // Add JSON data as a blob
+    formData.append('learner', new Blob([JSON.stringify(learnerDto)], { type: 'application/json' }));
+    
+    // Add profile picture if provided
+    if (learnerData.profilePicture) {
+      formData.append('profilePicture', learnerData.profilePicture);
+    }
 
-    console.log("Registering learner with data:", dataToSend);
-    const response = await api.post("/learners/register", dataToSend);
+    console.log("Registering learner with FormData");
+    const response = await api.post("/learners/register", formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
     
     return { success: true, data: response.data };
   } catch (error) {
