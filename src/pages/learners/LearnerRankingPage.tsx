@@ -287,6 +287,14 @@ export default function LearnersRankingPage({
         learner={selectedLearner}
         onSuccess={handleFormSuccess}
       />
+
+      <DeleteLearnerDialog
+        open={isDeleteDialogOpen}
+        onClose={() => setIsDeleteDialogOpen(false)}
+        onConfirm={confirmDeleteLearner}
+        learnerName={selectedLearner?.fullName || ""}
+        isDeleting={isDeleting}
+      />
     </div>
   );
 }

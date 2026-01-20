@@ -28,6 +28,11 @@ export default function DeleteLearnerDialog({
 }: DeleteLearnerDialogProps) {
   const { t } = useTranslation();
 
+  const handleConfirm = (e: React.MouseEvent) => {
+    e.preventDefault(); // Empêcher la fermeture automatique
+    onConfirm();
+  };
+
   return (
     <AlertDialog open={open} onOpenChange={onClose}>
       <AlertDialogContent>
@@ -47,11 +52,11 @@ export default function DeleteLearnerDialog({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter className="sm:justify-center">
-          <AlertDialogCancel disabled={isDeleting} className="hover:bg-gray-100">
+          <AlertDialogCancel disabled={isDeleting} className="hover:bg-gray-100 hover:text-black">
             {t("common.cancel")}
           </AlertDialogCancel>
           <AlertDialogAction
-            onClick={onConfirm}
+            onClick={handleConfirm}
             disabled={isDeleting}
             className="bg-destructive hover:bg-destructive/90"
           >
