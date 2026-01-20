@@ -163,9 +163,43 @@ export default function LearnersRankingPage({
     }
   };
 
-  const handleFormSuccess = () => {
-    // Rafraîchir les données après ajout/modification
-    queryClient.invalidateQueries({ queryKey: ["learnersRanking"] });
+  const handleFormSuccess = (updatedLearner?: any) => {
+    if (updatedLearner) {
+      // Ajouter un timestamp à l'URL de l'image pour forcer le rechargement (cache busting)
+      const imageUrlWithTimestamp = updatedLearner.profilePicture 
+        ? `${updatedLearner.profilePicture}?t=${Date.now()}` 
+        : undefined;
+
+      // Mettre à jour toutes les queries learnersRanking dans le cache
+      queryClient.setQueriesData(
+        { queryKey: ["learnersRanking"] },
+        (oldData: any) => {
+          if (!oldData || !oldData.content) return oldData;
+          
+          return {
+            ...oldData,
+            content: oldData.content.map((learner: LearnerRanking) =>
+              learner.id === updatedLearner.id
+                ? {
+                    ...learner,
+                    fullName: `${updatedLearner.firstName} ${updatedLearner.lastName}`,
+                    username: updatedLearner.userName || learner.username,
+                    profilePicture: imageUrlWithTimestamp || updatedLearner.profilePicture || learner.profilePicture,
+                    gender: updatedLearner.gender,
+                    isActive: updatedLearner.isActive,
+                    // Garde les scores existants
+                    score: learner.score,
+                    formationScore: learner.formationScore,
+                  }
+                : learner
+            ),
+          };
+        }
+      );
+    } else {
+      // Rafraîchir les données après ajout
+      queryClient.invalidateQueries({ queryKey: ["learnersRanking"] });
+    }
   };
 
   // Gestion d'erreur

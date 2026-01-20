@@ -50,7 +50,7 @@ interface LearnerFormModalProps {
   onClose: () => void;
   mode: "add" | "view" | "edit";
   learner?: LearnerRanking;
-  onSuccess?: () => void;
+  onSuccess?: (updatedLearner?: any) => void;
 }
 
 export default function LearnerFormModal({
@@ -170,22 +170,31 @@ export default function LearnerFormModal({
           isActive: data.isActive,
         };
 
-        await updateLearner(learner.id, updateData);
+        let updatedLearner: any = await updateLearner(learner.id, updateData);
         
-        // Upload profile picture if changed
-        if (data.profilePicture && data.profilePicture !== initialValues?.profilePicture) {
+        // Upload profile picture if changed and it's a File object
+        if (data.profilePicture && data.profilePicture instanceof File) {
           try {
-            await uploadProfilePicture(learner.id, data.profilePicture);
+            const imageUrl = await uploadProfilePicture(learner.id, data.profilePicture);
+            // Mettre à jour l'objet avec la nouvelle URL d'image
+            updatedLearner = {
+              ...updatedLearner,
+              profilePicture: imageUrl,
+            };
           } catch (error) {
             console.error("Error uploading profile picture:", error);
-            // Continue anyway, the learner was updated
+            toast.error(t("common.error"), {
+              description: "Une erreur s'est produite lors du traitement de l'image",
+            });
+            setIsSubmitting(false);
+            return;
           }
         }
         
         toast.success(t("common.success"), {
           description: t("learners.updateSuccess") ?? "Apprenant mis à jour avec succès",
         });
-        onSuccess?.();
+        onSuccess?.(updatedLearner);
         onClose();
       } else {
         // Create new learner - send everything including profile picture in one request

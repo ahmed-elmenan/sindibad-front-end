@@ -82,10 +82,6 @@ export default function RankingTable({
   const navigate = useNavigate();
 
   // Support for different role naming conventions
-  console.log("User role:", userRole);
-  console.log("User role:", userRole);
-  console.log("User role:", userRole);
-  console.log("User role:", userRole);
 
   const canManageLearners = 
     userRole === "ADMIN" ||
@@ -307,7 +303,7 @@ export default function RankingTable({
                         >
                           <Avatar className="h-10 w-10 mx-auto">
                             <AvatarImage
-                              src={learner.avatarUrl || "/placeholder.svg"}
+                              src={learner.profilePicture || "/placeholder.svg"}
                               alt={learner.fullName}
                             />
                             <AvatarFallback className="text-xs">

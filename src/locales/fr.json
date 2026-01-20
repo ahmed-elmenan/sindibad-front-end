@@ -654,6 +654,7 @@
     "deleting": "Suppression...",
     "success": "Succès",
     "error": "Erreur",
+    "info": "Information",
     "unexpectedError": "Une erreur inattendue s'est produite",
     "terms": {
       "label": "J'accepte les",

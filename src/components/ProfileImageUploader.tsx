@@ -315,15 +315,24 @@ const ProfileImageUploader: React.FC<ProfileImageUploaderProps> = ({
         );
 
         // Génération d'un nom de fichier sécurisé
-        const secureFileName = generateSecureFileName(
-          value || new File([""], "temp.jpg", { type: "image/jpeg" })
-        );
+        // Si value est un File, l'utiliser directement, sinon créer un fichier temporaire
+        const sourceFile = value instanceof File 
+          ? value 
+          : new File([""], "temp.jpg", { type: "image/jpeg" });
+        const secureFileName = generateSecureFileName(sourceFile);
 
         // Conversion sécurisée en fichier
         const file = base64ToFile(croppedImageUrl, secureFileName);
 
+        // Vérifier que la conversion a réussi
+        if (!file) {
+          console.error("Failed to convert base64 to file");
+          setError(t("profileImageUploader.errors.processingError"));
+          return;
+        }
+
         // Vérifier une dernière fois la taille du fichier résultant
-        if (file && file.size > maxSizeMB * 1024 * 1024) {
+        if (file.size > maxSizeMB * 1024 * 1024) {
           setError(
             t("profileImageUploader.errors.fileTooLarge", { maxSizeMB })
           );
@@ -334,7 +343,7 @@ const ProfileImageUploader: React.FC<ProfileImageUploaderProps> = ({
         setPreviewUrl(croppedImageUrl);
 
         // Call the onChange handler
-        if (onChange && file) {
+        if (onChange) {
           onChange(file);
         }
 

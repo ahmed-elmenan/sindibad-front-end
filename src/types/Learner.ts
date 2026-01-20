@@ -28,7 +28,7 @@ export interface LearnerRanking {
   id: string;
   fullName: string;
   username: string;
-  avatarUrl?: string;
+  profilePicture?: string;
   gender: string;
   score: number;
   formationScore?: number;
