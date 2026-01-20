@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslation } from "react-i18next";
@@ -6,11 +6,11 @@ import { toast } from "sonner";
 import { RotateCcw } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { getAllOrganisations } from "@/services/organisation.service";
-import { 
+import {
   getLearnerFormData,
-  updateLearner, 
+  updateLearner,
   uploadProfilePicture,
-  sendPasswordResetEmail
+  sendPasswordResetEmail,
 } from "@/services/learner.service";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -65,6 +65,7 @@ export default function LearnerFormModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isResettingPassword, setIsResettingPassword] = useState(false);
   const [initialValues, setInitialValues] = useState<any>(null);
+  const hasLoadedDataRef = useRef(false);
 
   const isReadOnly = mode === "view";
   const isEdit = mode === "edit";
@@ -72,6 +73,14 @@ export default function LearnerFormModal({
   // Check if user is an organisation
   const isOrganisationUser = user?.role === "ORGANISATION";
   const userOrganisationId = isOrganisationUser ? user?.id : null;
+
+  // Reset initial values and ref when modal is closed
+  useEffect(() => {
+    if (!open) {
+      setInitialValues(null);
+      hasLoadedDataRef.current = false;
+    }
+  }, [open]);
 
   // Fetch organisations
   const { data: organisations = [], isLoading: isLoadingOrganisations } =
@@ -81,11 +90,15 @@ export default function LearnerFormModal({
     });
 
   // Fetch full learner details for edit mode
-  const { data: learnerDetails } = useQuery({
-    queryKey: ["learnerFormData", learner?.id],
-    queryFn: () => getLearnerFormData(learner!.id),
-    enabled: Boolean(isEdit && learner?.id),
-  });
+  const { data: learnerDetails, isLoading: isLoadingLearnerDetails } = useQuery(
+    {
+      queryKey: ["learnerFormData", learner?.id],
+      queryFn: () => getLearnerFormData(learner!.id),
+      enabled: Boolean(isEdit && learner?.id && open),
+      refetchOnMount: "always",
+      staleTime: 0,
+    },
+  );
 
   // Initialize form with validation schema
   const form = useForm<SignUpLearnerFormValues>({
@@ -101,7 +114,6 @@ export default function LearnerFormModal({
       email: "",
       organisationId: userOrganisationId || "",
       profilePicture: "",
-      city: "",
       organisationName: "",
       acceptTerms: true,
       isActive: true,
@@ -110,7 +122,7 @@ export default function LearnerFormModal({
 
   // Load learner data into form when available
   useEffect(() => {
-    if (isEdit && learnerDetails) {
+    if (isEdit && learnerDetails && !hasLoadedDataRef.current) {
       const values = {
         firstName: learnerDetails.firstName || "",
         lastName: learnerDetails.lastName || "",
@@ -120,19 +132,24 @@ export default function LearnerFormModal({
         email: learnerDetails.email || "",
         organisationId: learnerDetails.organisationId || "",
         profilePicture: learnerDetails.profilePicture || "",
-        city: "",
         organisationName: "",
         acceptTerms: true,
         isActive: learnerDetails.isActive ?? true,
       };
-      
+
       // Store initial values for comparison
       setInitialValues(values);
-      
+
       // Set form values
       Object.keys(values).forEach((key) => {
-        form.setValue(key as keyof SignUpLearnerFormValues, values[key as keyof typeof values]);
+        form.setValue(
+          key as keyof SignUpLearnerFormValues,
+          values[key as keyof typeof values],
+        );
       });
+
+      // Mark that we've loaded the data
+      hasLoadedDataRef.current = true;
     } else if (!isEdit && userOrganisationId) {
       form.setValue("organisationId", userOrganisationId);
     }
@@ -146,14 +163,29 @@ export default function LearnerFormModal({
     try {
       if (isEdit && learner) {
         // Check if any values have changed
-        const hasChanges = initialValues && Object.keys(data).some((key) => {
-          const k = key as keyof SignUpLearnerFormValues;
-          return data[k] !== initialValues[k];
-        });
+        const hasChanges =
+          initialValues &&
+          Object.keys(data).some((key) => {
+            const k = key as keyof SignUpLearnerFormValues;
+
+            // Special handling for profilePicture - File object means new upload
+            if (k === "profilePicture") {
+              return data[k] instanceof File;
+            }
+
+            // For other fields, use strict equality
+            return data[k] !== initialValues[k];
+          });
+
+        console.log("has changes", hasChanges);
+        console.log(initialValues);
+        console.log("-----------");
+        console.log(data);
 
         if (!hasChanges) {
           toast.info(t("common.info"), {
-            description: t("learners.noChanges") ?? "Aucune modification détectée",
+            description:
+              t("learners.noChanges") ?? "Aucune modification détectée",
           });
           setIsSubmitting(false);
           return;
@@ -171,12 +203,15 @@ export default function LearnerFormModal({
         };
 
         let updatedLearner: any = await updateLearner(learner.id, updateData);
-        
+
         // Upload profile picture if changed and it's a File object
         if (data.profilePicture && data.profilePicture instanceof File) {
           try {
-            const imageUrl = await uploadProfilePicture(learner.id, data.profilePicture);
-            // Mettre à jour l'objet avec la nouvelle URL d'image
+            const imageUrl = await uploadProfilePicture(
+              learner.id,
+              data.profilePicture,
+            );
+            // Mettre à jour l'objet avec la nouvelle URL d'image (préserver tous les autres champs)
             updatedLearner = {
               ...updatedLearner,
               profilePicture: imageUrl,
@@ -184,15 +219,17 @@ export default function LearnerFormModal({
           } catch (error) {
             console.error("Error uploading profile picture:", error);
             toast.error(t("common.error"), {
-              description: "Une erreur s'est produite lors du traitement de l'image",
+              description:
+                "Une erreur s'est produite lors du traitement de l'image",
             });
             setIsSubmitting(false);
             return;
           }
         }
-        
+
         toast.success(t("common.success"), {
-          description: t("learners.updateSuccess") ?? "Apprenant mis à jour avec succès",
+          description:
+            t("learners.updateSuccess") ?? "Apprenant mis à jour avec succès",
         });
         onSuccess?.(updatedLearner);
         onClose();
@@ -207,7 +244,8 @@ export default function LearnerFormModal({
         const result = await registerLearner(dataToSend);
         if (result.success) {
           toast.success(t("common.success"), {
-            description: t("learners.addSuccess") ?? "Apprenant ajouté avec succès",
+            description:
+              t("learners.addSuccess") ?? "Apprenant ajouté avec succès",
           });
           onSuccess?.();
           onClose();
@@ -229,12 +267,14 @@ export default function LearnerFormModal({
 
   const handleResetPassword = async () => {
     if (!learner?.id) return;
-    
+
     setIsResettingPassword(true);
     try {
       await sendPasswordResetEmail(learner.id);
       toast.success(t("common.success"), {
-        description: t("learners.resetPasswordSuccess") ?? "Email de réinitialisation envoyé avec succès",
+        description:
+          t("learners.resetPasswordSuccess") ??
+          "Email de réinitialisation envoyé avec succès",
       });
     } catch (error: any) {
       console.error("Reset password error:", error);
@@ -497,7 +537,11 @@ export default function LearnerFormModal({
                           <Select
                             value={field.value}
                             onValueChange={field.onChange}
-                            disabled={isReadOnly || isLoadingOrganisations || isOrganisationUser}
+                            disabled={
+                              isReadOnly ||
+                              isLoadingOrganisations ||
+                              isOrganisationUser
+                            }
                           >
                             <SelectTrigger className="!h-11 w-full">
                               <SelectValue
@@ -534,10 +578,9 @@ export default function LearnerFormModal({
                     </FormLabel>
                     <div className="flex items-center justify-between h-11 px-4 border rounded-md bg-background">
                       <span className="text-sm text-muted-foreground">
-                        {form.watch("isActive") 
+                        {form.watch("isActive")
                           ? (t("learners.accountActive") ?? "Compte actif")
-                          : (t("learners.accountInactive") ?? "Compte inactif")
-                        }
+                          : (t("learners.accountInactive") ?? "Compte inactif")}
                       </span>
                       <FormField
                         control={form.control}
@@ -581,14 +624,15 @@ export default function LearnerFormModal({
                   ) : (
                     <>
                       <RotateCcw className="h-4 w-4 mr-2" />
-                      {t("learners.resetPassword") ?? "Réinitialiser mot de passe"}
+                      {t("learners.resetPassword") ??
+                        "Réinitialiser mot de passe"}
                     </>
                   )}
                 </Button>
               ) : (
                 <div></div>
               )}
-              
+
               <div className="flex gap-4">
                 <Button
                   type="button"
@@ -601,7 +645,9 @@ export default function LearnerFormModal({
                 {!isReadOnly && (
                   <Button
                     type="submit"
-                    disabled={isSubmitting}
+                    disabled={
+                      isSubmitting || (isEdit && isLoadingLearnerDetails)
+                    }
                     className="bg-primary hover:bg-primary/90"
                   >
                     {isSubmitting ? (

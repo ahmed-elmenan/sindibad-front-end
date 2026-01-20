@@ -53,13 +53,6 @@ export const signUpLearnerSchema = z
 
     profilePicture: z.any().optional(),
 
-    city: z
-      .string()
-      .min(2, { message: "errors.cityMinLength" })
-      .max(50, { message: "errors.cityMaxLength" })
-      .optional()
-      .or(z.literal("")),
-
     organisationName: z
       .string()
       .min(2, { message: "errors.organisationNameMinLength" })
