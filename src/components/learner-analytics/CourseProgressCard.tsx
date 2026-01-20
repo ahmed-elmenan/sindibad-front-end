@@ -166,23 +166,36 @@ export function CourseProgressCard({ course }: CourseProgressCardProps) {
             </Button>
 
             {isExpanded && (
-              <div className="mt-4 space-y-3">
+              <div className="mt-4 space-y-4">
                 {course.chapters.map((chapter) => (
-                  <div key={chapter.chapterId} className="p-3 bg-muted/30 rounded-md">
-                    <div className="flex items-center justify-between mb-2">
-                      <h4 className="font-medium text-sm">
+                  <div key={chapter.chapterId} className="p-4 bg-gradient-to-br from-orange-50 to-amber-50 border border-orange-100 rounded-lg">
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="font-semibold text-sm text-gray-800">
                         {chapter.chapterOrder}. {chapter.chapterTitle}
                       </h4>
-                      <Badge variant="outline" className="text-xs">
-                        {chapter.completionPercentage}%
-                      </Badge>
                     </div>
-                    <Progress
-                      value={chapter.completionPercentage}
-                      className="h-1.5"
-                    />
-                    <p className="text-xs text-muted-foreground mt-2">
-                      {chapter.lessons.filter((l) => l.isCompleted).length}/{chapter.lessons.length} leçons
+                    
+                    {/* Animated Progress Bar with Tooltip */}
+                    <div className="relative w-full h-2 bg-orange-100 rounded-full overflow-visible mb-6">
+                      <div 
+                        className="relative h-full bg-gradient-to-r from-orange-400 to-orange-500 rounded-full transition-all duration-700 ease-out animate-in slide-in-from-left"
+                        style={{ 
+                          width: `${chapter.completionPercentage}%`,
+                          animation: 'progressSlide 0.7s ease-out forwards'
+                        }}
+                      >
+                        {/* Tooltip */}
+                        {chapter.completionPercentage > 0 && (
+                          <div className="absolute -right-3 -top-8 bg-orange-600 text-white text-xs font-bold px-2 py-1 rounded shadow-lg whitespace-nowrap">
+                            {chapter.completionPercentage}%
+                            <div className="absolute left-1/2 -bottom-1 w-2 h-2 bg-orange-600 transform -translate-x-1/2 rotate-45"></div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <p className="text-xs text-gray-600 mt-2">
+                      {chapter.lessons.filter((l) => l.isCompleted).length}/{chapter.lessons.length} leçons complétées
                     </p>
                   </div>
                 ))}

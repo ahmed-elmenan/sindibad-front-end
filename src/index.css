@@ -5,6 +5,17 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Animation pour progress bar */
+@keyframes progressSlide {
+  0% {
+    width: 0;
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
