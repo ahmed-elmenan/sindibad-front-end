@@ -163,7 +163,7 @@ export default function LearnersRankingPage({
     }
   };
 
-  const handleFormSuccess = (updatedLearner?: any) => {
+  const handleFormSuccess = () => {
     // Toujours invalider le cache pour garantir des données fraîches
     queryClient.invalidateQueries({ queryKey: ["learnersRanking"] });
   };
