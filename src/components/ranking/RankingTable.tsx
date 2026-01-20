@@ -161,17 +161,22 @@ export default function RankingTable({
   };
 
   return (
-    <div style={{ width: '100%', maxWidth: '100%' }}>
-      <Card className="p-0" style={{ width: '100%', maxWidth: '100%' }}>
-        <CardContent className="p-0" style={{ width: '100%', maxWidth: '100%' }}>
-          <div style={{ width: '100%', maxWidth: '100%', overflow: 'auto' }}>
+    <div className="w-full">
+      <Card className="p-0 w-full">
+        <CardContent className="p-0 w-full">
+          <div 
+            className="w-full overflow-x-auto overflow-y-visible scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-500"
+            style={{ 
+              overflowX: 'auto',
+              WebkitOverflowScrolling: 'touch'
+            }}
+          >
             <table 
               className="caption-bottom text-sm"
               style={{ 
-                tableLayout: 'fixed',
+                minWidth: '100%',
                 width: '100%',
-                maxWidth: '100%',
-                display: 'table'
+                tableLayout: 'fixed'
               }}
             >
             <colgroup>
@@ -179,14 +184,15 @@ export default function RankingTable({
                 <col key={i} style={{ width: getColumnWidth(i, label) }} />
               ))}
             </colgroup>
-            <thead className="sticky top-0 bg-[#f8fafc] z-[5]">
+            <thead className="sticky top-0 bg-[#f8fafc] z-[5] shadow-sm">
               <tr className="border-b">
                 {headers.map((label, i) => (
                   <th
                     key={i}
-                    className="text-center border-b border-gray-300 bg-[#f8fafc] font-semibold h-10 px-2 align-middle"
+                    className="text-center border-b border-gray-300 bg-[#f8fafc] font-semibold h-10 px-2 sm:px-4 align-middle text-xs sm:text-sm"
+                    style={{ minWidth: i <= 1 ? '60px' : i === headers.length - 1 && canManageLearners ? '80px' : '100px' }}
                   >
-                    {label}
+                    <div className="truncate">{label}</div>
                   </th>
                 ))}
               </tr>
@@ -196,10 +202,11 @@ export default function RankingTable({
                 ? Array.from({ length: itemsPerPage }).map((_, idx) => (
                     <tr
                       key={`loading-${idx}`}
+                      className="border-b"
                     >
                       {/* Rang */}
                       <td
-                        className="text-center border-b border-gray-300 p-2"
+                        className="text-center border-b border-gray-300 p-2 sm:p-3"
                       >
                         <div className="flex justify-center items-center">
                           <div className="h-5 w-5 rounded-full bg-gray-200 animate-pulse" />
@@ -208,28 +215,28 @@ export default function RankingTable({
 
                       {/* Avatar */}
                       <td
-                        className="text-center border-b border-gray-300 p-2"
+                        className="text-center border-b border-gray-300 p-2 sm:p-3"
                       >
                         <div className="h-10 w-10 rounded-full bg-gray-200 animate-pulse mx-auto" />
                       </td>
 
                       {/* Nom complet */}
                       <td
-                        className="text-center border-b border-gray-300 p-2"
+                        className="text-center border-b border-gray-300 p-2 sm:p-3"
                       >
                         <div className="h-4 w-32 bg-gray-200 rounded animate-pulse mx-auto" />
                       </td>
 
                       {/* Nom d'utilisateur */}
                       <td
-                        className="text-center border-b border-gray-300 p-2"
+                        className="text-center border-b border-gray-300 p-2 sm:p-3"
                       >
                         <div className="h-4 w-24 bg-gray-200 rounded animate-pulse mx-auto" />
                       </td>
 
                       {/* Score formation ou global */}
                       <td
-                        className="text-center border-b border-gray-300 p-2"
+                        className="text-center border-b border-gray-300 p-2 sm:p-3"
                       >
                         <div className="h-6 w-12 bg-gray-200 rounded-full animate-pulse mx-auto" />
                       </td>
@@ -237,7 +244,7 @@ export default function RankingTable({
                       {/* Score global ssi formation sélectionnée */}
                       {selectedFormation && (
                         <td
-                          className="text-center border-b border-gray-300 p-2"
+                          className="text-center border-b border-gray-300 p-2 sm:p-3"
                         >
                           <div className="h-6 w-12 bg-gray-200 rounded-full animate-pulse mx-auto" />
                         </td>
@@ -245,7 +252,7 @@ export default function RankingTable({
 
                       {/* Status column for loading state */}
                       <td
-                        className="text-center border-b border-gray-300 p-2"
+                        className="text-center border-b border-gray-300 p-2 sm:p-3"
                       >
                         <div className="h-6 w-16 bg-gray-200 rounded-full animate-pulse mx-auto" />
                       </td>
@@ -253,7 +260,7 @@ export default function RankingTable({
                       {/* Actions column for loading state */}
                       {canManageLearners && (
                         <td
-                          className="text-center border-b border-gray-300 p-2"
+                          className="text-center border-b border-gray-300 p-2 sm:p-3"
                         >
                           <div className="h-8 w-8 bg-gray-200 rounded animate-pulse mx-auto" />
                         </td>
@@ -281,7 +288,7 @@ export default function RankingTable({
                       >
                         {/* Rang */}
                         <td
-                          className={`text-center p-2 ${
+                          className={`text-center p-2 sm:p-3 ${
                             isLastRow ? "" : "border-b border-gray-300"
                           }`}
                         >
@@ -294,7 +301,7 @@ export default function RankingTable({
 
                         {/* Avatar */}
                         <td
-                          className={`text-center p-2 ${
+                          className={`text-center p-2 sm:p-3 ${
                             isLastRow ? "" : "border-b border-gray-300"
                           }`}
                         >
@@ -311,29 +318,29 @@ export default function RankingTable({
 
                         {/* Nom complet */}
                         <td
-                          className={`text-center p-2 ${
+                          className={`text-center p-2 sm:p-3 ${
                             isLastRow ? "" : "border-b border-gray-300"
                           }`}
                         >
-                          <span className="font-medium">
+                          <div className="font-medium truncate px-1" title={learner.fullName}>
                             {learner.fullName}
-                          </span>
+                          </div>
                         </td>
 
                         {/* Nom d'utilisateur */}
                         <td
-                          className={`text-center p-2 ${
+                          className={`text-center p-2 sm:p-3 ${
                             isLastRow ? "" : "border-b border-gray-300"
                           }`}
                         >
-                          <span className="text-muted-foreground">
+                          <div className="text-muted-foreground truncate px-1" title={`@${learner.username}`}>
                             @{learner.username}
-                          </span>
+                          </div>
                         </td>
 
                         {/* Score formation ou global */}
                         <td
-                          className={`text-center p-2 ${
+                          className={`text-center p-2 sm:p-3 ${
                             isLastRow ? "" : "border-b border-gray-300"
                           }`}
                         >
@@ -373,7 +380,7 @@ export default function RankingTable({
                         {/* Score global ssi formation sélectionnée */}
                         {selectedFormation && (
                           <td
-                            className={`text-center p-2 ${
+                            className={`text-center p-2 sm:p-3 ${
                               isLastRow ? "" : "border-b border-gray-300"
                             }`}
                           >
@@ -401,7 +408,7 @@ export default function RankingTable({
 
                         {/* Status column */}
                         <td
-                          className={`text-center p-2 ${
+                          className={`text-center p-2 sm:p-3 ${
                             isLastRow ? "" : "border-b border-gray-300"
                           }`}
                         >
@@ -418,7 +425,7 @@ export default function RankingTable({
                         {/* Actions column */}
                         {canManageLearners && (
                           <td
-                            className={`text-center p-2 ${
+                            className={`text-center p-2 sm:p-3 ${
                               isLastRow ? "" : "border-b border-gray-300"
                             }`}
                             onClick={(e) => e.stopPropagation()}
