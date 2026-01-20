@@ -7,11 +7,10 @@ import { RotateCcw } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { getAllOrganisations } from "@/services/organisation.service";
 import { 
-  getLearnerProfileById, 
+  getLearnerFormData,
   updateLearner, 
   uploadProfilePicture,
-  sendPasswordResetEmail,
-  toggleLearnerActiveStatus 
+  sendPasswordResetEmail
 } from "@/services/learner.service";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -38,7 +37,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
+import { CustomSwitch } from "@/components/ui/custom-switch";
 import ProfileImageUploader from "@/components/ProfileImageUploader";
 
 import { signUpLearnerSchema } from "@/schemas/signUpLearnerFormSchema";
@@ -83,8 +82,8 @@ export default function LearnerFormModal({
 
   // Fetch full learner details for edit mode
   const { data: learnerDetails } = useQuery({
-    queryKey: ["learner", learner?.id],
-    queryFn: () => getLearnerProfileById(learner!.id),
+    queryKey: ["learnerFormData", learner?.id],
+    queryFn: () => getLearnerFormData(learner!.id),
     enabled: Boolean(isEdit && learner?.id),
   });
 
@@ -116,10 +115,10 @@ export default function LearnerFormModal({
         firstName: learnerDetails.firstName || "",
         lastName: learnerDetails.lastName || "",
         dateOfBirth: learnerDetails.dateOfBirth || "",
-        gender: learnerDetails.gender?.toLowerCase() || "male",
+        gender: learnerDetails.gender || "male",
         phoneNumber: learnerDetails.phoneNumber || "",
         email: learnerDetails.email || "",
-        organisationId: "", // Will be set from organisation data if available
+        organisationId: learnerDetails.organisationId || "",
         profilePicture: learnerDetails.profilePicture || "",
         city: "",
         organisationName: "",
@@ -235,26 +234,6 @@ export default function LearnerFormModal({
       });
     } finally {
       setIsResettingPassword(false);
-    }
-  };
-
-  const handleToggleActive = async (isActive: boolean) => {
-    if (!learner?.id) return;
-    
-    try {
-      await toggleLearnerActiveStatus(learner.id, isActive);
-      form.setValue("isActive", isActive);
-      toast.success(t("common.success"), {
-        description: isActive 
-          ? t("learners.activateSuccess") ?? "Apprenant activé avec succès"
-          : t("learners.deactivateSuccess") ?? "Apprenant désactivé avec succès",
-      });
-      onSuccess?.(); // Refresh the table
-    } catch (error: any) {
-      console.error("Toggle active status error:", error);
-      toast.error(t("common.error"), {
-        description: error.message || t("common.unexpectedError"),
-      });
     }
   };
 
@@ -492,7 +471,7 @@ export default function LearnerFormModal({
               </div>
             </div>
 
-            {/* Organisation and Reset Password/Active Status Controls */}
+            {/* Organisation and Active Status on same line */}
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -538,101 +517,97 @@ export default function LearnerFormModal({
                   />
                 </div>
 
-                {/* Reset Password Button - Only for edit mode */}
-                {isEdit && !isReadOnly && (
+                {/* Active Status Switch - Only for edit mode - On same line as Organisation */}
+                {isEdit && (
                   <div className="space-y-2">
-                    <FormLabel className="text-sm font-medium">
-                      {t("learners.resetPassword") ?? "Réinitialiser le mot de passe"}
-                    </FormLabel>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={handleResetPassword}
-                      disabled={isResettingPassword}
-                      className="h-11 w-full"
-                    >
-                      {isResettingPassword ? (
-                        <>
-                          <span className="loading loading-spinner loading-sm mr-2"></span>
-                          {t("common.loading")}
-                        </>
-                      ) : (
-                        <>
-                          <RotateCcw className="h-4 w-4 mr-2" />
-                          {t("learners.sendResetLink") ?? "Envoyer lien de réinitialisation"}
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                )}
-              </div>
-
-              {/* Active Status Switch - Only for edit mode */}
-              {isEdit && (
-                <div className="flex items-center justify-between pt-4 pb-2 border-t">
-                  <div className="space-y-1">
                     <FormLabel className="text-sm font-medium">
                       {t("learners.accountStatus") ?? "Statut du compte"}
                     </FormLabel>
-                    <p className="text-sm text-muted-foreground">
-                      {form.watch("isActive") 
-                        ? (t("learners.accountActive") ?? "Compte actif")
-                        : (t("learners.accountInactive") ?? "Compte inactif")
-                      }
-                    </p>
+                    <div className="flex items-center justify-between h-11 px-4 border rounded-md bg-background">
+                      <span className="text-sm text-muted-foreground">
+                        {form.watch("isActive") 
+                          ? (t("learners.accountActive") ?? "Compte actif")
+                          : (t("learners.accountInactive") ?? "Compte inactif")
+                        }
+                      </span>
+                      <FormField
+                        control={form.control}
+                        name="isActive"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <CustomSwitch
+                                checked={field.value ?? true}
+                                onCheckedChange={(checked) => {
+                                  field.onChange(checked);
+                                }}
+                                disabled={isReadOnly}
+                              />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                    </div>
                   </div>
-                  <FormField
-                    control={form.control}
-                    name="isActive"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Switch
-                            checked={field.value}
-                            onCheckedChange={(checked) => {
-                              field.onChange(checked);
-                              if (!isReadOnly) {
-                                handleToggleActive(checked);
-                              }
-                            }}
-                            disabled={isReadOnly}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              )}
+                )}
+              </div>
             </div>
 
             {/* Action Buttons */}
-            <div className="flex justify-end gap-4 pt-6">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={onClose}
-                disabled={isSubmitting}
-              >
-                {isReadOnly ? t("common.close") : t("common.cancel")}
-              </Button>
-              {!isReadOnly && (
+            <div className="flex justify-between items-center pt-6">
+              {/* Reset Password Button - Only for edit mode */}
+              {isEdit && !isReadOnly ? (
                 <Button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="bg-primary hover:bg-primary/90"
+                  type="button"
+                  variant="outline"
+                  onClick={handleResetPassword}
+                  disabled={isResettingPassword}
+                  className="text-sm"
                 >
-                  {isSubmitting ? (
+                  {isResettingPassword ? (
                     <>
                       <span className="loading loading-spinner loading-sm mr-2"></span>
                       {t("common.loading")}
                     </>
-                  ) : isEdit ? (
-                    t("common.update")
                   ) : (
-                    t("common.add")
+                    <>
+                      <RotateCcw className="h-4 w-4 mr-2" />
+                      {t("learners.resetPassword") ?? "Réinitialiser mot de passe"}
+                    </>
                   )}
                 </Button>
+              ) : (
+                <div></div>
               )}
+              
+              <div className="flex gap-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={onClose}
+                  disabled={isSubmitting}
+                >
+                  {isReadOnly ? t("common.close") : t("common.cancel")}
+                </Button>
+                {!isReadOnly && (
+                  <Button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="bg-primary hover:bg-primary/90"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <span className="loading loading-spinner loading-sm mr-2"></span>
+                        {t("common.loading")}
+                      </>
+                    ) : isEdit ? (
+                      t("common.update")
+                    ) : (
+                      t("common.add")
+                    )}
+                  </Button>
+                )}
+              </div>
             </div>
           </form>
         </Form>

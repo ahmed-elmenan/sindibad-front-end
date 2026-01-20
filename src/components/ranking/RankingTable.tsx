@@ -179,7 +179,7 @@ export default function RankingTable({
                 <col key={i} style={{ width: getColumnWidth(i, label) }} />
               ))}
             </colgroup>
-            <thead className="sticky top-0 bg-[#f8fafc] z-10">
+            <thead className="sticky top-0 bg-[#f8fafc] z-[5]">
               <tr className="border-b">
                 {headers.map((label, i) => (
                   <th
@@ -423,7 +423,7 @@ export default function RankingTable({
                             }`}
                             onClick={(e) => e.stopPropagation()}
                           >
-                            <DropdownMenu>
+                            <DropdownMenu modal={false}>
                               <DropdownMenuTrigger asChild>
                                 <Button
                                   variant="ghost"
@@ -433,7 +433,7 @@ export default function RankingTable({
                                   <MoreVertical className="h-4 w-4" />
                                 </Button>
                               </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
+                              <DropdownMenuContent align="end" className="z-[100]">
                                 <DropdownMenuItem
                                   onClick={() => onViewLearner?.(learner)}
                                   className="cursor-pointer hover:bg-gray-100 hover:text-black focus:bg-gray-100 focus:text-black"

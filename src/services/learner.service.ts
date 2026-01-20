@@ -58,6 +58,16 @@ export const getLearnerProfileById = async (id: string): Promise<LearnerProfile>
   }
 };
 
+export const getLearnerFormData = async (id: string): Promise<any> => {
+  try {
+    const res = await api.get(`/learners/${id}/form-data`);
+    return res.data;
+  } catch (error: any) {
+    console.error('Error fetching learner form data:', error);
+    throw new Error(error.response?.data?.message || 'Error fetching learner form data');
+  }
+};
+
 export const getLearnerCourses = async (id: string): Promise<LearnerCourse[]> => {
   try {
     const res = await api.get(`/learners/${id}/courses`);

@@ -1110,7 +1110,14 @@
     "deleteWarning": "Cette action est irréversible.",
     "learnerAddedSuccessfully": "L'apprenant a été ajouté avec succès",
     "organisation": "Organisation",
-    "selectOrganisation": "Sélectionner une organisation"
+    "selectOrganisation": "Sélectionner une organisation",
+    "resetPassword": "Réinitialiser mot de passe",
+    "sendResetLink": "Envoyer lien de réinitialisation",
+    "resetPasswordSuccess": "Email de réinitialisation envoyé avec succès",
+    "accountStatus": "Statut du compte",
+    "accountActive": "Compte actif",
+    "accountInactive": "Compte inactif",
+    "noChanges": "Aucune modification détectée"
   },
   "pagination": {
     "previous": "Précédent",
