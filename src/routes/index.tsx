@@ -23,6 +23,7 @@ import AccountPage from "../pages/learners/AccountPage";
 import DashboardOrganisation from "@/pages/organisation/dashboard";
 import DashboardAdmin from "@/pages/admin/dashboard";
 import LearnerProfilePage from "@/pages/learners/LearnerProfilePage";
+import LearnerProfileAnalyticsPage from "@/pages/LearnerProfileAnalyticsPage";
 
 import MotivationRace from "@/pages/motivation/MotivationPage";
 import AdminCoursesPage from "@/pages/admin/AdminCoursesPage";
@@ -97,6 +98,10 @@ export const router = createBrowserRouter([
             element: <LearnerRankingPage />,
           },
           {
+            path: ":id/profile",
+            element: <LearnerProfileAnalyticsPage />,
+          },
+          {
             path: "account",
             element: <AccountPage />,
           },
@@ -138,6 +143,10 @@ export const router = createBrowserRouter([
         element: <LearnerProfilePage />,
       },
       {
+        path: "learners/:id/profile",
+        element: <LearnerProfileAnalyticsPage />,
+      },
+      {
         path: "students",
         element: <LearnerRankingPage userRole="organisation" />,
       },
@@ -175,6 +184,10 @@ export const router = createBrowserRouter([
       {
         path: "learners/:id",
         element: <LearnerProfilePage />,
+      },
+      {
+        path: "learners/:id/profile",
+        element: <LearnerProfileAnalyticsPage />,
       },
       {
         path: "students",

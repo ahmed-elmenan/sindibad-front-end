@@ -438,7 +438,12 @@ export default function RankingTable({
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end" className="z-[100]">
                                 <DropdownMenuItem
-                                  onClick={() => onViewLearner?.(learner)}
+                                  onClick={() => {
+                                    const basePath = userRole === "admin" ? "/admin" : 
+                                                   userRole === "organisation" || userRole === "ORGANISATION" ? "/organisation" : 
+                                                   "";
+                                    navigate(`${basePath}/learners/${learner.id}/profile`);
+                                  }}
                                   className="cursor-pointer hover:bg-gray-100 hover:text-black focus:bg-gray-100 focus:text-black"
                                 >
                                   <Eye className="mr-2 h-4 w-4" />
