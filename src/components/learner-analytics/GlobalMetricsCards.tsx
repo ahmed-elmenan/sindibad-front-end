@@ -17,6 +17,22 @@ export function GlobalMetricsCards({ metrics }: GlobalMetricsCardsProps) {
     return remainingMinutes > 0 ? `${hours}h ${remainingMinutes}min` : `${hours}h`;
   };
 
+  // Protection contre les valeurs null/undefined
+  const safeMetrics = {
+    totalCoursesEnrolled: metrics.totalCoursesEnrolled || 0,
+    totalCoursesCompleted: metrics.totalCoursesCompleted || 0,
+    totalCoursesInProgress: metrics.totalCoursesInProgress || 0,
+    totalLessonsCompleted: metrics.totalLessonsCompleted || 0,
+    totalLessons: metrics.totalLessons || 0,
+    overallProgressPercentage: metrics.overallProgressPercentage || 0,
+    totalTimeSpentMinutes: metrics.totalTimeSpentMinutes || 0,
+    averageTimePerDay: metrics.averageTimePerDay || 0,
+    longestStreak: metrics.longestStreak || 0,
+    currentStreak: metrics.currentStreak || 0,
+    totalCertificatesEarned: metrics.totalCertificatesEarned || 0,
+    activeDays: metrics.activeDays || 0,
+  };
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       {/* Card 1: Cours */}
@@ -26,27 +42,27 @@ export function GlobalMetricsCards({ metrics }: GlobalMetricsCardsProps) {
         </CardHeader>
         <CardContent>
           <div className="text-3xl font-bold text-orange-600">
-            {metrics.totalCoursesEnrolled}
+            {safeMetrics.totalCoursesEnrolled}
           </div>
           <div className="flex items-center gap-4 mt-2 text-sm">
             <div className="flex items-center gap-1">
               <div className="w-2 h-2 rounded-full bg-orange-500" />
               <span className="text-muted-foreground">
-                {metrics.totalCoursesCompleted} complétés
+                {safeMetrics.totalCoursesCompleted} complétés
               </span>
             </div>
           </div>
           <div className="flex items-center gap-1 mt-1 text-sm">
             <div className="w-2 h-2 rounded-full bg-amber-400" />
             <span className="text-muted-foreground">
-              {metrics.totalCoursesInProgress} en cours
+              {safeMetrics.totalCoursesInProgress} en cours
             </span>
           </div>
           
           {/* Mini progress */}
           <div className="mt-3">
             <Progress 
-              value={(metrics.totalCoursesCompleted / metrics.totalCoursesEnrolled) * 100} 
+              value={safeMetrics.totalCoursesEnrolled > 0 ? (safeMetrics.totalCoursesCompleted / safeMetrics.totalCoursesEnrolled) * 100 : 0} 
               className="h-2 [&>div]:bg-orange-500"
             />
           </div>
@@ -60,17 +76,17 @@ export function GlobalMetricsCards({ metrics }: GlobalMetricsCardsProps) {
         </CardHeader>
         <CardContent>
           <div className="text-3xl font-bold text-orange-600">
-            {metrics.totalLessonsCompleted}
-            <span className="text-xl text-muted-foreground">/{metrics.totalLessons}</span>
+            {safeMetrics.totalLessonsCompleted}
+            <span className="text-xl text-muted-foreground">/{safeMetrics.totalLessons}</span>
           </div>
           <p className="text-sm text-muted-foreground mt-2">
-            {metrics.overallProgressPercentage.toFixed(1)}% complétées
+            {safeMetrics.overallProgressPercentage.toFixed(1)}% complétées
           </p>
           
           {/* Progress bar */}
           <div className="mt-3">
             <Progress 
-              value={metrics.overallProgressPercentage} 
+              value={safeMetrics.overallProgressPercentage} 
               className="h-2 [&>div]:bg-orange-500"
             />
           </div>
@@ -89,24 +105,24 @@ export function GlobalMetricsCards({ metrics }: GlobalMetricsCardsProps) {
         </CardHeader>
         <CardContent>
           <div className="text-3xl font-bold text-orange-600">
-            {formatMinutes(metrics.totalTimeSpentMinutes)}
+            {formatMinutes(safeMetrics.totalTimeSpentMinutes)}
           </div>
           <p className="text-sm text-muted-foreground mt-2">
-            {metrics.averageTimePerDay}min/jour en moyenne
+            {safeMetrics.averageTimePerDay}min/jour en moyenne
           </p>
           
           {/* Active days */}
           <div className="mt-3 p-2 bg-orange-50 rounded-md">
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">Jours actifs</span>
-              <span className="font-semibold text-orange-700">{metrics.activeDays}</span>
+              <span className="font-semibold text-orange-700">{safeMetrics.activeDays}</span>
             </div>
           </div>
 
           {/* Longest Streak Badge */}
           <div className="flex items-center gap-1 mt-2 text-xs text-muted-foreground">
             <Flame className="w-3 h-3 text-orange-500" />
-            <span>Record : {metrics.longestStreak} jours</span>
+            <span>Record : {safeMetrics.longestStreak} jours</span>
           </div>
         </CardContent>
       </Card>
@@ -118,12 +134,12 @@ export function GlobalMetricsCards({ metrics }: GlobalMetricsCardsProps) {
         </CardHeader>
         <CardContent>
           <div className="text-3xl font-bold text-orange-600">
-            {metrics.totalCertificatesEarned}
+            {safeMetrics.totalCertificatesEarned}
           </div>
           <p className="text-sm text-muted-foreground mt-2">
-            {metrics.totalCertificatesEarned === 0 
+            {safeMetrics.totalCertificatesEarned === 0 
               ? "Aucun certificat pour le moment"
-              : `Certificat${metrics.totalCertificatesEarned > 1 ? "s" : ""} obtenu${metrics.totalCertificatesEarned > 1 ? "s" : ""}`
+              : `Certificat${safeMetrics.totalCertificatesEarned > 1 ? "s" : ""} obtenu${safeMetrics.totalCertificatesEarned > 1 ? "s" : ""}`
             }
           </p>
           
@@ -135,15 +151,15 @@ export function GlobalMetricsCards({ metrics }: GlobalMetricsCardsProps) {
                 <span className="text-sm font-medium">Série actuelle</span>
               </div>
               <span className="text-2xl font-bold text-orange-600">
-                {metrics.currentStreak}
+                {safeMetrics.currentStreak}
               </span>
             </div>
           </div>
 
           <p className="text-xs text-muted-foreground mt-2 text-center">
-            {metrics.currentStreak === 0 
+            {safeMetrics.currentStreak === 0 
               ? "Aucune série en cours"
-              : `${metrics.currentStreak} jour${metrics.currentStreak > 1 ? "s" : ""} consécutif${metrics.currentStreak > 1 ? "s" : ""} !`
+              : `${safeMetrics.currentStreak} jour${safeMetrics.currentStreak > 1 ? "s" : ""} consécutif${safeMetrics.currentStreak > 1 ? "s" : ""} !`
             }
           </p>
         </CardContent>

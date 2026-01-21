@@ -74,7 +74,6 @@ export default function RankingTable({
   currentPage,
   selectedFormation,
   userRole,
-  onViewLearner,
   onEditLearner,
   onDeleteLearner,
 }: RankingTableProps) {

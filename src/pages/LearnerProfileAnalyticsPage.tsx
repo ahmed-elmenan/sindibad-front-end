@@ -1,9 +1,6 @@
 import { useParams, Link } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import { MOCK_LEARNER_ANALYTICS } from "@/data/mockLearnerAnalytics";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -11,6 +8,11 @@ import { LearnerProfileHeader } from "@/components/learner-analytics/LearnerProf
 import { GlobalMetricsCards } from "@/components/learner-analytics/GlobalMetricsCards";
 import { CourseProgressCard } from "@/components/learner-analytics/CourseProgressCard";
 import { CertificateCard } from "@/components/learner-analytics/CertificateCard";
+import { LearnerProfileHeaderSkeleton } from "@/components/learner-analytics/LearnerProfileHeaderSkeleton";
+import { GlobalMetricsCardsSkeleton } from "@/components/learner-analytics/GlobalMetricsCardsSkeleton";
+import { CourseProgressListSkeleton } from "@/components/learner-analytics/CourseProgressCardSkeleton";
+import { CertificatesListSkeleton } from "@/components/learner-analytics/CertificateCardSkeleton";
+import { useLearnerAnalytics, useLearnerCertificates } from "@/hooks/useLearnerAnalytics";
 import { useState } from "react";
 
 export default function LearnerProfileAnalyticsPage() {
@@ -18,17 +20,36 @@ export default function LearnerProfileAnalyticsPage() {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [activeTab, setActiveTab] = useState("courses");
 
-  const { data, isLoading, error } = useQuery({
-    queryKey: ["learnerAnalytics", id],
-    queryFn: async () => {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      return MOCK_LEARNER_ANALYTICS;
-    },
-    staleTime: 5 * 60 * 1000,
-  });
+  // Charger les analytics (profile + métriques + cours) - SANS certificats
+  const { data, isLoading, error } = useLearnerAnalytics(id!);
+
+  // Charger les certificats UNIQUEMENT quand l'onglet Certificats est actif (lazy loading)
+  const { 
+    data: certificates, 
+    isLoading: isLoadingCertificates 
+  } = useLearnerCertificates(id!, activeTab === "certificates");
 
   if (isLoading) {
-    return <LoadingSkeleton />;
+    return (
+      <div className="min-h-screen bg-background">
+        <div className="container mx-auto py-8 px-4 space-y-8">
+          {/* Back Button Skeleton */}
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-full bg-gray-300 animate-pulse" />
+            <div className="h-8 w-64 bg-gray-300 rounded animate-pulse" />
+          </div>
+          
+          <LearnerProfileHeaderSkeleton />
+          
+          <div className="space-y-4">
+            <div className="h-7 w-48 bg-gray-300 rounded animate-pulse" />
+            <GlobalMetricsCardsSkeleton />
+          </div>
+          
+          <CourseProgressListSkeleton />
+        </div>
+      </div>
+    );
   }
 
   if (error || !data) {
@@ -81,13 +102,13 @@ export default function LearnerProfileAnalyticsPage() {
               value="courses" 
               className="data-[state=active]:bg-white transition-all duration-500 ease-in-out data-[state=active]:translate-x-0 data-[state=inactive]:translate-x-1"
             >
-              Cours ({data.coursesProgress.length})
+              Cours ({data.coursesProgress?.length || 0})
             </TabsTrigger>
             <TabsTrigger 
               value="certificates" 
               className="data-[state=active]:bg-white transition-all duration-500 ease-in-out data-[state=active]:translate-x-0 data-[state=inactive]:-translate-x-1"
             >
-              Certificats ({data.certifications.totalCertificates})
+              Certificats ({certificates?.length || 0})
             </TabsTrigger>
           </TabsList>
 
@@ -97,14 +118,14 @@ export default function LearnerProfileAnalyticsPage() {
               isTransitioning ? 'opacity-0 translate-y-2' : 'opacity-100 translate-y-0'
             }`}
           >
-            {data.coursesProgress.length === 0 ? (
+            {!data.coursesProgress || data.coursesProgress.length === 0 ? (
               <Card className="p-8">
                 <div className="text-center text-muted-foreground">
                   <p className="text-lg">Aucun cours inscrit pour le moment</p>
                 </div>
               </Card>
             ) : (
-              data.coursesProgress.map((course) => (
+              data.coursesProgress.map((course: any) => (
                 <CourseProgressCard key={course.courseId} course={course} />
               ))
             )}
@@ -116,7 +137,9 @@ export default function LearnerProfileAnalyticsPage() {
               isTransitioning ? 'opacity-0 translate-y-2' : 'opacity-100 translate-y-0'
             }`}
           >
-            {data.certifications.certificates.length === 0 ? (
+            {isLoadingCertificates ? (
+              <CertificatesListSkeleton />
+            ) : !certificates || certificates.length === 0 ? (
               <Card className="p-8">
                 <div className="text-center text-muted-foreground">
                   <p className="text-lg">Aucun certificat obtenu pour le moment</p>
@@ -127,33 +150,13 @@ export default function LearnerProfileAnalyticsPage() {
               </Card>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {data.certifications.certificates.map((cert) => (
+                {certificates.map((cert: any) => (
                   <CertificateCard key={cert.certificateId} certificate={cert} />
                 ))}
               </div>
             )}
           </TabsContent>
         </Tabs>
-      </div>
-    </div>
-  );
-}
-
-// Skeleton de chargement
-function LoadingSkeleton() {
-  return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto py-8 px-4 space-y-8">
-        <Skeleton className="h-10 w-32" />
-        <Card className="p-6">
-          <Skeleton className="h-32 w-full" />
-        </Card>
-        <Card className="p-6">
-          <Skeleton className="h-48 w-full" />
-        </Card>
-        <Card className="p-6">
-          <Skeleton className="h-64 w-full" />
-        </Card>
       </div>
     </div>
   );

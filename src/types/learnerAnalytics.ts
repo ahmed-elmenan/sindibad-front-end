@@ -183,3 +183,16 @@ export interface PaginatedResponse<T> {
   pageSize: number;
   totalPages: number;
 }
+
+/**
+ * DTO pour mettre à jour la progression d'un learner
+ * Utilisé pour le tracking depuis le frontend
+ */
+export interface UpdateProgressDTO {
+  learnerId: string;
+  courseId: string;
+  additionalTimeMinutes?: number;
+  currentChapterOrder?: number;
+  currentLessonOrder?: number;
+  completionPercentage?: number;
+}
