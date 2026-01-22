@@ -129,11 +129,48 @@ export default function DashboardLayout() {
         url: "/admin/organizations",
         icon: IconUsers,
       },
+    ],
+    navSecondary: [
+      {
+        title: "Get Help",
+        url: "#",
+        icon: IconHelp,
+      },
+    ],
+  };
+
+  const sidebarElementsForSuperAdmin = {
+    navMain: [
+      {
+        title: "dashboard",
+        url: "/admin/dashboard",
+        icon: IconDashboard,
+      },
+      {
+        title: "courses",
+        url: "/admin/courses",
+        icon: IconListDetails,
+      },
+      {
+        title: "students",
+        url: "/admin/students",
+        icon: IconUsers,
+      },
+      {
+        title: "organizations",
+        url: "/admin/organizations",
+        icon: IconUsers,
+      },
+      {
+        title: "admins",
+        url: "/admin/manage-admins",
+        icon: IconUsers,
+      },
       {
         title: "requestsSubscriptions",
         url: "/admin/requests",
         icon: IconFileDescription,
-      }
+      },
     ],
     navSecondary: [
       {
@@ -169,8 +206,10 @@ export default function DashboardLayout() {
                 profileData?.role === "ORGANISATION"
                   ? sidebarElementsForOrganisation
                   : profileData?.role === "ADMIN"
-                  ? sidebarElementsForAdmin
-                  : { navMain: [], navSecondary: [] }
+                    ? sidebarElementsForAdmin
+                    : profileData?.role === "SUPER_ADMIN"
+                      ? sidebarElementsForSuperAdmin
+                      : { navMain: [], navSecondary: [] }
               }
             />
             <SidebarInset>

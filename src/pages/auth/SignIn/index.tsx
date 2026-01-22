@@ -30,7 +30,6 @@ export default function LoginPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  
 
   const isRTL = i18n.language === "ar";
 
@@ -67,7 +66,7 @@ export default function LoginPage() {
           email: result.email ?? formData.email,
           role: result.role ?? "LEARNER",
           name: (result.email ?? formData.email).split("@")[0],
-          isActive: result.isActive
+          isActive: result.isActive,
         };
 
         setUser(userData);
@@ -83,14 +82,12 @@ export default function LoginPage() {
           setTimeout(() => {
             navigate("/courses");
           }, 800);
-        } else if (userData.role === "ADMIN") {
+        } else if (userData.role === "ADMIN" || userData.role === "SUPER_ADMIN") {
           setTimeout(() => {
             navigate("/admin/dashboard");
           }, 800);
-        } else {
-          toast.error(t("login2.login_error"));
         }
-      } else if (!result.success && result.isActive === false){
+      } else if (!result.success && result.isActive === false) {
         toast.error(t("login2.account_inactive"));
       } else {
         toast.error(t("login2.login_error"));
@@ -199,7 +196,11 @@ export default function LoginPage() {
               </div>
 
               <div className="space-y-4">
-                <Button type="submit" className="w-full h-11" disabled={isLoading}>
+                <Button
+                  type="submit"
+                  className="w-full h-11"
+                  disabled={isLoading}
+                >
                   {isLoading ? (
                     <div className="flex items-center justify-center gap-2">
                       <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>

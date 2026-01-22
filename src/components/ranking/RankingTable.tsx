@@ -268,17 +268,10 @@ export default function RankingTable({
                     return (
                       <tr
                         key={learner.id}
-                        className={`hover:bg-gray-50 transition-colors ${
-                          userRole === "admin" || userRole === "organisations"
-                            ? "cursor-pointer"
-                            : ""
-                        }`}
+                        className="hover:bg-gray-50 transition-colors cursor-pointer"
                         onClick={() => {
-                          if (
-                            userRole === "organisations"
-                          ) {
-                            navigate(`/organisation/learners/${learner.id}`);
-                          }
+                          // Navigation vers le profil analytics du learner
+                          navigate(`/learners/${learner.id}/analytics`);
                         }}
                       >
                         {/* Rang */}

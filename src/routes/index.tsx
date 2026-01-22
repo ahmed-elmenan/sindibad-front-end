@@ -38,7 +38,9 @@ import ManagementAccessToCourseResources from "@/pages/organisation/ManagementAc
 import AddCoursePage from "@/pages/admin/AddCoursePage";
 import QuestionManagementPage from "@/pages/admin/QuestionManagementPage";
 import OrganizationsPage from "@/pages/admin/OrganizationsPage";
-import RequestsPage from "@/pages/admin/RequestsPage copy";
+import RequestsPage from "@/pages/admin/RequestsPage";
+
+import AdminsManagementPage from "@/pages/admin/AdminsManagementPage";
 
 export const router = createBrowserRouter([
   {
@@ -212,6 +214,10 @@ export const router = createBrowserRouter([
       {
         path: "organizations",
         element: <OrganizationsPage />,
+      },
+      {
+        path: "manage-admins",
+        element: <AdminsManagementPage />,
       },
       {
         path: "requests",
