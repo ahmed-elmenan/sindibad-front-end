@@ -60,7 +60,13 @@ export default function CourseDetailsPage() {
 
   // Automatic pack selection according to business logic
   useEffect(() => {
+    console.log('Pack Selection - CourseSubscription:', CourseSubscription);
+    console.log('Pack Selection - packs:', packs);
+    console.log('Pack Selection - numberOfLearners:', numberOfLearners);
+    
     const { pack, learners } = getOptimalPack(packs, CourseSubscription);
+    console.log('Pack Selection - Selected pack:', pack, 'learners:', learners);
+    
     handlePackSelect(pack, learners);
   }, [CourseSubscription, numberOfLearners, packs]);
 
