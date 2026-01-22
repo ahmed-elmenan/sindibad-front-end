@@ -2,6 +2,7 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SidebarInset, SidebarProvider } from "@/components/ui/Sidebar";
 import { getSummaryProfile } from "@/services/auth.service";
+import { useAuth } from "@/hooks/useAuth";
 import ScrollToTop from "@/components/ScrollToTop";
 import {
   IconCamera,
@@ -18,6 +19,7 @@ import { Outlet } from "react-router-dom";
 import { useEffect } from "react";
 
 export default function DashboardLayout() {
+  const { setUser } = useAuth();
   const { data: profileData, isLoading, refetch, isFetching } = useQuery({
     queryKey: ["summaryProfile"],
     queryFn: getSummaryProfile,
@@ -30,6 +32,19 @@ export default function DashboardLayout() {
   useEffect(() => {
     refetch();
   }, [refetch]);
+
+  // Update user context when profile data is fetched
+  useEffect(() => {
+    if (profileData) {
+      setUser({
+        id: profileData.id,
+        name: profileData.fullName || profileData.userName,
+        email: profileData.email,
+        role: profileData.role,
+        avatar: profileData.avatar,
+      });
+    }
+  }, [profileData, setUser]);
 
   const sidebarElementsForOrganisation = {
     navMain: [

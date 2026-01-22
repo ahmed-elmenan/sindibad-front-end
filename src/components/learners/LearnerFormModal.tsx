@@ -70,6 +70,9 @@ export default function LearnerFormModal({
   const isReadOnly = mode === "view";
   const isEdit = mode === "edit";
 
+  console.log("-----------------");
+  console.log(user);
+
   // Check if user is an organisation
   const isOrganisationUser = user?.role === "ORGANISATION";
   const userOrganisationId = isOrganisationUser ? user?.id : null;
@@ -548,8 +551,11 @@ export default function LearnerFormModal({
                                 placeholder={
                                   isLoadingOrganisations
                                     ? (t("common.loading") ?? "Chargement...")
-                                    : (t("learners.selectOrganisation") ??
-                                      "Sélectionner une organisation")
+                                    : isOrganisationUser
+                                      ? (t("learners.myOrganisation") ??
+                                        "Mon organisation")
+                                      : (t("learners.selectOrganisation") ??
+                                        "Sélectionner une organisation")
                                 }
                               />
                             </SelectTrigger>

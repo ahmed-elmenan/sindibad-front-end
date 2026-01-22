@@ -34,18 +34,43 @@ import {
 import { getOptimalPack, enrollInCourse } from "@/services/course.service";
 import { toast } from "@/components/ui/sonner";
 import type { Pack } from "@/types/Pack";
+import { useAuth } from "@/hooks/useAuth";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Copy, Check } from "lucide-react";
 
 export default function CourseDetailsPage() {
   const { t } = useTranslation();
   const { courseId } = useParams<{ courseId: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { user } = useAuth();
   const [selectedPack, setSelectedPack] = useState<{
     pack: Pack;
     learners: number;
   } | null>(null);
   const [isEnrolling, setIsEnrolling] = useState(false);
   const enrollButtonRef = useRef<HTMLButtonElement>(null);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showRibModal, setShowRibModal] = useState(false);
+  const [copiedRib, setCopiedRib] = useState(false);
+
+  // Check if user is an organisation
+  const isOrganisation = user?.role === "ORGANISATION";
+
+  // RIB information (à configurer selon vos besoins)
+  const ribInfo = {
+    bankName: "Banque Populaire",
+    rib: "123 456 789012345678901234",
+    accountHolder: "SINDIBAD E-LEARNING",
+    swift: "BCPOMAMC",
+  };
 
   // React Query hooks to fetch data
   const { data: course, isLoading: courseLoading } = useCourse(courseId);
@@ -134,6 +159,14 @@ export default function CourseDetailsPage() {
 
   const buttonState = getButtonState();
 
+  // Function to copy RIB to clipboard
+  const copyRibToClipboard = () => {
+    navigator.clipboard.writeText(ribInfo.rib);
+    setCopiedRib(true);
+    toast.success("RIB copié dans le presse-papier");
+    setTimeout(() => setCopiedRib(false), 2000);
+  };
+
   // Function to handle button click
   const handleButtonClick = async () => {
     switch (buttonState.action) {
@@ -146,27 +179,36 @@ export default function CourseDetailsPage() {
         navigate(`/courses/${courseId}/lessons`);
         break;
       case "payment":
-        // Redirect to payment page
-        toast.info({
-          title: t("courseDetails.redirectingToPayment"),
-          description: t("courseDetails.redirectingToPaymentDescription"),
-        });
-        navigate(`/learners/payment`);
+        // Show RIB modal instead of redirecting
+        setShowRibModal(true);
         break;
       case "enroll": {
-        // Enrollment logic
-        if (!selectedPack || !courseId) {
-          toast.error({
-            title: t("courseDetails.enrollmentError"),
-            description: "Missing required enrollment data",
-          });
-          return;
-        }
+        // Show confirmation modal
+        setShowConfirmModal(true);
+        break;
+      }
+      default:
+        break;
+    }
+  };
 
-        setIsEnrolling(true);
-        const loadingToast = toast.loading(t("courseDetails.enrolling"));
+  // Function to confirm and process enrollment
+  const confirmEnrollment = async () => {
+    setShowConfirmModal(false);
+    
+    // Enrollment logic
+    if (!selectedPack || !courseId) {
+      toast.error({
+        title: t("courseDetails.enrollmentError"),
+        description: "Missing required enrollment data",
+      });
+      return;
+    }
 
-        try {
+    setIsEnrolling(true);
+    const loadingToast = toast.loading(t("courseDetails.enrolling"));
+
+    try {
           const enrollmentData = {
             courseId,
             packId: selectedPack.pack.id,
@@ -216,11 +258,6 @@ export default function CourseDetailsPage() {
         } finally {
           setIsEnrolling(false);
         }
-        break;
-      }
-      default:
-        break;
-    }
   };
 
   // Function to determine if user can create/edit reviews
@@ -233,8 +270,8 @@ export default function CourseDetailsPage() {
       ? reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length
       : 0;
 
-  // Calculate total course duration by summing all lessons
-  const totalCourseDuration = chapters.reduce((total, chapter) => {
+  // Calculate total course duration by summing all lessons (duration is in seconds)
+  const totalCourseDurationInSeconds = chapters.reduce((total, chapter) => {
     const chapterDuration = (chapter.lessons ?? []).reduce(
       (chapterTotal, lesson) => {
         return chapterTotal + lesson.duration;
@@ -243,8 +280,11 @@ export default function CourseDetailsPage() {
     );
     return total + chapterDuration;
   }, 0);
+  
+  // Convert seconds to minutes
+  const totalCourseDuration = Math.round(totalCourseDurationInSeconds / 60);
 
-  // Function to format duration
+  // Function to format duration (expects minutes)
   const formatDuration = (minutes: number) => {
     if (minutes >= 60) {
       const hours = Math.floor(minutes / 60);
@@ -339,9 +379,9 @@ export default function CourseDetailsPage() {
     <>
       <div className="min-h-screen gradient-bg">
         <main className="container mx-auto px-4 sm:px-6 md:px-8 lg:px-12 py-4 md:py-8 space-y-6 md:space-y-8">
-          <div className="grid lg:grid-cols-3 gap-6 md:gap-8">
+          <div className="grid lg:grid-cols-[1.8fr_1.2fr] gap-6 md:gap-8">
             {/* Main content */}
-            <div className="lg:col-span-2 space-y-6 md:space-y-8">
+            <div className="space-y-6 md:space-y-8">
               {/* Hero section */}
               <div className="space-y-4 px-2 md:px-0">
                 <div className="aspect-[16/9] md:aspect-[2/1] overflow-hidden rounded-lg md:rounded-xl shadow-lg max-h-60 md:max-h-80">
@@ -448,13 +488,13 @@ export default function CourseDetailsPage() {
             </div>
 
             {/* Sidebar */}
-            <div className="lg:col-span-1 px-2 md:px-0">
+            <div className="px-2 md:px-0">
               <div className="space-y-6 lg:sticky lg:top-8">
                 {/* Price and information */}
                 <Card className="bg-white border border-orange-100/50 shadow-sm hover:shadow-md transition-all duration-300">
-                  {!CourseSubscription?.subscription && (
+                  {!CourseSubscription?.subscription && !isOrganisation && (
                     <CardHeader className="text-center space-y-4 px-4 md:px-6">
-                      {/* Show price only if user is not subscribed */}
+                      {/* Show price only if user is not subscribed and not organisation */}
                       <div className="space-y-2">
                         <div className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-orange-500 to-orange-600 bg-clip-text text-transparent">
                           {course.price} MAD
@@ -490,10 +530,10 @@ export default function CourseDetailsPage() {
                         ref={enrollButtonRef}
                         onClick={handleButtonClick}
                         disabled={buttonState.disabled}
-                        className={`w-full py-3 md:py-4 text-sm md:text-lg font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2 min-h-[3rem] ${buttonState.colorClass}`}
+                        className={`w-full py-3 md:py-4 text-sm md:text-base font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2 min-h-[3rem] ${buttonState.colorClass}`}
                       >
                         <buttonState.icon className="h-4 w-4 md:h-5 md:w-5 flex-shrink-0" />
-                        <span className="truncate">{buttonState.text}</span>
+                        <span className="text-center leading-tight">{buttonState.text}</span>
                       </Button>
                     )}
 
@@ -530,33 +570,6 @@ export default function CourseDetailsPage() {
                         )}
 
                         <div className="space-y-3">
-                          {/* Unit price */}
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm text-gray-600">
-                              {t("courseDetails.subscriptionUnitPrice")}
-                            </span>
-                            <span className="font-medium text-gray-800">
-                              {CourseSubscription.subscription.unitPrice} MAD
-                            </span>
-                          </div>
-
-                          {/* Discount */}
-                          {CourseSubscription.subscription.discountPercentage >
-                            0 && (
-                            <div className="flex items-center justify-between">
-                              <span className="text-sm text-gray-600">
-                                {t("courseDetails.subscriptionDiscount")}
-                              </span>
-                              <span className="font-medium text-green-600">
-                                {
-                                  CourseSubscription.subscription
-                                    .discountPercentage
-                                }
-                                %
-                              </span>
-                            </div>
-                          )}
-
                           {/* Number of learners */}
                           <div className="flex items-center justify-between">
                             <span className="text-sm text-gray-600">
@@ -570,65 +583,97 @@ export default function CourseDetailsPage() {
                             </span>
                           </div>
 
-                          {/* Price calculations */}
-                          <div className="space-y-2 text-sm border-t pt-3">
-                            <div className="flex justify-between">
-                              <span className="text-gray-600">
-                                {t("courseDetails.subscriptionSubtotal")}
-                              </span>
-                              <span className="font-medium">
-                                {(
-                                  CourseSubscription.subscription.unitPrice *
-                                  CourseSubscription.learnersCount
-                                ).toFixed(2)}{" "}
-                                MAD
-                              </span>
-                            </div>
-                            {CourseSubscription.subscription
-                              .discountPercentage > 0 && (
-                              <div className="flex justify-between">
-                                <span className="text-green-600">
-                                  {t(
-                                    "courseDetails.subscriptionDiscountAmount"
-                                  )}{" "}
-                                  (
-                                  {
-                                    CourseSubscription.subscription
-                                      .discountPercentage
-                                  }
-                                  %)
+                          {/* Price information - only show if not organisation */}
+                          {!isOrganisation && (
+                            <>
+                              {/* Unit price */}
+                              <div className="flex items-center justify-between">
+                                <span className="text-sm text-gray-600">
+                                  {t("courseDetails.subscriptionUnitPrice")}
                                 </span>
-                                <span className="font-medium text-green-600">
-                                  -
-                                  {(
-                                    (CourseSubscription.subscription.unitPrice *
-                                      CourseSubscription.learnersCount *
-                                      CourseSubscription.subscription
-                                        .discountPercentage) /
-                                    100
-                                  ).toFixed(2)}{" "}
-                                  MAD
+                                <span className="font-medium text-gray-800">
+                                  {CourseSubscription.subscription.unitPrice} MAD
                                 </span>
                               </div>
-                            )}
-                            <div className="flex justify-between text-lg font-bold border-t pt-2">
-                              <span className="text-gray-800">
-                                {t("courseDetails.subscriptionTotal")}
-                              </span>
-                              <span className="bg-gradient-to-r from-blue-500 to-blue-600 bg-clip-text text-transparent">
-                                {(
-                                  CourseSubscription.subscription.unitPrice *
-                                    CourseSubscription.learnersCount -
-                                  (CourseSubscription.subscription.unitPrice *
-                                    CourseSubscription.learnersCount *
-                                    CourseSubscription.subscription
-                                      .discountPercentage) /
-                                    100
-                                ).toFixed(2)}{" "}
-                                MAD
-                              </span>
-                            </div>
-                          </div>
+
+                              {/* Discount */}
+                              {CourseSubscription.subscription.discountPercentage >
+                                0 && (
+                                <div className="flex items-center justify-between">
+                                  <span className="text-sm text-gray-600">
+                                    {t("courseDetails.subscriptionDiscount")}
+                                  </span>
+                                  <span className="font-medium text-green-600">
+                                    {
+                                      CourseSubscription.subscription
+                                        .discountPercentage
+                                    }
+                                    %
+                                  </span>
+                                </div>
+                              )}
+
+                              {/* Price calculations */}
+                              <div className="space-y-2 text-sm border-t pt-3">
+                                <div className="flex justify-between">
+                                  <span className="text-gray-600">
+                                    {t("courseDetails.subscriptionSubtotal")}
+                                  </span>
+                                  <span className="font-medium">
+                                    {(
+                                      CourseSubscription.subscription.unitPrice *
+                                      CourseSubscription.learnersCount
+                                    ).toFixed(2)}{" "}
+                                    MAD
+                                  </span>
+                                </div>
+                                {CourseSubscription.subscription
+                                  .discountPercentage > 0 && (
+                                  <div className="flex justify-between">
+                                    <span className="text-green-600">
+                                      {t(
+                                        "courseDetails.subscriptionDiscountAmount"
+                                      )}{" "}
+                                      (
+                                      {
+                                        CourseSubscription.subscription
+                                          .discountPercentage
+                                      }
+                                      %)
+                                    </span>
+                                    <span className="font-medium text-green-600">
+                                      -
+                                      {(
+                                        (CourseSubscription.subscription.unitPrice *
+                                          CourseSubscription.learnersCount *
+                                          CourseSubscription.subscription
+                                            .discountPercentage) /
+                                        100
+                                      ).toFixed(2)}{" "}
+                                      MAD
+                                    </span>
+                                  </div>
+                                )}
+                                <div className="flex justify-between text-lg font-bold border-t pt-2">
+                                  <span className="text-gray-800">
+                                    {t("courseDetails.subscriptionTotal")}
+                                  </span>
+                                  <span className="bg-gradient-to-r from-blue-500 to-blue-600 bg-clip-text text-transparent">
+                                    {(
+                                      CourseSubscription.subscription.unitPrice *
+                                        CourseSubscription.learnersCount -
+                                      (CourseSubscription.subscription.unitPrice *
+                                        CourseSubscription.learnersCount *
+                                        CourseSubscription.subscription
+                                          .discountPercentage) /
+                                        100
+                                    ).toFixed(2)}{" "}
+                                    MAD
+                                  </span>
+                                </div>
+                              </div>
+                            </>
+                          )}
 
                           {/* Dates */}
                           {CourseSubscription.subscription.startDate && (
@@ -664,10 +709,10 @@ export default function CourseDetailsPage() {
                           <Button
                             onClick={handleButtonClick}
                             disabled={buttonState.disabled}
-                            className={`w-full py-3 md:py-4 text-sm md:text-lg font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2 min-h-[3rem] ${buttonState.colorClass}`}
+                            className={`w-full px-4 py-3 md:py-4 text-sm md:text-base font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2 min-h-[3rem] ${buttonState.colorClass}`}
                           >
                             <buttonState.icon className="h-4 w-4 md:h-5 md:w-5 flex-shrink-0" />
-                            <span className="truncate">{buttonState.text}</span>
+                            <span className="text-center leading-tight">{buttonState.text}</span>
                           </Button>
                         )}
                       </div>
@@ -676,7 +721,8 @@ export default function CourseDetailsPage() {
                     {/* Display selected pack details */}
                     {selectedPack &&
                       CourseSubscription?.loggedIn &&
-                      !CourseSubscription?.subscription && (
+                      !CourseSubscription?.subscription &&
+                      !isOrganisation && (
                         <div className="bg-gradient-to-r from-green-50 to-green-100/50 border border-green-200 rounded-lg p-4 space-y-4 animate-in slide-in-from-top-2">
                           <div className="flex items-center gap-2">
                             <CheckCircle className="h-5 w-5 text-green-500" />
@@ -829,6 +875,130 @@ export default function CourseDetailsPage() {
           </div>
         </main>
       </div>
+
+      {/* Confirmation Modal */}
+      <Dialog open={showConfirmModal} onOpenChange={setShowConfirmModal}>
+        <DialogContent className="max-w-md bg-white">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold text-gray-900">
+              Confirmer la demande de souscription
+            </DialogTitle>
+            <DialogDescription className="text-gray-600">
+              Veuillez vérifier les informations avant de confirmer
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div className="bg-gradient-to-r from-orange-50 to-orange-100/50 rounded-lg p-4 space-y-3">
+              <div>
+                <p className="text-sm text-gray-600 font-medium">Organisation</p>
+                <p className="text-base font-semibold text-gray-900">{user?.name || user?.email}</p>
+              </div>
+              
+              <div>
+                <p className="text-sm text-gray-600 font-medium">Cours</p>
+                <p className="text-base font-semibold text-gray-900">{course?.title}</p>
+              </div>
+              
+              <div>
+                <p className="text-sm text-gray-600 font-medium">Nombre de bénéficiaires</p>
+                <p className="text-base font-semibold text-gray-900">
+                  {selectedPack?.learners} {selectedPack?.learners && selectedPack.learners > 1 ? "apprenants" : "apprenant"}
+                </p>
+              </div>
+            </div>
+
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+              <p className="text-sm text-blue-800">
+                <strong>Note :</strong> Après confirmation, votre demande sera en attente de validation. 
+                Vous recevrez les instructions de paiement.
+              </p>
+            </div>
+          </div>
+
+          <DialogFooter className="gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setShowConfirmModal(false)}
+              disabled={isEnrolling}
+            >
+              Annuler
+            </Button>
+            <Button
+              onClick={confirmEnrollment}
+              disabled={isEnrolling}
+              className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700"
+            >
+              {isEnrolling ? "En cours..." : "Confirmer la demande"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* RIB Modal for PENDING payments */}
+      <Dialog open={showRibModal} onOpenChange={setShowRibModal}>
+        <DialogContent className="max-w-lg bg-white">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold text-gray-900">
+              Informations de paiement
+            </DialogTitle>
+            <DialogDescription className="text-gray-600">
+              Effectuez le virement bancaire avec les coordonnées ci-dessous
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div className="bg-gradient-to-r from-blue-50 to-blue-100/50 rounded-lg p-4 space-y-4">
+              <div>
+                <p className="text-sm text-gray-600 font-medium">Banque</p>
+                <p className="text-base font-semibold text-gray-900">{ribInfo.bankName}</p>
+              </div>
+              
+              <div>
+                <p className="text-sm text-gray-600 font-medium">Bénéficiaire</p>
+                <p className="text-base font-semibold text-gray-900">{ribInfo.accountHolder}</p>
+              </div>
+              
+              <div>
+                <p className="text-sm text-gray-600 font-medium">RIB</p>
+                <div className="flex items-center gap-2 mt-1">
+                  <code className="flex-1 text-sm font-mono bg-white px-3 py-2 rounded border border-gray-300">
+                    {ribInfo.rib}
+                  </code>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={copyRibToClipboard}
+                    className="shrink-0"
+                  >
+                    {copiedRib ? (
+                      <Check className="w-4 h-4 text-green-600" />
+                    ) : (
+                      <Copy className="w-4 h-4" />
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+              <p className="text-sm text-yellow-800">
+                <strong>Important :</strong> Après avoir effectué le virement, 
+                veuillez conserver votre reçu. Votre souscription sera activée après validation du paiement.
+              </p>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              onClick={() => setShowRibModal(false)}
+              className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
+            >
+              Fermer
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

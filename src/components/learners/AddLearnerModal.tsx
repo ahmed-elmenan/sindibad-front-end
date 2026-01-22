@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslation } from "react-i18next";
@@ -8,6 +8,7 @@ import { CalendarIcon, CheckCircle2, Upload, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { getAllOrganisations } from "@/services/organisation.service";
+import { useAuth } from "@/hooks/useAuth";
 
 import {
   Dialog,
@@ -53,6 +54,7 @@ export default function AddLearnerModal({
   onSuccess,
 }: AddLearnerModalProps) {
   const { t } = useTranslation();
+  const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [previewImage, setPreviewImage] = useState<string>("");
@@ -78,6 +80,18 @@ export default function AddLearnerModal({
       acceptTerms: true,
     },
   });
+
+  // Si l'utilisateur est une organisation, pré-remplir et désactiver le champ
+  console.log("-----------------")
+  console.log(user)
+  const isOrganisation = user?.role === "ORGANISATION";
+  const currentOrganisationId = user?.id;
+
+  useEffect(() => {
+    if (isOrganisation && currentOrganisationId && open) {
+      form.setValue("organisationId", currentOrganisationId);
+    }
+  }, [isOrganisation, currentOrganisationId, open, form]);
 
   console.log("📋 État du formulaire:", {
     isValid: form.formState.isValid,
@@ -422,7 +436,7 @@ export default function AddLearnerModal({
                       <Select
                         value={field.value}
                         onValueChange={field.onChange}
-                        disabled={isLoadingOrganisations}
+                        disabled={isLoadingOrganisations || isOrganisation}
                       >
                         <FormControl>
                           <SelectTrigger className="h-11 border-gray-300">
@@ -430,6 +444,8 @@ export default function AddLearnerModal({
                               placeholder={
                                 isLoadingOrganisations
                                   ? "Chargement..."
+                                  : isOrganisation
+                                  ? "Mon organisation"
                                   : "Sélectionner une organisation"
                               }
                             />
