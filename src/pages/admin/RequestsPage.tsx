@@ -1,9 +1,17 @@
-import { useState } from 'react';
-import { useAuth } from '../../hooks/useAuth';
-import { useSubscriptionRequests, useAcceptRequest } from '../../hooks/useSubscriptionRequests';
+import { useState } from "react";
+import { useAuth } from "../../hooks/useAuth";
+import {
+  useSubscriptionRequests,
+  useAcceptRequest,
+} from "../../hooks/useSubscriptionRequests";
 
 // Types définis localement
-type SubscriptionRequestStatus = 'PENDING' | 'ACCEPTED' | 'REFUSED' | 'ACTIVE' | 'EXPIRED';
+type SubscriptionRequestStatus =
+  | "PENDING"
+  | "ACCEPTED"
+  | "REFUSED"
+  | "ACTIVE"
+  | "EXPIRED";
 
 interface SubscriptionFilters {
   searchTerm?: string;
@@ -14,13 +22,19 @@ interface SubscriptionFilters {
   size?: number;
 }
 
-import { SubscriptionRequestsTable } from '../../components/admin/SubscriptionRequestsTable';
-import { SubscriptionRequestFilters } from '../../components/admin/SubscriptionRequestFilters';
-import { RefuseDialog } from '../../components/admin/RefuseDialog';
-import { ReceiptDialog } from '../../components/admin/ReceiptDialog';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
-import { Button } from '../../components/ui/button';
-import { RefreshCw, FileCheck, FileX, Clock } from 'lucide-react';
+import { SubscriptionRequestsTable } from "../../components/admin/SubscriptionRequestsTable";
+import { SubscriptionRequestFilters } from "../../components/admin/SubscriptionRequestFilters";
+import { RefuseDialog } from "../../components/admin/RefuseDialog";
+import { ReceiptDialog } from "../../components/admin/ReceiptDialog";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../../components/ui/card";
+import { Button } from "../../components/ui/button";
+import { RefreshCw, FileCheck, FileX, Clock } from "lucide-react";
 
 const RequestsPage = () => {
   const { user } = useAuth();
@@ -32,7 +46,9 @@ const RequestsPage = () => {
   // Dialogs state
   const [refuseDialogOpen, setRefuseDialogOpen] = useState(false);
   const [receiptDialogOpen, setReceiptDialogOpen] = useState(false);
-  const [selectedRequestId, setSelectedRequestId] = useState<string | null>(null);
+  const [selectedRequestId, setSelectedRequestId] = useState<string | null>(
+    null,
+  );
 
   // Queries & Mutations
   const { data, isLoading, refetch } = useSubscriptionRequests(filters);
@@ -40,9 +56,9 @@ const RequestsPage = () => {
 
   // Statistics
   const stats = {
-    pending: data?.content.filter((r) => r.status === 'PENDING').length || 0,
-    accepted: data?.content.filter((r) => r.status === 'ACCEPTED').length || 0,
-    refused: data?.content.filter((r) => r.status === 'REFUSED').length || 0,
+    pending: data?.content.filter((r) => r.status === "PENDING").length || 0,
+    accepted: data?.content.filter((r) => r.status === "ACCEPTED").length || 0,
+    refused: data?.content.filter((r) => r.status === "REFUSED").length || 0,
   };
 
   const handleAccept = (id: string) => {
@@ -72,11 +88,13 @@ const RequestsPage = () => {
   };
 
   return (
-    <div className="container mx-auto py-8 space-y-6">
+    <div className="container mx-auto py-8 space-y-6 p-8">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Demandes & Abonnements</h1>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-muted bg-clip-text text-transparent">
+            Demandes & Abonnements
+          </h1>
           <p className="text-muted-foreground mt-1">
             Gérez les demandes d'abonnement des organisations
           </p>
@@ -124,7 +142,10 @@ const RequestsPage = () => {
       </div>
 
       {/* Filters */}
-      <SubscriptionRequestFilters filters={filters} onFilterChange={handleFilterChange} />
+      <SubscriptionRequestFilters
+        filters={filters}
+        onFilterChange={handleFilterChange}
+      />
 
       {/* Table */}
       <Card>
@@ -152,7 +173,7 @@ const RequestsPage = () => {
         open={refuseDialogOpen}
         onOpenChange={setRefuseDialogOpen}
         subscriptionId={selectedRequestId}
-        processedBy={user?.email || ''}
+        processedBy={user?.email || ""}
       />
 
       <ReceiptDialog
@@ -165,4 +186,3 @@ const RequestsPage = () => {
 };
 
 export default RequestsPage;
-

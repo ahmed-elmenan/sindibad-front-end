@@ -43,9 +43,9 @@ export function AppSidebar({
               asChild
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
-              <span className="hover:bg-transparent group">
+              <span className="hover:bg-transparent active:bg-transparent focus:bg-transparent cursor-default group">
                 <IconInnerShadowTop className="!size-5 group-hover:text-black" />
-                <span className="text-base font-semibold group-hover:text-black">
+                <span className="text-base font-semibold group-hover:text-black pointer-events-none">
                   Sindibad
                 </span>
               </span>
