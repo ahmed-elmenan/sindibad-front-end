@@ -324,6 +324,11 @@
       "allCategories": "جميع الفئات",
       "level": "المستوى",
       "allLevels": "جميع المستويات",
+      "levels": {
+        "beginner": "مبتدئ",
+        "intermediate": "متوسط",
+        "advanced": "متقدم"
+      },
       "price": "السعر (درهم)",
       "allPrices": "جميع الأسعار",
       "priceLow": "أقل من 2000",

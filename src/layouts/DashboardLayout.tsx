@@ -48,11 +48,6 @@ export default function DashboardLayout() {
         url: "/organisation/students",
         icon: IconUsers,
       },
-      {
-        title: "manageAccess",
-        url: "/organisation/management-access-resources",
-        icon: IconUsers,
-      },
     ],
     navClouds: [
       {

@@ -4,6 +4,7 @@ import { Clock } from "lucide-react";
 import StarRating from "./StarRating";
 import type { Course } from "@/types/Course";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 interface CourseCardProps {
   course: Course;
@@ -25,6 +26,7 @@ const getLevelColor = (level: string) => {
 export default function CourseCard({ course }: CourseCardProps) {
   const location = useLocation();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const handleClick = () => {
     if (location.pathname.startsWith("/organisation/courses")) {
@@ -88,7 +90,7 @@ export default function CourseCard({ course }: CourseCardProps) {
                   course.level
                 )} shrink-0 text-xs font-medium px-2 py-1`}
               >
-                {course.level}
+                {t(`courses.filter.levels.${course.level.toLowerCase()}`)}
               </Badge>
               </div>
               <StarRating rating={course.avgRating} size="sm" />

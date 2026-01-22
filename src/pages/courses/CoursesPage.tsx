@@ -162,18 +162,25 @@ export default function CoursesPage() {
     setSearchInput(filters.search);
   }, [filters.search]);
 
+  // Debounce search input
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (searchInput !== filters.search) {
+        handleFilterChange("search", searchInput);
+      }
+    }, 500); // 500ms debounce
+
+    return () => clearTimeout(timeoutId);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchInput]);
+
   const uniqueCategories = useMemo(
     () => (Array.isArray(categories) ? categories : []),
     [categories]
   );
 
-  const uniqueLevels = useMemo(
-    () =>
-      Array.isArray(courses)
-        ? [...new Set(courses.map((course) => course?.level ?? ""))].sort()
-        : [],
-    [courses]
-  );
+  // Liste fixe des niveaux
+  const COURSE_LEVELS = ['BEGINNER', 'INTERMEDIATE', 'ADVANCED'];
 
   const handleFilterChange = (key: keyof FilterState, value: string) => {
     if (key === "status") {
@@ -181,10 +188,6 @@ export default function CoursesPage() {
     } else {
       updateFilters({ [key]: value === "all" ? "" : value });
     }
-  };
-
-  const handleSearch = () => {
-    handleFilterChange("search", searchInput);
   };
 
   const resetAndSearch = () => {
@@ -245,7 +248,7 @@ export default function CoursesPage() {
       <div className="min-h-screen gradient-bg">
         <main className="container mx-auto px-2 sm:px-4 py-4 md:py-8 space-y-6 md:space-y-6 max-w-7xl">
           {/* Header Section */}
-          <section className="flex flex-col items-center justify-center py-8 md:py-16 text-center px-4">
+          <section className="flex flex-col items-center justify-center py-8 md:py-4 text-center px-4">
             <div className="flex items-center justify-center mb-4 w-full">
               <span className="relative inline-flex items-center bg-white/90 backdrop-blur-sm rounded-xl px-4 md:px-6 py-2 md:py-3 shadow-lg border border-orange-100/50">
                 <span className="absolute -left-4 md:-left-6 top-1/2 -translate-y-1/2">
@@ -310,14 +313,6 @@ export default function CoursesPage() {
                           </Button>
                         )}
                       </div>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleSearch}
-                        className="h-10 px-4 text-sm bg-orange-500 text-white hover:bg-orange-600 rounded-lg w-full sm:w-auto flex items-center justify-center"
-                      >
-                        {t("courses.filter.searchButton")}
-                      </Button>
                     </div>
                     <div className="flex items-center gap-2 md:gap-3 justify-between md:justify-start">
                       <Button
@@ -412,9 +407,9 @@ export default function CoursesPage() {
                           <SelectItem value="all">
                             {t("courses.filter.allLevels")}
                           </SelectItem>
-                          {uniqueLevels.map((level) => (
+                          {COURSE_LEVELS.map((level) => (
                             <SelectItem key={level} value={level}>
-                              {level}
+                              {t(`courses.filter.levels.${level.toLowerCase()}`)}
                             </SelectItem>
                           ))}
                         </SelectContent>

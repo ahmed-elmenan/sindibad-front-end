@@ -301,6 +301,11 @@
       "allCategories": "Toutes les catégories",
       "level": "Niveau",
       "allLevels": "Tous les niveaux",
+      "levels": {
+        "beginner": "Débutant",
+        "intermediate": "Intermédiaire",
+        "advanced": "Avancé"
+      },
       "price": "Prix (MAD)",
       "allPrices": "Tous les prix",
       "priceLow": "Moins de 2000",
