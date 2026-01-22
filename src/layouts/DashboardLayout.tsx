@@ -15,12 +15,21 @@ import {
 } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { Outlet } from "react-router-dom";
+import { useEffect } from "react";
 
 export default function DashboardLayout() {
-  const { data: profileData, isLoading } = useQuery({
+  const { data: profileData, isLoading, refetch, isFetching } = useQuery({
     queryKey: ["summaryProfile"],
     queryFn: getSummaryProfile,
+    staleTime: 0, // Ne pas garder les données en cache
+    refetchOnMount: "always", // Toujours refetch au montage
+    gcTime: 0, // Ne pas garder les données en cache après unmount
   });
+
+  // Force refetch when component mounts
+  useEffect(() => {
+    refetch();
+  }, [refetch]);
 
   const sidebarElementsForOrganisation = {
     navMain: [
@@ -201,7 +210,7 @@ export default function DashboardLayout() {
                 email: profileData?.email ?? "",
                 role: profileData?.role ?? "",
               }}
-              isLoading={isLoading}
+              isLoading={isLoading || isFetching}
               sidebarElements={
                 profileData?.role === "ORGANISATION"
                   ? sidebarElementsForOrganisation

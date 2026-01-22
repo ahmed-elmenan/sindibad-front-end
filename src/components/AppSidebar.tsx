@@ -15,6 +15,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/Sidebar";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useTranslation } from "react-i18next";
 
 export function AppSidebar({
@@ -54,11 +55,37 @@ export function AppSidebar({
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={sidebarElements.navMain} isRtl={isRtl} />
-        <NavSecondary
-          items={sidebarElements.navSecondary}
-          className="mt-auto"
-        />
+        {isLoading ? (
+          <div className="space-y-2 p-2">
+            {/* NavMain skeleton items */}
+            <div className="space-y-1">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="flex items-center gap-3 px-3 py-2">
+                  <Skeleton className="h-5 w-5 rounded bg-gray-200" />
+                  <Skeleton className="h-4 w-24 bg-gray-200" />
+                </div>
+              ))}
+            </div>
+            
+            {/* NavSecondary skeleton items */}
+            <div className="mt-auto pt-4 space-y-1">
+              {[1, 2].map((i) => (
+                <div key={i} className="flex items-center gap-3 px-3 py-2">
+                  <Skeleton className="h-4 w-4 rounded bg-gray-200" />
+                  <Skeleton className="h-4 w-20 bg-gray-200" />
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <>
+            <NavMain items={sidebarElements.navMain} isRtl={isRtl} />
+            <NavSecondary
+              items={sidebarElements.navSecondary}
+              className="mt-auto"
+            />
+          </>
+        )}
       </SidebarContent>
       <SidebarFooter>
         <NavUser
