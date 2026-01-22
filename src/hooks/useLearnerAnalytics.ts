@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { learnerAnalyticsService } from "@/services/learnerAnalytics.service";
 import type { UpdateProgressDTO } from "@/types/learnerAnalytics";
+import { useState, useEffect, useRef } from "react";
 
 /**
  * Hook pour récupérer les analytics d'un learner (sans certificats)
@@ -55,16 +56,17 @@ export function useUpdateLearnerProgress() {
 
 /**
  * Hook personnalisé pour le tracking automatique du temps passé
- * À utiliser dans les pages de cours pour envoyer des updates réguliers
+ * Utilise Page Visibility API pour ne compter que le temps réellement actif
+ * Sauvegarde automatiquement avant la fermeture de la page
  * 
  * @param learnerId ID du learner
  * @param courseId ID du cours
  * @param intervalMinutes Intervalle en minutes entre chaque update (défaut: 5)
- * @returns Fonction pour arrêter le tracking
+ * @returns { startTracking, stopTracking, currentTime }
  * 
  * @example
  * ```tsx
- * const { startTracking, stopTracking } = useProgressTracking(learnerId, courseId);
+ * const { startTracking, stopTracking, currentTime } = useProgressTracking(learnerId, courseId);
  * 
  * useEffect(() => {
  *   startTracking();
@@ -78,34 +80,122 @@ export function useProgressTracking(
   intervalMinutes: number = 5
 ) {
   const updateProgress = useUpdateLearnerProgress();
-  let trackingInterval: NodeJS.Timeout | null = null;
+  const [isPageVisible, setIsPageVisible] = useState(true);
+  const [accumulatedTime, setAccumulatedTime] = useState(0); // en secondes
+  const lastUpdateRef = useRef(Date.now());
+  const trackingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const isTrackingRef = useRef(false);
 
-  const startTracking = () => {
-    if (!learnerId || !courseId || trackingInterval) return;
+  // 🔍 Détecter si la page est visible
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      const isVisible = document.visibilityState === 'visible';
+      setIsPageVisible(isVisible);
+      
+      if (isVisible) {
+        // Remettre à jour le timestamp quand l'utilisateur revient
+        lastUpdateRef.current = Date.now();
+      } else {
+        // Sauvegarder le temps accumulé quand l'utilisateur part
+        saveCurrentTime();
+      }
+    };
 
-    // Envoyer un update immédiatement au démarrage
-    updateProgress.mutate({
-      learnerId,
-      courseId,
-      additionalTimeMinutes: 0,
-    });
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [accumulatedTime, learnerId, courseId]);
 
-    // Puis envoyer des updates réguliers
-    trackingInterval = setInterval(() => {
+  // ⏱️ Accumuler le temps toutes les secondes (seulement si page visible et tracking actif)
+  useEffect(() => {
+    if (!isPageVisible || !isTrackingRef.current) return;
+
+    const timer = setInterval(() => {
+      setAccumulatedTime(prev => prev + 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [isPageVisible, isTrackingRef.current]);
+
+  // 📤 Envoyer au serveur quand on atteint l'intervalle
+  useEffect(() => {
+    if (accumulatedTime >= intervalMinutes * 60) {
+      sendTimeToServer();
+    }
+  }, [accumulatedTime, learnerId, courseId, intervalMinutes]);
+
+  const sendTimeToServer = () => {
+    if (accumulatedTime === 0 || !learnerId || !courseId) return;
+
+    const minutesToSend = Math.floor(accumulatedTime / 60);
+    
+    if (minutesToSend > 0) {
       updateProgress.mutate({
         learnerId,
         courseId,
-        additionalTimeMinutes: intervalMinutes,
+        additionalTimeMinutes: minutesToSend,
+      }, {
+        onSuccess: () => {
+          setAccumulatedTime(0); // Reset après envoi réussi
+          lastUpdateRef.current = Date.now();
+        },
+        onError: (error) => {
+          console.error("Failed to save progress time:", error);
+        }
       });
-    }, intervalMinutes * 60 * 1000); // Convertir en millisecondes
-  };
-
-  const stopTracking = () => {
-    if (trackingInterval) {
-      clearInterval(trackingInterval);
-      trackingInterval = null;
     }
   };
 
-  return { startTracking, stopTracking, isTracking: !!trackingInterval };
+  const saveCurrentTime = () => {
+    sendTimeToServer();
+  };
+
+  // 🚪 Sauvegarder avant de quitter la page
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (accumulatedTime > 0) {
+        // Utiliser sendBeacon pour envoyer les données de manière fiable
+        const minutesToSend = Math.floor(accumulatedTime / 60);
+        if (minutesToSend > 0 && learnerId && courseId) {
+          const data = JSON.stringify({
+            learnerId,
+            courseId,
+            additionalTimeMinutes: minutesToSend,
+          });
+          
+          // sendBeacon envoie les données même si la page se ferme
+          navigator.sendBeacon('/api/v1/learners/progress', data);
+        }
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [accumulatedTime, learnerId, courseId]);
+
+  const startTracking = () => {
+    if (!learnerId || !courseId || isTrackingRef.current) return;
+    
+    isTrackingRef.current = true;
+    lastUpdateRef.current = Date.now();
+    setAccumulatedTime(0);
+  };
+
+  const stopTracking = () => {
+    if (!isTrackingRef.current) return;
+    
+    isTrackingRef.current = false;
+    saveCurrentTime();
+    
+    if (trackingIntervalRef.current) {
+      clearInterval(trackingIntervalRef.current);
+      trackingIntervalRef.current = null;
+    }
+  };
+
+  return { 
+    startTracking, 
+    stopTracking, 
+    currentTime: accumulatedTime,
+    isTracking: isTrackingRef.current 
+  };
 }

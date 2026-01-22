@@ -35,7 +35,7 @@ export function LearnerProfileHeader({ profile }: LearnerProfileHeaderProps) {
   const maskEmail = (email: string) => {
     const [local, domain] = email.split("@");
     if (local.length <= 3) return email;
-    return `${local.substring(0, 2)}***@${domain}`;
+    return `${local}@${domain}`;
   };
 
   const calculateAge = (dateOfBirth: string): number => {

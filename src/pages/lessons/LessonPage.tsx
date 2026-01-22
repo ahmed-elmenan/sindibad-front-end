@@ -15,6 +15,8 @@ import { useTranslation } from "react-i18next";
 import { useParams, useSearchParams } from "react-router-dom";
 import { useChapters } from "@/hooks/useChapters";
 import { useComments } from "@/hooks/useComments";
+import { useProgressTracking } from "@/hooks/useLearnerAnalytics";
+import { useAuth } from "@/hooks/useAuth";
 import VideoQuiz from "./quiz/QuizPage";
 // Import dynamique ou placeholder pour QuizInfosPage
 // Remplacez ce chemin par le bon si besoin
@@ -25,6 +27,7 @@ import WaitingAdminMessage from "@/components/Lesson/WaitingAdminMessage";
 export default function LessonPage() {
   const { t, i18n } = useTranslation();
   const [searchParams] = useSearchParams();
+  const { user } = useAuth(); // Récupérer l'utilisateur connecté
 
   const isRTL = i18n.dir && i18n.dir() === "rtl";
 
@@ -65,6 +68,26 @@ export default function LessonPage() {
   const [isTesting, setIsTesting] = useState(false);
   const [isContinuing, setIsContinuing] = useState(false);
   const [isTestStarting, setIsTestStarting] = useState(false);
+
+  // 🔥 Tracking automatique du temps passé (UNIQUEMENT pour LEARNER)
+  const { startTracking, stopTracking } = useProgressTracking(
+    user?.role === 'LEARNER' ? user?.id : undefined,  // Ne track que si LEARNER
+    user?.role === 'LEARNER' ? courseId : undefined,
+    5  // Envoyer une mise à jour toutes les 5 minutes
+  );
+
+  // Démarrer le tracking quand une leçon est chargée (seulement pour LEARNER)
+  useEffect(() => {
+    if (currentLesson && user?.id && courseId && user?.role === 'LEARNER' && !isQuiz) {
+      console.log('🎯 Starting time tracking for lesson:', currentLesson.title);
+      startTracking();
+      
+      return () => {
+        console.log('⏹️ Stopping time tracking for lesson:', currentLesson.title);
+        stopTracking();
+      };
+    }
+  }, [currentLesson, user?.id, user?.role, courseId, isQuiz, startTracking, stopTracking]);
 
   // Met à jour la position de l'indicateur quand l'onglet change
   useEffect(() => {

@@ -13,9 +13,10 @@ interface VideoPlayerProps {
   title?: string
   onProgress?: (progress: number) => void
   lessonLoading: boolean
+  onVideoWatchTime?: (seconds: number) => void  // Callback optionnel pour le tracking précis
 }
 
-export function VideoPlayer({ videoUrl, onProgress, lessonLoading }: VideoPlayerProps) {
+export function VideoPlayer({ videoUrl, onProgress, lessonLoading, onVideoWatchTime }: VideoPlayerProps) {
   const {t}  = useTranslation();
   const videoRef = useRef<HTMLVideoElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -26,6 +27,10 @@ export function VideoPlayer({ videoUrl, onProgress, lessonLoading }: VideoPlayer
   const [isMuted, setIsMuted] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  
+  // 📹 Tracking précis du temps de visionnage
+  const lastPositionRef = useRef(0)
+  const videoWatchTimeRef = useRef(0)
 
   useEffect(() => {
     const video = videoRef.current
@@ -39,6 +44,25 @@ export function VideoPlayer({ videoUrl, onProgress, lessonLoading }: VideoPlayer
     const handleTimeUpdate = () => {
       setCurrentTime(video.currentTime)
       onProgress?.((video.currentTime / video.duration) * 100)
+      
+      // 📹 Tracking précis : compter uniquement le temps réellement regardé
+      if (onVideoWatchTime) {
+        const currentPos = video.currentTime
+        const timeDiff = Math.abs(currentPos - lastPositionRef.current)
+        
+        // Si la différence est < 2 secondes = lecture normale (pas de skip)
+        if (timeDiff < 2 && timeDiff > 0) {
+          videoWatchTimeRef.current += timeDiff
+          
+          // Envoyer le temps toutes les 30 secondes de visionnage réel
+          if (videoWatchTimeRef.current >= 30) {
+            onVideoWatchTime(videoWatchTimeRef.current)
+            videoWatchTimeRef.current = 0
+          }
+        }
+        
+        lastPositionRef.current = currentPos
+      }
     }
 
     const handleError = () => {
