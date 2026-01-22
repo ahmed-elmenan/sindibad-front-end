@@ -158,6 +158,42 @@ export const getCourseSubscription = async (
   }
 };
 
+export interface LessonContentDTO {
+  lessonId: string;
+  title: string;
+  orderIndex: number;
+  videoUrl: string | null;
+  duration: number;
+  miniChapter: string | null;
+}
+
+export interface ChapterContentDTO {
+  chapterId: string;
+  title: string;
+  orderIndex: number;
+  lessons: LessonContentDTO[];
+}
+
+export interface CourseContentDTO {
+  courseId: string;
+  courseTitle: string;
+  hasActiveSubscription: boolean;
+  hasPendingSubscription: boolean;
+  chapters: ChapterContentDTO[];
+}
+
+export const getCourseContent = async (
+  courseId: string
+): Promise<CourseContentDTO> => {
+  try {
+    const res = await api.get(`/courses/${courseId}/content`);
+    return res.data;
+  } catch (error) {
+    console.error("Error fetching course content:", error);
+    throw error;
+  }
+};
+
 export const getOptimalPack = (
   packs: Pack[],
   courseSubscription: CourseSubscription | undefined

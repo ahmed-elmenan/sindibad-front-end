@@ -314,6 +314,19 @@
     "loadMore": "تحميل المزيد من الدورات",
     "loading": "جاري تحميل الدورات...",
     "continue": "المتابعة",
+    "lesson": "درس",
+    "lessons": "دروس",
+    "locked": "مقفل",
+    "subscribe": "اشترك",
+    "subscribeToAccess": "اشترك للوصول إلى هذا الدرس",
+    "pendingSubscription": "طلب الاشتراك قيد الانتظار",
+    "noContent": "لا يوجد محتوى متاح في الوقت الحالي.",
+    "details": {
+      "content": "محتوى الدورة"
+    },
+    "error": {
+      "fetchContent": "تعذر تحميل محتوى الدورة."
+    },
     "filter": {
       "searchPlaceholder": "ابحث حسب العنوان أو الوصف...",
       "filters": "الفلاتر",

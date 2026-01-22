@@ -291,6 +291,19 @@
     "clearFilters": "Effacer les filtres",
     "loadMore": "Charger plus de cours",
     "loading": "Chargement des cours...",
+    "lesson": "leçon",
+    "lessons": "leçons",
+    "locked": "Verrouillé",
+    "subscribe": "Souscrire",
+    "subscribeToAccess": "Souscrivez pour accéder à cette leçon",
+    "pendingSubscription": "Demande de souscription en attente",
+    "noContent": "Aucun contenu disponible pour le moment.",
+    "details": {
+      "content": "Contenu du cours"
+    },
+    "error": {
+      "fetchContent": "Impossible de charger le contenu du cours."
+    },
     "filter": {
       "searchPlaceholder": "Rechercher par titre, description...",
       "filters": "Filtres",

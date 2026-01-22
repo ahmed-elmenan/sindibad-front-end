@@ -9,9 +9,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { CourseDetailsSkeleton } from "@/components/course/skeletons";
-import ChapterAccordion from "@/components/course/ChapterAccordion";
 import ReviewsSection from "@/components/course/ReviewsSection";
 import StarRating from "@/components/course/StarRating";
+import CourseContentTree from "@/components/course/CourseContentTree";
 import {
   AlertCircle,
   ArrowLeft,
@@ -51,12 +51,9 @@ export default function CourseDetailsPage() {
   const { data: course, isLoading: courseLoading } = useCourse(courseId);
   const { data: reviews = [], isLoading: reviewsLoading } =
     useCourseReviews(courseId);
-  const { data: chapters = [], isLoading: chaptersLoading } =
-    useCourseChapters(courseId);
-  const { data: packs = [], isLoading: packsLoading } =
-    useCoursePacks(courseId);
-  const { data: CourseSubscription, isLoading: CourseSubscriptionLoading } =
-    useCourseSubscription(courseId);
+  const { data: chapters = [] } = useCourseChapters(courseId);
+  const { data: packs = [] } = useCoursePacks(courseId);
+  const { data: CourseSubscription } = useCourseSubscription(courseId);
 
   // Get number of learners from user data
   const numberOfLearners = CourseSubscription?.learnersCount || 0;
@@ -335,7 +332,7 @@ export default function CourseDetailsPage() {
   return (
     <>
       <div className="min-h-screen gradient-bg">
-        <main className="container mx-auto px-2 sm:px-4 py-4 md:py-8 space-y-6 md:space-y-8 max-w-7xl">
+        <main className="container mx-auto px-4 sm:px-6 md:px-8 lg:px-12 py-4 md:py-8 space-y-6 md:space-y-8">
           <div className="grid lg:grid-cols-3 gap-6 md:gap-8">
             {/* Main content */}
             <div className="lg:col-span-2 space-y-6 md:space-y-8">
@@ -407,31 +404,16 @@ export default function CourseDetailsPage() {
 
               {/* Content/Chapters */}
               <div className="mx-2 md:mx-0">
-                <h2 className="text-xl md:text-2xl font-bold text-gray-800">
-                  {t("courseDetails.contentTitle")}
-                </h2>
-                {chaptersLoading ? (
-                  <div className="space-y-4 mt-4">
-                    {[1, 2, 3].map((i) => (
-                      <div key={i} className="bg-white rounded-lg border p-4 animate-pulse">
-                        <div className="h-6 bg-gray-200 rounded w-3/4 mb-2"></div>
-                        <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {chapters
-                      .sort((a, b) => a.order - b.order)
-                      .map((chapter, index) => (
-                        <ChapterAccordion
-                          key={chapter.id}
-                          chapter={chapter}
-                          index={index}
-                        />
-                      ))}
-                  </div>
-                )}
+                <Card className="bg-white border border-orange-100/50">
+                  <CardHeader className="px-4 md:px-6">
+                    <CardTitle className="text-lg md:text-xl font-semibold text-gray-800">
+                      {t("courseDetails.contentTitle")}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="px-4 md:px-6">
+                    <CourseContentTree courseId={courseId!} />
+                  </CardContent>
+                </Card>
               </div>
 
               {/* Reviews */}
