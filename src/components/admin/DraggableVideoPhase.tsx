@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useDrag } from "react-dnd";
 import {
   GripVertical,
@@ -63,6 +63,9 @@ const DraggableVideoPhase: React.FC<DraggableVideoPhaseProps> = ({
   const [isDeleting, setIsDeleting] = useState(false);
   const [existingQuiz, setExistingQuiz] = useState<QuizDetailResponse | null>(null);
   const [isLoadingQuiz, setIsLoadingQuiz] = useState(false);
+  const [showSkillsPopover, setShowSkillsPopover] = useState(false);
+  const [anchorRect, setAnchorRect] = useState<DOMRect | null>(null);
+  const countRef = useRef<HTMLDivElement | null>(null);
 
   // Generate thumbnail when video is loaded
   useEffect(() => {
@@ -270,6 +273,21 @@ const DraggableVideoPhase: React.FC<DraggableVideoPhaseProps> = ({
     onUpdate(video.id!, { skills });
   };
 
+  useEffect(() => {
+    const onScroll = () => {
+      if (showSkillsPopover && countRef.current) {
+        setAnchorRect(countRef.current.getBoundingClientRect());
+      }
+    };
+    const onResize = () => setShowSkillsPopover(false);
+    window.addEventListener("scroll", onScroll, true);
+    window.addEventListener("resize", onResize);
+    return () => {
+      window.removeEventListener("scroll", onScroll, true);
+      window.removeEventListener("resize", onResize);
+    };
+  }, [showSkillsPopover]);
+
   return (
     <>
       <div
@@ -439,11 +457,50 @@ const DraggableVideoPhase: React.FC<DraggableVideoPhaseProps> = ({
                     </>
                   )}
 
-                  {/* Skills Count */}
+                  {/* Skills Count with hover list (rendered in portal to avoid clipping) */}
                   {video.skills && video.skills.length > 0 && (
-                    <span className="font-semibold text-primary">
-                      {video.skills.length} {video.skills.length === 1 ? 'compétence' : 'compétences'}
-                    </span>
+                    <>
+                      <div
+                        ref={countRef as any}
+                        onMouseEnter={() => {
+                          if (countRef.current) {
+                            setAnchorRect(countRef.current.getBoundingClientRect());
+                            setShowSkillsPopover(true);
+                          }
+                        }}
+                        onMouseLeave={() => setShowSkillsPopover(false)}
+                        className="inline-flex items-center"
+                      >
+                        <span className="font-semibold text-primary cursor-default">
+                          {video.skills.length} {video.skills.length === 1 ? 'compétence' : 'compétences'}
+                        </span>
+                      </div>
+
+                      {showSkillsPopover && anchorRect && createPortal(
+                        <div
+                          style={{
+                            position: 'absolute',
+                            top: anchorRect.bottom + window.scrollY + 6,
+                            left: Math.max(8, anchorRect.right + window.scrollX - 224),
+                            width: 224,
+                            maxHeight: 224,
+                            overflow: 'auto',
+                          }}
+                          className="bg-white border border-gray-200 rounded-lg shadow-lg p-2 z-[9999]"
+                          onMouseEnter={() => setShowSkillsPopover(true)}
+                          onMouseLeave={() => setShowSkillsPopover(false)}
+                        >
+                          <ul className="space-y-1">
+                            {video.skills.map((s) => (
+                              <li key={s.id} className="text-sm text-gray-700 px-2 py-1 hover:bg-gray-50 rounded">
+                                {s.name}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>,
+                        document.body
+                      )}
+                    </>
                   )}
 
                   {/* Status Indicators */}
