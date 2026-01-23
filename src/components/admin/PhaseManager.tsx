@@ -1491,23 +1491,21 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
       />
 
       {/* Phase Quiz Management Modal */}
-      {showQuizModal && currentQuizPhase && currentQuizPhase.originalPhaseId && (
-        <QuizManagementModal
-          open={showQuizModal}
-          onClose={() => {
-            setShowQuizModal(false);
-            setCurrentQuizPhase(null);
-            setExistingQuiz(null);
-          }}
-          quizType="PHASE_QUIZ"
-          resourceId={currentQuizPhase.originalPhaseId}
-          resourceTitle={currentQuizPhase.title}
-          availableSkills={getPhaseSkills(currentQuizPhase)}
-          existingQuiz={existingQuiz}
-          onSuccess={handleQuizSuccess}
-          loading={isLoadingQuiz}
-        />
-      )}
+      <QuizManagementModal
+        open={showQuizModal}
+        onClose={() => {
+          setShowQuizModal(false);
+          setCurrentQuizPhase(null);
+          setExistingQuiz(null);
+        }}
+        quizType="PHASE_QUIZ"
+        resourceId={currentQuizPhase?.originalPhaseId ?? ""}
+        resourceTitle={currentQuizPhase?.title ?? ""}
+        availableSkills={currentQuizPhase ? getPhaseSkills(currentQuizPhase) : []}
+        existingQuiz={existingQuiz}
+        onSuccess={handleQuizSuccess}
+        loading={isLoadingQuiz}
+      />
 
       {/* Phase Delete Confirmation Modal */}
       {deletePhaseModal.isOpen && (

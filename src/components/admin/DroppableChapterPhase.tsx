@@ -177,7 +177,6 @@ const DroppableChapterPhase: React.FC<DroppableChapterPhaseProps> = ({
                       variant="ghost"
                       size="sm"
                       className="h-8 w-8 p-0 rounded-lg bg-gradient-to-br from-gray-100 to-gray-200 hover:from-primary/10 hover:to-primary/20 hover:shadow-sm hover:scale-105 transition-all duration-300 border border-gray-300/50"
-                             className="h-8 w-8 p-0 rounded-lg bg-gradient-to-br from-gray-100 to-gray-200 hover:from-primary/10 hover:to-primary/20 hover:shadow-sm transition-all duration-300 border border-gray-300/50"
                     >
                       <MoreVertical className="h-4 w-4 text-gray-700" />
                     </Button>
@@ -225,7 +224,6 @@ const DroppableChapterPhase: React.FC<DroppableChapterPhaseProps> = ({
                     variant="ghost"
                     size="sm"
                     className="h-9 w-9 p-0 rounded-lg bg-gradient-to-br from-gray-100 to-gray-200 hover:from-primary/10 hover:to-primary/20 hover:shadow-sm hover:scale-105 transition-all duration-300 border border-gray-300/50"
-                           className="h-9 w-9 p-0 rounded-lg bg-gradient-to-br from-gray-100 to-gray-200 hover:from-primary/10 hover:to-primary/20 hover:shadow-sm transition-all duration-300 border border-gray-300/50"
                   >
                     <MoreVertical className="h-4 w-4 text-gray-700" />
                   </Button>

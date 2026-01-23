@@ -192,19 +192,17 @@ const FinalQuizSection: React.FC<FinalQuizSectionProps> = ({
         )}
       </Card>
 
-      {/* Quiz Management Modal */}
-      {showQuizModal && (
-        <QuizManagementModal
-          open={showQuizModal}
-          onClose={() => setShowQuizModal(false)}
-          quizType="FINAL_QUIZ"
-          resourceId={courseId}
-          resourceTitle={courseTitle}
-          availableSkills={availableSkills}
-          existingQuiz={existingQuiz}
-          onSuccess={handleQuizSuccess}
-        />
-      )}
+      {/* Quiz Management Modal (always mounted to avoid unmount-while-open issues) */}
+      <QuizManagementModal
+        open={showQuizModal}
+        onClose={() => setShowQuizModal(false)}
+        quizType="FINAL_QUIZ"
+        resourceId={courseId}
+        resourceTitle={courseTitle}
+        availableSkills={availableSkills}
+        existingQuiz={existingQuiz}
+        onSuccess={handleQuizSuccess}
+      />
     </>
   );
 };

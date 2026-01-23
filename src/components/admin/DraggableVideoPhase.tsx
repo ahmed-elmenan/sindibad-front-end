@@ -329,8 +329,7 @@ const DraggableVideoPhase: React.FC<DraggableVideoPhaseProps> = ({
                   <img
                     src={thumbnail}
                     alt={video.title}
-                    className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-110"
-                                   className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-500"
+                      className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-110"
                   />
                 ) : (
                   <div className="absolute inset-0 w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-800 via-gray-700 to-gray-900">
@@ -392,8 +391,7 @@ const DraggableVideoPhase: React.FC<DraggableVideoPhaseProps> = ({
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="h-6 w-6 sm:h-7 sm:w-7 p-0 rounded-lg bg-gradient-to-br from-gray-100 to-gray-200 hover:from-primary/10 hover:to-primary/20 hover:shadow-sm hover:scale-105 transition-all duration-300 border border-gray-300/50 flex-shrink-0"
-                                       className="h-6 w-6 sm:h-7 sm:w-7 p-0 rounded-lg bg-gradient-to-br from-gray-100 to-gray-200 hover:from-primary/10 hover:to-primary/20 hover:shadow-sm transition-all duration-300 border border-gray-300/50 flex-shrink-0"
+                          className="h-6 w-6 sm:h-7 sm:w-7 p-0 rounded-lg bg-gradient-to-br from-gray-100 to-gray-200 hover:from-primary/10 hover:to-primary/20 hover:shadow-sm hover:scale-105 transition-all duration-300 border border-gray-300/50 flex-shrink-0"
                       >
                         <MoreVertical className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-gray-700" />
                       </Button>
@@ -565,26 +563,24 @@ const DraggableVideoPhase: React.FC<DraggableVideoPhaseProps> = ({
           document.body,
         )}
 
-      {/* Quiz Management Modal */}
-      {showQuizModal &&
-        video.originalLessonId &&
-        createPortal(
-          <QuizManagementModal
-            open={showQuizModal}
-            onClose={() => {
-              setShowQuizModal(false);
-              setExistingQuiz(null);
-            }}
-            quizType="SIMPLE_QUIZ"
-            resourceId={video.originalLessonId}
-            resourceTitle={video.title}
-            availableSkills={video.skills || []}
-            existingQuiz={existingQuiz}
-            onSuccess={handleQuizSuccess}
-            loading={isLoadingQuiz}
-          />,
-          document.body,
-        )}
+      {/* Quiz Management Modal (always mounted to avoid portal unmount while open) */}
+      {createPortal(
+        <QuizManagementModal
+          open={showQuizModal}
+          onClose={() => {
+            setShowQuizModal(false);
+            setExistingQuiz(null);
+          }}
+          quizType="SIMPLE_QUIZ"
+          resourceId={video.originalLessonId ?? ""}
+          resourceTitle={video.title}
+          availableSkills={video.skills || []}
+          existingQuiz={existingQuiz}
+          onSuccess={handleQuizSuccess}
+          loading={isLoadingQuiz}
+        />,
+        document.body,
+      )}
 
       {/* Delete Confirmation Modal */}
       {showDeleteModal &&

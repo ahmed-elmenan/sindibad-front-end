@@ -129,14 +129,13 @@ const DroppablePhase: React.FC<DroppablePhaseProps> = ({
               <div className="flex sm:hidden items-center gap-1.5">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-8 w-8 p-0 rounded-lg bg-gradient-to-br from-gray-100 to-gray-200 hover:from-primary/10 hover:to-primary/20 hover:shadow-sm hover:scale-105 transition-all duration-300 border border-gray-300/50"
-                             className="h-8 w-8 p-0 rounded-lg bg-gradient-to-br from-gray-100 to-gray-200 hover:from-primary/10 hover:to-primary/20 hover:shadow-sm transition-all duration-300 border border-gray-300/50"
-                    >
-                      <MoreVertical className="h-4 w-4 text-gray-700" />
-                    </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 w-8 p-0 rounded-lg bg-gradient-to-br from-gray-100 to-gray-200 hover:from-primary/10 hover:to-primary/20 hover:shadow-sm hover:scale-105 transition-all duration-300 border border-gray-300/50"
+                          >
+                            <MoreVertical className="h-4 w-4 text-gray-700" />
+                          </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-44 rounded-lg shadow-lg">
                     {onManageQuiz && (
@@ -250,15 +249,14 @@ const DroppablePhase: React.FC<DroppablePhaseProps> = ({
             <div className="hidden sm:flex items-center gap-2">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="bg-gradient-to-br from-gray-100 to-gray-200 hover:from-primary/10 hover:to-primary/20 hover:shadow-sm hover:scale-105 transition-all duration-300 border border-gray-300/50 px-4 py-2 rounded-xl"
-                           className="bg-gradient-to-br from-gray-100 to-gray-200 hover:from-primary/10 hover:to-primary/20 hover:shadow-sm transition-all duration-300 border border-gray-300/50 px-4 py-2 rounded-xl"
-                  >
-                    <MoreVertical className="h-4 w-4 text-gray-700 mr-1.5" />
-                    <span className="font-semibold text-gray-700">Actions</span>
-                  </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="bg-gradient-to-br from-gray-100 to-gray-200 hover:from-primary/10 hover:to-primary/20 hover:shadow-sm hover:scale-105 transition-all duration-300 border border-gray-300/50 px-4 py-2 rounded-xl"
+                        >
+                          <MoreVertical className="h-4 w-4 text-gray-700 mr-1.5" />
+                          <span className="font-semibold text-gray-700">Actions</span>
+                        </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56 rounded-lg shadow-lg">
                   {onManageQuiz && (
