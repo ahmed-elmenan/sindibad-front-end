@@ -1,5 +1,5 @@
 // Types définis localement pour éviter les problèmes de cache
-type SubscriptionRequestStatus = 'PENDING' | 'ACCEPTED' | 'REFUSED' | 'ACTIVE' | 'EXPIRED';
+type SubscriptionRequestStatus = 'PENDING' | 'REFUSED' | 'ACTIVE' | 'SUSPENDED' | 'EXPIRED';
 
 interface SubscriptionRequest {
   id: string;
@@ -49,7 +49,7 @@ import {
 } from '../ui/table';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
-import { Check, X, Eye, FileText, Loader2 } from 'lucide-react';
+import { Check, X, Settings, FileText, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import {
@@ -66,16 +66,18 @@ interface SubscriptionRequestsTableProps {
   isLoading: boolean;
   onAccept: (id: string) => void;
   onRefuse: (id: string) => void;
-  onViewReceipt: (id: string) => void;
+  onManage: (id: string) => void;
   currentPage: number;
   onPageChange: (page: number) => void;
+  acceptingId?: string | null;
+  refusingId?: string | null;
 }
 
 const statusConfig = {
   PENDING: { label: 'En attente', variant: 'default' as const, className: 'bg-yellow-100 text-yellow-800' },
-  ACCEPTED: { label: 'Acceptée', variant: 'default' as const, className: 'bg-green-100 text-green-800' },
   REFUSED: { label: 'Refusée', variant: 'destructive' as const, className: 'bg-red-100 text-red-800' },
-  ACTIVE: { label: 'Active', variant: 'default' as const, className: 'bg-blue-100 text-blue-800' },
+  ACTIVE: { label: 'Active', variant: 'default' as const, className: 'bg-green-100 text-green-800' },
+  SUSPENDED: { label: 'Suspendue', variant: 'default' as const, className: 'bg-orange-100 text-orange-800' },
   EXPIRED: { label: 'Expirée', variant: 'secondary' as const, className: 'bg-gray-100 text-gray-800' },
 };
 
@@ -84,9 +86,11 @@ export const SubscriptionRequestsTable = ({
   isLoading,
   onAccept,
   onRefuse,
-  onViewReceipt,
+  onManage,
   currentPage,
   onPageChange,
+  acceptingId,
+  refusingId,
 }: SubscriptionRequestsTableProps) => {
   if (isLoading) {
     return (
@@ -125,14 +129,13 @@ export const SubscriptionRequestsTable = ({
             <Table className="w-full border-collapse table-fixed min-w-full">
               <colgroup>
                 <col style={{ width: '12%' }} /> {/* Organisation */}
-                <col style={{ width: '14%' }} /> {/* Responsable */}
-                <col style={{ width: '13%' }} /> {/* Cours */}
-                <col style={{ width: '12%' }} /> {/* Pack */}
+                <col style={{ width: '15%' }} /> {/* Responsable */}
+                <col style={{ width: '14%' }} /> {/* Cours */}
+                <col style={{ width: '13%' }} /> {/* Pack */}
                 <col style={{ width: '10%' }} /> {/* Montant */}
-                <col style={{ width: '9%' }} /> {/* Statut */}
+                <col style={{ width: '10%' }} /> {/* Statut */}
                 <col style={{ width: '10%' }} /> {/* Date */}
-                <col style={{ width: '8%' }} /> {/* Reçu */}
-                <col style={{ width: '12%' }} /> {/* Actions */}
+                <col style={{ width: '16%' }} /> {/* Actions */}
               </colgroup>
               <TableHeader className="sticky top-0 bg-[#f8fafc] z-[5] shadow-sm">
                 <TableRow className="border-b">
@@ -143,7 +146,6 @@ export const SubscriptionRequestsTable = ({
                   <TableHead className="text-center border-b border-gray-300 bg-[#f8fafc] font-semibold h-10 px-2 sm:px-4 align-middle text-xs sm:text-sm"><div className="truncate">Montant</div></TableHead>
                   <TableHead className="text-center border-b border-gray-300 bg-[#f8fafc] font-semibold h-10 px-2 sm:px-4 align-middle text-xs sm:text-sm"><div className="truncate">Statut</div></TableHead>
                   <TableHead className="text-center border-b border-gray-300 bg-[#f8fafc] font-semibold h-10 px-2 sm:px-4 align-middle text-xs sm:text-sm"><div className="truncate">Date</div></TableHead>
-                  <TableHead className="text-center border-b border-gray-300 bg-[#f8fafc] font-semibold h-10 px-2 sm:px-4 align-middle text-xs sm:text-sm"><div className="truncate">Reçu</div></TableHead>
                   <TableHead className="text-center border-b border-gray-300 bg-[#f8fafc] font-semibold h-10 px-2 sm:px-4 align-middle text-xs sm:text-sm"><div className="truncate">Actions</div></TableHead>
                 </TableRow>
               </TableHeader>
@@ -189,48 +191,55 @@ export const SubscriptionRequestsTable = ({
                     </TableCell>
                     
                     <TableCell className="text-center border-b border-gray-300 p-2 sm:p-3">
-                      {request.receiptUrl ? (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => onViewReceipt(request.id)}
-                        >
-                          <Eye className="h-4 w-4 mr-1" />
-                          Voir
-                        </Button>
-                      ) : (
-                        <span className="text-sm text-muted-foreground">-</span>
-                      )}
-                    </TableCell>
-                    
-                    <TableCell className="text-center border-b border-gray-300 p-2 sm:p-3">
-                      <div className="flex justify-end gap-2">
-                        {request.status === 'PENDING' && (
+                      <div className="flex justify-center gap-2 flex-wrap">
+                        {request.status === 'PENDING' ? (
                           <>
                             <Button
                               variant="outline"
                               size="sm"
                               onClick={() => onAccept(request.id)}
+                              disabled={acceptingId === request.id || refusingId === request.id}
                               className="text-green-600 hover:text-green-700 hover:bg-green-50"
                             >
-                              <Check className="h-4 w-4 mr-1" />
+                              {acceptingId === request.id ? (
+                                <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                              ) : (
+                                <Check className="h-4 w-4 mr-1" />
+                              )}
                               Accepter
                             </Button>
                             <Button
                               variant="outline"
                               size="sm"
                               onClick={() => onRefuse(request.id)}
+                              disabled={acceptingId === request.id || refusingId === request.id}
                               className="text-red-600 hover:text-red-700 hover:bg-red-50"
                             >
-                              <X className="h-4 w-4 mr-1" />
+                              {refusingId === request.id ? (
+                                <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                              ) : (
+                                <X className="h-4 w-4 mr-1" />
+                              )}
                               Refuser
                             </Button>
                           </>
-                        )}
-                        {request.status === 'REFUSED' && request.refusedReason && (
-                          <div className="text-xs text-red-600 max-w-[200px] truncate" title={request.refusedReason}>
-                            {request.refusedReason}
-                          </div>
+                        ) : (
+                          <>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => onManage(request.id)}
+                              className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                            >
+                              <Settings className="h-4 w-4 mr-1" />
+                              Gérer
+                            </Button>
+                            {request.status === 'REFUSED' && request.refusedReason && (
+                              <div className="text-xs text-red-600 max-w-[150px] truncate" title={request.refusedReason}>
+                                {request.refusedReason}
+                              </div>
+                            )}
+                          </>
                         )}
                       </div>
                     </TableCell>

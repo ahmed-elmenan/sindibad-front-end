@@ -22,7 +22,7 @@ export * from "./Admin";
 export * from "./SuperAdmin";
 
 // Subscription Request Types
-export type SubscriptionRequestStatus = 'PENDING' | 'ACCEPTED' | 'REFUSED' | 'ACTIVE' | 'EXPIRED';
+export type SubscriptionRequestStatus = 'PENDING' | 'REFUSED' | 'ACTIVE' | 'SUSPENDED' | 'EXPIRED';
 
 export interface SubscriptionRequest {
   id: string;

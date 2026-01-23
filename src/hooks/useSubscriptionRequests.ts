@@ -3,7 +3,7 @@ import { subscriptionRequestService } from '../services/subscriptionRequest.serv
 import { toast } from 'sonner';
 
 // Types définis localement pour éviter les problèmes de cache
-type SubscriptionRequestStatus = 'PENDING' | 'ACCEPTED' | 'REFUSED' | 'ACTIVE' | 'EXPIRED';
+type SubscriptionRequestStatus = 'PENDING' | 'REFUSED' | 'ACTIVE' | 'SUSPENDED' | 'EXPIRED';
 
 interface SubscriptionFilters {
   searchTerm?: string;

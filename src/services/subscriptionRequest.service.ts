@@ -1,7 +1,7 @@
 import api from "@/lib/axios";
 
 // Types définis localement pour éviter les problèmes de cache
-type SubscriptionRequestStatus = 'PENDING' | 'ACCEPTED' | 'REFUSED' | 'ACTIVE' | 'EXPIRED';
+type SubscriptionRequestStatus = 'PENDING' | 'REFUSED' | 'ACTIVE' | 'SUSPENDED' | 'EXPIRED';
 
 interface SubscriptionRequest {
   id: string;
