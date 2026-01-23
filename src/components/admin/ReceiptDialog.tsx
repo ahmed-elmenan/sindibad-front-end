@@ -117,7 +117,7 @@ export const ReceiptDialog = ({ open, onOpenChange, subscriptionId }: ReceiptDia
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[525px]">
+      <DialogContent className="sm:max-w-[525px] bg-white">
         <DialogHeader>
           <DialogTitle>Gestion du reçu</DialogTitle>
           <DialogDescription>

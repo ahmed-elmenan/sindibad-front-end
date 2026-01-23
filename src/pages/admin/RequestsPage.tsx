@@ -31,7 +31,6 @@ interface SubscriptionFilters {
 import { SubscriptionRequestsTable } from "../../components/admin/SubscriptionRequestsTable";
 import { SubscriptionRequestFilters } from "../../components/admin/SubscriptionRequestFilters";
 import { RefuseDialog } from "../../components/admin/RefuseDialog";
-import { ReceiptDialog } from "../../components/admin/ReceiptDialog";
 import { ManageSubscriptionDialog } from "../../components/admin/ManageSubscriptionDialog";
 import {
   Card,
@@ -53,7 +52,6 @@ const RequestsPage = () => {
 
   // Dialogs state
   const [refuseDialogOpen, setRefuseDialogOpen] = useState(false);
-  const [receiptDialogOpen, setReceiptDialogOpen] = useState(false);
   const [manageDialogOpen, setManageDialogOpen] = useState(false);
   const [selectedRequestId, setSelectedRequestId] = useState<string | null>(
     null,
@@ -131,9 +129,10 @@ const RequestsPage = () => {
     }
   };
 
-  const handleViewReceipt = (id: string) => {
-    setSelectedRequestId(id);
-    setReceiptDialogOpen(true);
+  const handleReceiptDelete = async (subscriptionId: string) => {
+    // TODO: Implémenter l'API de suppression de reçu
+    toast.info("Fonctionnalité de suppression de reçu à venir");
+    console.log('Suppression reçu:', subscriptionId);
   };
 
   const handleFilterChange = (newFilters: Partial<SubscriptionFilters>) => {
@@ -266,12 +265,6 @@ const RequestsPage = () => {
         }}
         subscriptionId={selectedRequestId}
       />
-
-      <ReceiptDialog
-        open={receiptDialogOpen}
-        onOpenChange={setReceiptDialogOpen}
-        subscriptionId={selectedRequestId}
-      />
       
       <ManageSubscriptionDialog
         open={manageDialogOpen}
@@ -279,7 +272,7 @@ const RequestsPage = () => {
         subscription={selectedRequestId ? data?.content.find(r => r.id === selectedRequestId) : null}
         onStatusChange={handleStatusChange}
         onReceiptUpload={handleReceiptUpload}
-        onViewReceipt={handleViewReceipt}
+        onReceiptDelete={handleReceiptDelete}
         isUpdating={isUpdatingStatus || isUploadingReceipt}
       />
     </div>

@@ -40,8 +40,14 @@ export const replaceSubscriptionReceipt = async (
 export const getReceiptPresignedUrl = async (
   subscriptionId: string
 ): Promise<string> => {
+  console.log('📡 Appel API getReceiptPresignedUrl pour:', subscriptionId);
   const response = await api.get(
     `/subscription-requests/${subscriptionId}/receipt/presigned-url`
   );
-  return response.data;
+  console.log('📡 Réponse API complète:', response.data);
+  
+  // Le backend retourne { presignedUrl: "...", expiresIn: "..." }
+  const url = response.data?.presignedUrl || response.data;
+  console.log('📡 URL extraite:', url);
+  return url;
 };
