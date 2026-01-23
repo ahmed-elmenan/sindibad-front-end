@@ -114,3 +114,22 @@ export const updateLessonSkills = async (
     );
   }
 };
+
+/**
+ * Get quiz questions for a given skill (admin endpoint)
+ */
+export const getQuestionsBySkill = async (
+  skillId: string
+): Promise<any[]> => {
+  try {
+    const response = await api.get(`/skills/quiz-questions/skill/${skillId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Failed to fetch questions for skill:", error);
+    throw new Error(
+      `Failed to fetch questions for skill: ${
+        error instanceof Error ? error.message : "Unknown error"
+      }`
+    );
+  }
+};

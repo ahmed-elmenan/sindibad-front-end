@@ -62,6 +62,8 @@ const QuizManagementModal: React.FC<QuizManagementModalProps> = ({
   const [timerPoints, setTimerPoints] = useState(25);
   const [selectedSkills, setSelectedSkills] = useState<QuizSkillRequest[]>([]);
 
+  const [hasChanges, setHasChanges] = useState(false);
+
   useEffect(() => {
     console.log("Existing Quiz:", existingQuiz);
     console.log("Selected Skills:", selectedSkills);
@@ -89,6 +91,36 @@ const QuizManagementModal: React.FC<QuizManagementModalProps> = ({
       setSelectedSkills([]);
     }
   }, [existingQuiz, open]);
+
+  // Detect whether edits were made compared to existing quiz
+  useEffect(() => {
+    if (!existingQuiz) {
+      setHasChanges(true);
+      return;
+    }
+
+    const normalizeSkills = (arr: QuizSkillRequest[]) =>
+      arr
+        .map((s) => ({ name: s.skillName.trim(), n: s.numberOfQuestions }))
+        .sort((a, b) => a.name.localeCompare(b.name));
+
+    const orig = normalizeSkills(
+      existingQuiz.skills.map((s) => ({ skillName: s.skillName, numberOfQuestions: s.numberOfQuestions }))
+    );
+    const cur = normalizeSkills(selectedSkills);
+
+    const basicChanged =
+      title.trim() !== existingQuiz.title ||
+      (existingQuiz.description || "") !== description.trim() ||
+      duration !== existingQuiz.duration ||
+      timerPoints !== existingQuiz.timerPoints;
+
+    const skillsChanged =
+      orig.length !== cur.length ||
+      orig.some((o, i) => o.name !== cur[i]?.name || o.n !== cur[i]?.n);
+
+    setHasChanges(basicChanged || skillsChanged);
+  }, [title, description, duration, timerPoints, selectedSkills, existingQuiz]);
 
   const getQuizTypeLabel = () => {
     switch (quizType) {
@@ -185,11 +217,12 @@ const QuizManagementModal: React.FC<QuizManagementModalProps> = ({
 
     return true;
   };
-
   const handleSubmit = async () => {
     if (!validateForm()) {
       return;
     }
+
+    // Server performs question-count validation; skip client-side check to avoid duplication.
 
     setIsLoading(true);
 
@@ -203,14 +236,16 @@ const QuizManagementModal: React.FC<QuizManagementModalProps> = ({
       };
 
       if (existingQuiz) {
-        // Update existing quiz
+        if (!hasChanges) {
+          toast.info({ title: "Aucun changement", description: "Aucun changement détecté." });
+          return;
+        }
         await quizManagementService.updateQuiz(existingQuiz.id, request);
         toast.success({
           title: "Quiz modifié",
           description: "Le quiz a été modifié avec succès",
         });
       } else {
-        // Create new quiz
         if (quizType === "SIMPLE_QUIZ") {
           await quizManagementService.createSimpleQuiz(resourceId, request);
         } else if (quizType === "PHASE_QUIZ") {
@@ -230,7 +265,7 @@ const QuizManagementModal: React.FC<QuizManagementModalProps> = ({
     } catch (error: any) {
       toast.error({
         title: "Erreur",
-        description: error.response?.data?.message || "Une erreur est survenue",
+        description: error.response?.data?.message || error.message || "Une erreur est survenue",
       });
     } finally {
       setIsLoading(false);
@@ -494,7 +529,7 @@ const QuizManagementModal: React.FC<QuizManagementModalProps> = ({
               <Button
                 type="button"
                 onClick={handleSubmit}
-                disabled={isLoading || isDeleting || loading}
+                disabled={isLoading || isDeleting || loading || (existingQuiz ? !hasChanges : false)}
                 className="bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90"
               >
                 {isLoading ? (
