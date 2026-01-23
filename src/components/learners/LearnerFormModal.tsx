@@ -70,9 +70,6 @@ export default function LearnerFormModal({
   const isReadOnly = mode === "view";
   const isEdit = mode === "edit";
 
-  console.log("-----------------");
-  console.log(user);
-
   // Check if user is an organisation
   const isOrganisationUser = user?.role === "ORGANISATION";
   const userOrganisationId = isOrganisationUser ? user?.id : null;
@@ -179,11 +176,6 @@ export default function LearnerFormModal({
             // For other fields, use strict equality
             return data[k] !== initialValues[k];
           });
-
-        console.log("has changes", hasChanges);
-        console.log(initialValues);
-        console.log("-----------");
-        console.log(data);
 
         if (!hasChanges) {
           toast.info(t("common.info"), {

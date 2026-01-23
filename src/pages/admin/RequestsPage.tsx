@@ -8,6 +8,7 @@ import {
   updateSubscriptionStatus,
   replaceSubscriptionReceipt,
   getReceiptPresignedUrl,
+  deleteSubscriptionReceipt,
 } from "../../services/subscriptionManagement.service";
 import { toast } from "sonner";
 
@@ -62,6 +63,7 @@ const RequestsPage = () => {
   const [refusingId, setRefusingId] = useState<string | null>(null);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const [isUploadingReceipt, setIsUploadingReceipt] = useState(false);
+  const [isDeletingReceipt, setIsDeletingReceipt] = useState(false);
 
   // Queries & Mutations
   const { data, isLoading, refetch } = useSubscriptionRequests(filters);
@@ -130,9 +132,18 @@ const RequestsPage = () => {
   };
 
   const handleReceiptDelete = async (subscriptionId: string) => {
-    // TODO: Implémenter l'API de suppression de reçu
-    toast.info("Fonctionnalité de suppression de reçu à venir");
-    console.log('Suppression reçu:', subscriptionId);
+    setIsDeletingReceipt(true);
+    try {
+      await deleteSubscriptionReceipt(subscriptionId);
+      toast.success("Reçu supprimé avec succès");
+      refetch();
+      setManageDialogOpen(false);
+    } catch (error: any) {
+      toast.error(error.response?.data?.error || "Erreur lors de la suppression du reçu");
+      console.error('Erreur suppression reçu:', error);
+    } finally {
+      setIsDeletingReceipt(false);
+    }
   };
 
   const handleFilterChange = (newFilters: Partial<SubscriptionFilters>) => {
@@ -273,7 +284,7 @@ const RequestsPage = () => {
         onStatusChange={handleStatusChange}
         onReceiptUpload={handleReceiptUpload}
         onReceiptDelete={handleReceiptDelete}
-        isUpdating={isUpdatingStatus || isUploadingReceipt}
+        isUpdating={isUpdatingStatus || isUploadingReceipt || isDeletingReceipt}
       />
     </div>
   );

@@ -62,22 +62,13 @@ export const ManageSubscriptionDialog = ({
   const [receiptPreviewUrl, setReceiptPreviewUrl] = useState<string | null>(null);
   const [isLoadingReceipt, setIsLoadingReceipt] = useState(false);
 
-  useEffect(() => {
-    console.log('🔍 useEffect déclenché:', { 
-      subscriptionId: subscription?.id, 
-      receiptUrl: subscription?.receiptUrl,
-      receiptFileName: subscription?.receiptFileName,
-      open 
-    });
-    
+  useEffect(() => {    
     setReceiptPreviewUrl(null);
     const loadReceiptUrl = async () => {
       if (subscription?.receiptUrl && open) {
         setIsLoadingReceipt(true);
         try {
-          console.log('📥 Récupération presigned URL pour:', subscription.id);
           const presignedUrl = await getReceiptPresignedUrl(subscription.id);
-          console.log('✅ Presigned URL reçu:', presignedUrl);
           setReceiptPreviewUrl(presignedUrl);
         } catch (error) {
           console.error('❌ Erreur chargement reçu:', error);
@@ -86,7 +77,6 @@ export const ManageSubscriptionDialog = ({
           setIsLoadingReceipt(false);
         }
       } else {
-        console.log('⏭️ Pas de receiptUrl ou modal fermé');
         setReceiptPreviewUrl(null);
       }
     };
@@ -120,7 +110,10 @@ export const ManageSubscriptionDialog = ({
 
   const handleDeleteReceipt = () => {
     if (!subscription) return;
-    onReceiptDelete(subscription.id);
+    
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer ce reçu ? Cette action est irréversible.')) {
+      onReceiptDelete(subscription.id);
+    }
   };
 
   const getFileExtension = (filename: string | null) => {
@@ -243,13 +236,7 @@ export const ManageSubscriptionDialog = ({
                 ) : receiptPreviewUrl ? (
                   <div className="border rounded-lg overflow-hidden bg-gray-50">
                     {(() => {
-                      console.log('🖼️ Rendu du reçu:', {
-                        receiptFileName: subscription.receiptFileName,
-                        isPdf: isPdfFile(subscription.receiptFileName),
-                        isImage: isImageFile(subscription.receiptFileName),
-                        url: receiptPreviewUrl
-                      });
-                      
+                  
                       if (isPdfFile(subscription.receiptFileName)) {
                         return (
                           <iframe
@@ -266,9 +253,6 @@ export const ManageSubscriptionDialog = ({
                             className="w-full h-auto max-h-96 object-contain"
                             onError={(e) => {
                               console.error('❌ Erreur chargement image:', e);
-                            }}
-                            onLoad={() => {
-                              console.log('✅ Image chargée avec succès');
                             }}
                           />
                         );

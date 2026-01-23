@@ -10,10 +10,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getAllOrganisations } from "@/services/organisation.service";
 import { useAuth } from "@/hooks/useAuth";
 
-import {
-  Dialog,
-  DialogContent,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -61,10 +58,11 @@ export default function AddLearnerModal({
   const [, setSelectedFile] = useState<File | null>(null);
 
   // Fetch organisations
-  const { data: organisations = [], isLoading: isLoadingOrganisations } = useQuery({
-    queryKey: ["organisations"],
-    queryFn: getAllOrganisations,
-  });
+  const { data: organisations = [], isLoading: isLoadingOrganisations } =
+    useQuery({
+      queryKey: ["organisations"],
+      queryFn: getAllOrganisations,
+    });
 
   const form = useForm<SignUpLearnerFormValues>({
     resolver: zodResolver(signUpLearnerSchema),
@@ -82,8 +80,6 @@ export default function AddLearnerModal({
   });
 
   // Si l'utilisateur est une organisation, pré-remplir et désactiver le champ
-  console.log("-----------------")
-  console.log(user)
   const isOrganisation = user?.role === "ORGANISATION";
   const currentOrganisationId = user?.id;
 
@@ -92,12 +88,6 @@ export default function AddLearnerModal({
       form.setValue("organisationId", currentOrganisationId);
     }
   }, [isOrganisation, currentOrganisationId, open, form]);
-
-  console.log("📋 État du formulaire:", {
-    isValid: form.formState.isValid,
-    errors: form.formState.errors,
-    values: form.getValues()
-  });
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -128,15 +118,13 @@ export default function AddLearnerModal({
       };
 
       const result = await registerLearner(dataToSend);
-      
+
       if (result.success) {
-        console.log("✨ Succès - Affichage du toast et redirection");
         setIsSuccess(true);
         toast.success(t("common.success"), {
           description: "L'apprenant a été ajouté avec succès",
         });
         setTimeout(() => {
-          console.log("🔄 Réinitialisation du formulaire et fermeture");
           onSuccess?.();
           onClose();
           form.reset();
@@ -145,7 +133,6 @@ export default function AddLearnerModal({
           setIsSuccess(false);
         }, 2000);
       } else {
-        console.log("❌ Échec - Message:", result.message);
         toast.error(t("common.error"), {
           description: result.message,
         });
@@ -156,7 +143,6 @@ export default function AddLearnerModal({
         description: "Une erreur s'est produite lors de l'ajout de l'apprenant",
       });
     } finally {
-      console.log("🏁 Fin de la soumission");
       setIsSubmitting(false);
     }
   };
@@ -190,26 +176,27 @@ export default function AddLearnerModal({
         <div className="sticky top-0 bg-gradient-to-r from-primary to-primary/90 text-white p-6 rounded-t-lg">
           <h2 className="text-2xl font-bold">Ajouter un apprenant test1</h2>
           <p className="text-primary-foreground/80 text-sm mt-1">
-            Remplissez les informations ci-dessous pour créer un nouveau compte apprenant
+            Remplissez les informations ci-dessous pour créer un nouveau compte
+            apprenant
           </p>
         </div>
 
         <Form {...form}>
-          <form 
+          <form
             onSubmit={(e) => {
-              console.log("📝 Form onSubmit déclenché", e);
-              console.log("📊 Validation errors:", form.formState.errors);
               form.handleSubmit(onSubmit)(e);
-            }} 
+            }}
             className="p-6 space-y-6"
           >
             {/* Photo de profil */}
             <div className="flex justify-center">
               <div className="relative">
-                <div className={cn(
-                  "w-32 h-32 rounded-full border-4 border-gray-100 overflow-hidden bg-gray-50 flex items-center justify-center",
-                  previewImage && "border-primary"
-                )}>
+                <div
+                  className={cn(
+                    "w-32 h-32 rounded-full border-4 border-gray-100 overflow-hidden bg-gray-50 flex items-center justify-center",
+                    previewImage && "border-primary",
+                  )}
+                >
                   {previewImage ? (
                     <img
                       src={previewImage}
@@ -244,7 +231,9 @@ export default function AddLearnerModal({
             {/* Informations personnelles */}
             <div className="space-y-5">
               <div className="border-l-4 border-primary pl-4">
-                <h3 className="text-lg font-semibold text-gray-900">Informations personnelles</h3>
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Informations personnelles
+                </h3>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -297,7 +286,8 @@ export default function AddLearnerModal({
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
                       <FormLabel className="text-sm font-medium text-gray-700 mb-2">
-                        Date de naissance <span className="text-red-500">*</span>
+                        Date de naissance{" "}
+                        <span className="text-red-500">*</span>
                       </FormLabel>
                       <Popover>
                         <PopoverTrigger asChild>
@@ -306,7 +296,7 @@ export default function AddLearnerModal({
                               variant="outline"
                               className={cn(
                                 "h-11 w-full justify-start text-left font-normal border-gray-300",
-                                !field.value && "text-muted-foreground"
+                                !field.value && "text-muted-foreground",
                               )}
                             >
                               <CalendarIcon className="mr-2 h-4 w-4" />
@@ -321,9 +311,13 @@ export default function AddLearnerModal({
                         <PopoverContent className="w-auto p-0" align="start">
                           <Calendar
                             mode="single"
-                            selected={field.value ? new Date(field.value) : undefined}
+                            selected={
+                              field.value ? new Date(field.value) : undefined
+                            }
                             onSelect={(date: Date | undefined) => {
-                              field.onChange(date ? format(date, "yyyy-MM-dd") : "");
+                              field.onChange(
+                                date ? format(date, "yyyy-MM-dd") : "",
+                              );
                             }}
                             disabled={(date: Date) =>
                               date > new Date() || date < new Date("1900-01-01")
@@ -346,7 +340,10 @@ export default function AddLearnerModal({
                       <FormLabel className="text-sm font-medium text-gray-700">
                         Genre <span className="text-red-500">*</span>
                       </FormLabel>
-                      <Select value={field.value} onValueChange={field.onChange}>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
                         <FormControl>
                           <SelectTrigger className="h-11 border-gray-300">
                             <SelectValue placeholder="Sélectionner le genre" />
@@ -367,7 +364,9 @@ export default function AddLearnerModal({
             {/* Informations de contact */}
             <div className="space-y-5">
               <div className="border-l-4 border-primary pl-4">
-                <h3 className="text-lg font-semibold text-gray-900">Informations de contact</h3>
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Informations de contact
+                </h3>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -420,7 +419,9 @@ export default function AddLearnerModal({
             {/* Informations du compte */}
             <div className="space-y-5">
               <div className="border-l-4 border-primary pl-4">
-                <h3 className="text-lg font-semibold text-gray-900">Informations du compte</h3>
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Informations du compte
+                </h3>
               </div>
 
               <div className="grid grid-cols-1 gap-4">
@@ -445,8 +446,8 @@ export default function AddLearnerModal({
                                 isLoadingOrganisations
                                   ? "Chargement..."
                                   : isOrganisation
-                                  ? "Mon organisation"
-                                  : "Sélectionner une organisation"
+                                    ? "Mon organisation"
+                                    : "Sélectionner une organisation"
                               }
                             />
                           </SelectTrigger>
@@ -481,12 +482,6 @@ export default function AddLearnerModal({
                 type="submit"
                 disabled={isSubmitting}
                 className="bg-primary hover:bg-primary/90 px-8"
-                onClick={(e) => {
-                  console.log("🖱️ Bouton Ajouter cliqué", e);
-                  console.log("🔍 Type du bouton:", e.currentTarget.type);
-                  console.log("📝 Valeurs du formulaire:", form.getValues());
-                  console.log("❌ Erreurs de validation:", form.formState.errors);
-                }}
               >
                 {isSubmitting ? (
                   <>

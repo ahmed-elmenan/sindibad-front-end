@@ -12,7 +12,6 @@ import { useState, useEffect, useRef } from "react";
  * const isActive = useActivityDetection(10);
  * 
  * if (!isActive) {
- *   console.log("L'utilisateur est inactif depuis 10 minutes");
  * }
  * ```
  */

@@ -79,11 +79,9 @@ export default function LessonPage() {
   // Démarrer le tracking quand une leçon est chargée (seulement pour LEARNER)
   useEffect(() => {
     if (currentLesson && user?.id && courseId && user?.role === 'LEARNER' && !isQuiz) {
-      console.log('🎯 Starting time tracking for lesson:', currentLesson.title);
       startTracking();
       
       return () => {
-        console.log('⏹️ Stopping time tracking for lesson:', currentLesson.title);
         stopTracking();
       };
     }

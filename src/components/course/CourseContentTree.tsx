@@ -99,8 +99,6 @@ const CourseContentTree = ({ courseId }: CourseContentTreeProps) => {
 
   const isLocked = !data.hasActiveSubscription;
   
-  console.log('CourseContent - hasActiveSubscription:', data.hasActiveSubscription, 'isLocked:', isLocked);
-
   return (
     <>
       <div className="space-y-2">
@@ -123,8 +121,6 @@ const CourseContentTree = ({ courseId }: CourseContentTreeProps) => {
                 acc[miniChapter].push(lesson);
                 return acc;
               }, {}) || {};
-
-              console.log('Phase:', phase.title, 'Lessons count:', phase.lessons?.length, 'Chapters grouped:', Object.keys(chaptersGrouped));
               
               // Ouvrir la première phase par défaut
               const isPhaseExpanded = expandedPhases[phase.chapterId] ?? (phaseIndex === 0);
@@ -193,7 +189,6 @@ const CourseContentTree = ({ courseId }: CourseContentTreeProps) => {
                             {/* Vidéos du chapitre - Affichées uniquement si le chapitre est ouvert */}
                             {isChapterExpanded && (
                               <div className="px-4 py-2 space-y-2">
-                                {console.log('Chapter:', miniChapter, 'isLocked:', isLocked, 'Lessons:', lessons.length)}
                                 {lessons
                                   .sort((a, b) => a.orderIndex - b.orderIndex)
                                   .map((lesson: LessonContentDTO, lessonIndex: number) => (
