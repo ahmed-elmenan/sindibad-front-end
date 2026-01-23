@@ -1,9 +1,15 @@
 import React from 'react';
 import { useDrop } from 'react-dnd';
-import { FolderOpen, ChevronDown, ChevronRight, Trash2, Video, Edit2, Check } from 'lucide-react';
+import { FolderOpen, ChevronDown, ChevronRight, Trash2, Video, Edit2, Check, MoreVertical } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { ItemTypes } from '@/types/PhaseManager';
 import type { UnifiedChapter } from '@/types/PhaseManager';
 
@@ -43,16 +49,25 @@ const DroppableChapterPhase: React.FC<DroppableChapterPhaseProps> = ({
 
   const videoCount = chapter.videos.filter(v => !v.isDeleted).length;
 
+  const handleEditClick = () => {
+    if (chapter.isEditing) {
+      onUpdate(chapter.miniChapter);
+      onToggleEdit();
+    } else {
+      onToggleEdit();
+    }
+  };
+
   return (
     <div
       ref={drop as any}
       className={`
         transition-all duration-300 ease-in-out rounded-xl
         ${isOver && canDrop 
-          ? 'ring-2 ring-primary/40 ring-offset-2 bg-gradient-to-r from-primary/10 to-secondary/10 scale-[1.01] shadow-lg' 
+          ? 'ring-2 ring-primary/40 ring-offset-2 bg-gradient-to-r from-primary/10 to-secondary/10 shadow-lg' 
           : ''
         }
-        ${!isOver ? 'hover:shadow-md hover:scale-[1.002]' : ''}
+        ${!isOver ? 'hover:shadow-md' : ''}
       `}
     >
       <Card className={`
@@ -84,8 +99,8 @@ const DroppableChapterPhase: React.FC<DroppableChapterPhaseProps> = ({
                 className={`
                   p-2 h-auto rounded-lg transition-all duration-300 shadow-sm
                   ${chapter.isExpanded 
-                    ? 'bg-primary/10 hover:bg-primary/15 text-primary scale-105 shadow-md' 
-                    : 'bg-gray-100/70 hover:bg-gray-200/70 text-gray-500 hover:text-gray-700 hover:scale-105'
+                    ? 'bg-primary/10 hover:bg-primary/15 text-primary shadow-md' 
+                    : 'bg-gray-100/70 hover:bg-gray-200/70 text-gray-500 hover:text-gray-700'
                   }
                 `}
                 onClick={onToggleExpansion}
@@ -105,7 +120,7 @@ const DroppableChapterPhase: React.FC<DroppableChapterPhaseProps> = ({
                     ? 'bg-gradient-to-br from-muted via-secondary to-muted shadow-muted/30 ring-muted/40' 
                     : 'bg-gradient-to-br from-primary via-primary/90 to-muted shadow-primary/30 ring-primary/40'
                 }
-                hover:scale-105 hover:shadow-lg
+                hover:shadow-lg
               `}>
                 <FolderOpen className="h-5 w-5 text-white drop-shadow-md" />
               </div>
@@ -154,96 +169,99 @@ const DroppableChapterPhase: React.FC<DroppableChapterPhaseProps> = ({
                 </div>
               </div>
 
-              {/* Action Buttons - Mobile */}
-              <div className="flex sm:hidden items-center gap-1">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    if (chapter.isEditing) {
-                      // Marquer les changements et désactiver le mode édition
-                      onUpdate(chapter.miniChapter);
-                      onToggleEdit();
-                    } else {
-                      // Activer le mode édition
-                      onToggleEdit();
-                    }
-                  }}
-                  className={
-                    chapter.isEditing
-                      ? "bg-gray-100/80 hover:bg-gray-200 text-gray-700 hover:text-gray-800 shadow-sm hover:shadow-md transition-all duration-300 font-semibold px-2 py-1.5 text-xs rounded-lg"
-                      : "bg-muted/20 hover:bg-muted/30 text-muted hover:text-muted shadow-sm hover:shadow-md transition-all duration-300 font-semibold px-2 py-1.5 text-xs rounded-lg"
-                  }
-                >
-                  {chapter.isEditing ? (
-                    <Check className="h-3.5 w-3.5" />
-                  ) : (
-                    <Edit2 className="h-3.5 w-3.5" />
-                  )}
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={onDelete}
-                  className="
-                    bg-red-100/80 hover:bg-red-200 text-red-600 hover:text-red-700
-                    shadow-sm hover:shadow-md
-                    transition-all duration-300 font-semibold px-2 py-1.5 text-xs rounded-lg
-                  "
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                </Button>
+              {/* Action Menu - Mobile */}
+              <div className="flex sm:hidden items-center">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 p-0 rounded-lg bg-gradient-to-br from-gray-100 to-gray-200 hover:from-primary/10 hover:to-primary/20 hover:shadow-sm hover:scale-105 transition-all duration-300 border border-gray-300/50"
+                             className="h-8 w-8 p-0 rounded-lg bg-gradient-to-br from-gray-100 to-gray-200 hover:from-primary/10 hover:to-primary/20 hover:shadow-sm transition-all duration-300 border border-gray-300/50"
+                    >
+                      <MoreVertical className="h-4 w-4 text-gray-700" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-44 rounded-lg shadow-lg border border-gray-200 bg-white">
+                    <DropdownMenuItem
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleEditClick();
+                      }}
+                      className="rounded-md hover:bg-gray-100 cursor-pointer transition-colors text-xs font-medium text-gray-900"
+                    >
+                      {chapter.isEditing ? (
+                        <>
+                          <Check className="mr-2 h-4 w-4 text-gray-900" />
+                          Enregistrer
+                        </>
+                      ) : (
+                        <>
+                          <Edit2 className="mr-2 h-4 w-4 text-gray-900" />
+                          Modifier
+                        </>
+                      )}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDelete();
+                      }}
+                      className="rounded-md hover:bg-gray-100 cursor-pointer transition-colors text-xs font-medium text-red-600 hover:text-red-700"
+                    >
+                      <Trash2 className="mr-2 h-4 w-4 text-red-600" />
+                      Supprimer
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
 
-            {/* Action Buttons - Desktop */}
-            <div className="hidden sm:flex items-center gap-2 ml-auto">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  if (chapter.isEditing) {
-                    // Marquer les changements et désactiver le mode édition
-                    onUpdate(chapter.miniChapter);
-                    onToggleEdit();
-                  } else {
-                    // Activer le mode édition
-                    onToggleEdit();
-                  }
-                }}
-                className={
-                  chapter.isEditing
-                    ? "bg-gray-100/80 hover:bg-gray-200 text-gray-700 hover:text-gray-800 shadow-sm hover:shadow-md transition-all duration-300 font-semibold px-3 py-1.5 rounded-lg"
-                    : "bg-muted/20 hover:bg-muted/30 text-muted hover:text-muted shadow-sm hover:shadow-md transition-all duration-300 font-semibold px-3 py-1.5 rounded-lg"
-                }
-              >
-                {chapter.isEditing ? (
-                  <>
-                    <Check className="h-3.5 w-3.5 mr-1.5" />
-                    <span>
+            {/* Action Menu - Desktop */}
+            <div className="hidden sm:flex items-center ml-auto">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-9 w-9 p-0 rounded-lg bg-gradient-to-br from-gray-100 to-gray-200 hover:from-primary/10 hover:to-primary/20 hover:shadow-sm hover:scale-105 transition-all duration-300 border border-gray-300/50"
+                           className="h-9 w-9 p-0 rounded-lg bg-gradient-to-br from-gray-100 to-gray-200 hover:from-primary/10 hover:to-primary/20 hover:shadow-sm transition-all duration-300 border border-gray-300/50"
+                  >
+                    <MoreVertical className="h-4 w-4 text-gray-700" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48 rounded-lg shadow-lg border border-gray-200 bg-white">
+                  <DropdownMenuItem
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleEditClick();
+                    }}
+                    className="rounded-md hover:bg-gray-100 cursor-pointer transition-colors text-sm font-medium text-gray-900"
+                  >
+                    {chapter.isEditing ? (
+                      <>
+                        <Check className="mr-2 h-4 w-4 text-gray-900" />
                         Enregistrer
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    <Edit2 className="h-3.5 w-3.5 mr-1.5" />
-                    <span>Modifier</span>
-                  </>
-                )}
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onDelete}
-                className="
-                  bg-red-100/80 hover:bg-red-200 text-red-600 hover:text-red-700
-                  shadow-sm hover:shadow-md
-                  transition-all duration-300 font-semibold px-3 py-1.5 rounded-lg
-                "
-              >
-                <Trash2 className="h-3.5 w-3.5 mr-1.5" />
-                <span>Supprimer</span>
-              </Button>
+                      </>
+                    ) : (
+                      <>
+                        <Edit2 className="mr-2 h-4 w-4 text-gray-900" />
+                        Modifier les informations
+                      </>
+                    )}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDelete();
+                    }}
+                    className="rounded-md hover:bg-gray-100 cursor-pointer transition-colors text-sm font-medium text-red-600 hover:text-red-700"
+                  >
+                    <Trash2 className="mr-2 h-4 w-4 text-red-600" />
+                    Supprimer
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </CardHeader>

@@ -1,8 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useDrop } from 'react-dnd';
-import { Folder, ChevronDown, ChevronRight, Edit, Trash2, FolderOpen, Check } from 'lucide-react';
+import { Folder, ChevronDown, ChevronRight, Edit, Trash2, FolderOpen, Check, MoreVertical, ClipboardList } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 import { ItemTypes } from '@/types/PhaseManager';
 import type { DroppablePhaseProps } from '@/types/PhaseManager';
 import { Input } from '@/components/ui/input';
@@ -15,6 +22,7 @@ const DroppablePhase: React.FC<DroppablePhaseProps> = ({
   onToggleEdit,
   onDelete,
   onUpdate,
+  onManageQuiz,
   children
 }) => {
   const [{ isOver, canDrop }, drop] = useDrop(() => ({
@@ -31,20 +39,30 @@ const DroppablePhase: React.FC<DroppablePhaseProps> = ({
     }),
   }), [phase.id]);
 
+  const handleEditClick = () => {
+    if (phase.isEditing) {
+      onUpdate('title', phase.title);
+      onUpdate('description', phase.description);
+      onToggleEdit();
+    } else {
+      onToggleEdit();
+    }
+  };
+
   return (
     <div
       ref={drop as any}
       className={`
         transition-all duration-300 ease-in-out rounded-2xl
         ${isOver && canDrop 
-          ? 'ring-2 ring-primary/30 ring-offset-2 bg-gradient-to-r from-primary/5 to-secondary/5 scale-[1.01] shadow-xl' 
+          ? 'ring-2 ring-primary/30 ring-offset-2 bg-gradient-to-r from-primary/5 to-secondary/5 shadow-xl' 
           : ''
         }
         ${isSelected 
           ? 'ring-2 ring-primary/40 ring-offset-2 bg-gradient-to-r from-primary/5 to-white' 
           : ''
         }
-        ${!isSelected && !isOver ? 'hover:shadow-lg hover:scale-[1.005]' : ''}
+        ${!isSelected && !isOver ? 'hover:shadow-lg' : ''}
       `}
     >
       <Card className={`
@@ -77,8 +95,8 @@ const DroppablePhase: React.FC<DroppablePhaseProps> = ({
                   className={`
                     p-2.5 h-auto rounded-xl transition-all duration-300 shadow-md
                     ${phase.isExpanded 
-                      ? 'bg-primary/10 hover:bg-primary/15 text-primary scale-110 shadow-lg' 
-                      : 'bg-gray-100/80 hover:bg-gray-200/80 text-gray-500 hover:text-gray-700 hover:scale-105'
+                      ? 'bg-primary/10 hover:bg-primary/15 text-primary shadow-lg' 
+                      : 'bg-gray-100/80 hover:bg-gray-200/80 text-gray-500 hover:text-gray-700'
                     }
                   `}
                   onClick={onToggleExpansion}
@@ -97,7 +115,7 @@ const DroppablePhase: React.FC<DroppablePhaseProps> = ({
                     ? 'bg-gradient-to-br from-secondary via-muted to-primary shadow-muted/30 ring-muted/40' 
                     : 'bg-gradient-to-br from-primary via-primary/90 to-muted shadow-primary/30 ring-primary/40'
                   }
-                  hover:scale-105 hover:shadow-xl
+                  hover:shadow-xl
                 `}>
                   {phase.isExpanded ? (
                     <FolderOpen className="h-7 w-7 text-white drop-shadow-md" />
@@ -109,45 +127,56 @@ const DroppablePhase: React.FC<DroppablePhaseProps> = ({
               
               {/* Action Buttons - Mobile */}
               <div className="flex sm:hidden items-center gap-1.5">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    if (phase.isEditing) {
-                      // Marquer les changements et désactiver le mode édition
-                      onUpdate('title', phase.title);
-                      onUpdate('description', phase.description);
-                      onToggleEdit();
-                    } else {
-                      // Activer le mode édition
-                      onToggleEdit();
-                    }
-                  }}
-                  className={
-                    phase.isEditing
-                      ? "bg-gray-100/80 hover:bg-gray-200 text-gray-700 hover:text-gray-800 shadow-sm hover:shadow-md transition-all duration-300 font-semibold px-2.5 py-1.5 text-xs rounded-lg"
-                      : "bg-muted/20 hover:bg-muted/30 text-muted hover:text-muted shadow-sm hover:shadow-md transition-all duration-300 font-semibold px-2.5 py-1.5 text-xs rounded-lg"
-                  }
-                >
-                  {phase.isEditing ? (
-                    <Check className="h-3.5 w-3.5" />
-                  ) : (
-                    <Edit className="h-3.5 w-3.5" />
-                  )}
-                </Button>
-
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={onDelete}
-                  className="
-                    bg-red-100/80 hover:bg-red-200 text-red-600 hover:text-red-700
-                    shadow-sm hover:shadow-md
-                    transition-all duration-300 font-semibold px-2.5 py-1.5 text-xs rounded-lg
-                  "
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 p-0 rounded-lg bg-gradient-to-br from-gray-100 to-gray-200 hover:from-primary/10 hover:to-primary/20 hover:shadow-sm hover:scale-105 transition-all duration-300 border border-gray-300/50"
+                             className="h-8 w-8 p-0 rounded-lg bg-gradient-to-br from-gray-100 to-gray-200 hover:from-primary/10 hover:to-primary/20 hover:shadow-sm transition-all duration-300 border border-gray-300/50"
+                    >
+                      <MoreVertical className="h-4 w-4 text-gray-700" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-44 rounded-lg shadow-lg">
+                    {onManageQuiz && (
+                      <>
+                        <DropdownMenuItem
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onManageQuiz();
+                          }}
+                          className="rounded-md hover:bg-gray-100 cursor-pointer text-xs font-medium"
+                        >
+                          <ClipboardList className="mr-2 h-4 w-4" />
+                          Gérer le quiz
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                      </>
+                    )}
+                    <DropdownMenuItem
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleEditClick();
+                      }}
+                      className="rounded-md hover:bg-gray-100 cursor-pointer text-xs font-medium"
+                    >
+                      <Edit className="mr-2 h-4 w-4" />
+                      {phase.isEditing ? "Enregistrer" : "Modifier les informations"}
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDelete();
+                      }}
+                      className="rounded-md hover:bg-gray-100 cursor-pointer text-xs font-medium text-red-600"
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      Supprimer
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
 
@@ -219,52 +248,66 @@ const DroppablePhase: React.FC<DroppablePhaseProps> = ({
 
             {/* Action Buttons - Desktop */}
             <div className="hidden sm:flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  if (phase.isEditing) {
-                    // Marquer les changements et désactiver le mode édition
-                    onUpdate('title', phase.title);
-                    onUpdate('description', phase.description);
-                    onToggleEdit();
-                  } else {
-                    // Activer le mode édition
-                    onToggleEdit();
-                  }
-                }}
-                className={
-                  phase.isEditing
-                    ? "bg-gray-100/80 hover:bg-gray-200 text-gray-700 hover:text-gray-800 shadow-sm hover:shadow-md transition-all duration-300 font-semibold px-4 py-2 rounded-xl"
-                    : "bg-muted/20 hover:bg-muted/30 text-muted hover:text-muted shadow-sm hover:shadow-md transition-all duration-300 font-semibold px-4 py-2 rounded-xl"
-                }
-              >
-                {phase.isEditing ? (
-                  <>
-                    <Check className="h-4 w-4 mr-1.5" />
-                    <span>Enregistrer</span>
-                  </>
-                ) : (
-                  <>
-                    <Edit className="h-4 w-4 mr-1.5" />
-                    <span>Modifier</span>
-                  </>
-                )}
-              </Button>
-
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onDelete}
-                className="
-                  bg-red-100/80 hover:bg-red-200 text-red-600 hover:text-red-700
-                  shadow-sm hover:shadow-md
-                  transition-all duration-300 font-semibold px-4 py-2 rounded-xl
-                "
-              >
-                <Trash2 className="h-4 w-4 mr-1.5" />
-                <span>Supprimer</span>
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="bg-gradient-to-br from-gray-100 to-gray-200 hover:from-primary/10 hover:to-primary/20 hover:shadow-sm hover:scale-105 transition-all duration-300 border border-gray-300/50 px-4 py-2 rounded-xl"
+                           className="bg-gradient-to-br from-gray-100 to-gray-200 hover:from-primary/10 hover:to-primary/20 hover:shadow-sm transition-all duration-300 border border-gray-300/50 px-4 py-2 rounded-xl"
+                  >
+                    <MoreVertical className="h-4 w-4 text-gray-700 mr-1.5" />
+                    <span className="font-semibold text-gray-700">Actions</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56 rounded-lg shadow-lg">
+                  {onManageQuiz && (
+                    <>
+                      <DropdownMenuItem
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onManageQuiz();
+                        }}
+                        className="rounded-md hover:bg-gray-100 cursor-pointer text-sm font-medium"
+                      >
+                        <ClipboardList className="mr-2 h-4 w-4" />
+                        Gérer le quiz
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                    </>
+                  )}
+                  <DropdownMenuItem
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleEditClick();
+                    }}
+                    className="rounded-md hover:bg-gray-100 cursor-pointer text-sm font-medium"
+                  >
+                    {phase.isEditing ? (
+                      <>
+                        <Check className="mr-2 h-4 w-4" />
+                        Enregistrer
+                      </>
+                    ) : (
+                      <>
+                        <Edit className="mr-2 h-4 w-4" />
+                        Modifier les informations
+                      </>
+                    )}
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDelete();
+                    }}
+                    className="rounded-md hover:bg-gray-100 cursor-pointer text-sm font-medium text-red-600"
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Supprimer
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </CardHeader>

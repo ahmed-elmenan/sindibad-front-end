@@ -1,15 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useDrag } from "react-dnd";
 import {
-  FileVideo,
   GripVertical,
   Eye,
   Edit,
   Trash2,
   Video,
   Clock,
-  Folder,
   MoreVertical,
+  ClipboardList,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -18,6 +17,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { ItemTypes } from "@/types/PhaseManager";
 import type { UnifiedVideo } from "@/types/PhaseManager";
@@ -26,10 +26,13 @@ import { createPortal } from "react-dom";
 import VideoPreviewModal from "@/components/admin/VideoPreviewModal";
 import VideoEditModal from "@/components/admin/VideoEditModal";
 import SkillsModal from "@/components/admin/SkillsModal";
+import QuizManagementModal from "@/components/admin/QuizManagementModal";
 import { formatFileSize, formatDurationSimple } from "@/utils/dateUtils";
 import { deleteLesson } from "@/services/lesson.service";
 import { toast } from "@/components/ui/sonner";
 import { getPresignedUrlForVideo } from "@/services/chapter.service";
+import { quizManagementService } from "@/services/quizManagement.service";
+import type { QuizDetailResponse } from "@/types/QuizManagement";
 
 interface DraggableVideoPhaseProps {
   video: UnifiedVideo;
@@ -53,10 +56,13 @@ const DraggableVideoPhase: React.FC<DraggableVideoPhaseProps> = ({
   const [showPreview, setShowPreview] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showSkillsModal, setShowSkillsModal] = useState(false);
+  const [showQuizModal, setShowQuizModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [videoUrl, setVideoUrl] = useState<string>("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [existingQuiz, setExistingQuiz] = useState<QuizDetailResponse | null>(null);
+  const [isLoadingQuiz, setIsLoadingQuiz] = useState(false);
 
   // Generate thumbnail when video is loaded
   useEffect(() => {
@@ -180,6 +186,40 @@ const DraggableVideoPhase: React.FC<DraggableVideoPhaseProps> = ({
     setShowSkillsModal(true);
   };
 
+  const handleManageQuiz = async () => {
+    setDropdownOpen(false);
+    
+    if (!video.originalLessonId) {
+      toast.error({
+        title: "Erreur",
+        description: "La vidéo doit être uploadée avant de créer un quiz",
+      });
+      return;
+    }
+
+    setIsLoadingQuiz(true);
+    try {
+      const quiz = await quizManagementService.getQuizByLessonId(video.originalLessonId);
+      setExistingQuiz(quiz);
+      setShowQuizModal(true);
+    } catch (error) {
+      console.error("Error loading quiz:", error);
+      toast.error({
+        title: "Erreur",
+        description: "Impossible de charger les informations du quiz",
+      });
+    } finally {
+      setIsLoadingQuiz(false);
+    }
+  };
+
+  const handleQuizSuccess = () => {
+    toast.success({
+      title: "Succès",
+      description: "Le quiz a été enregistré avec succès",
+    });
+  };
+
   const handleDelete = () => {
     setDropdownOpen(false);
 
@@ -238,8 +278,8 @@ const DraggableVideoPhase: React.FC<DraggableVideoPhaseProps> = ({
           group relative transition-all duration-300 ease-in-out
           ${
             isDragging
-              ? "opacity-50 scale-95 rotate-1 shadow-2xl"
-              : "opacity-100 scale-100 hover:scale-[1.005] shadow-sm hover:shadow-md"
+              ? "opacity-50 rotate-1 shadow-2xl"
+              : "opacity-100 shadow-sm hover:shadow-md"
           }
           cursor-move
         `}
@@ -267,6 +307,7 @@ const DraggableVideoPhase: React.FC<DraggableVideoPhaseProps> = ({
                     src={thumbnail}
                     alt={video.title}
                     className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-110"
+                                   className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-500"
                   />
                 ) : (
                   <div className="absolute inset-0 w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-800 via-gray-700 to-gray-900">
@@ -329,6 +370,7 @@ const DraggableVideoPhase: React.FC<DraggableVideoPhaseProps> = ({
                         variant="ghost"
                         size="sm"
                         className="h-6 w-6 sm:h-7 sm:w-7 p-0 rounded-lg bg-gradient-to-br from-gray-100 to-gray-200 hover:from-primary/10 hover:to-primary/20 hover:shadow-sm hover:scale-105 transition-all duration-300 border border-gray-300/50 flex-shrink-0"
+                                       className="h-6 w-6 sm:h-7 sm:w-7 p-0 rounded-lg bg-gradient-to-br from-gray-100 to-gray-200 hover:from-primary/10 hover:to-primary/20 hover:shadow-sm transition-all duration-300 border border-gray-300/50 flex-shrink-0"
                       >
                         <MoreVertical className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-gray-700" />
                       </Button>
@@ -358,6 +400,16 @@ const DraggableVideoPhase: React.FC<DraggableVideoPhaseProps> = ({
                         <Edit className="mr-2 h-4 w-4 text-gray-900" />
                         Modifier Skills
                       </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        onClick={handleManageQuiz}
+                        disabled={isLoadingQuiz || !video.originalLessonId}
+                        className="rounded-md hover:bg-gray-100 data-[highlighted]:bg-gray-100 data-[highlighted]:text-gray-900 cursor-pointer transition-colors text-xs font-medium text-gray-900"
+                      >
+                        <ClipboardList className="mr-2 h-4 w-4 text-gray-900" />
+                        {isLoadingQuiz ? "Chargement..." : "Gérer le quiz"}
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
                       <DropdownMenuItem
                         onClick={handleDelete}
                         className="rounded-md hover:bg-gray-100 data-[highlighted]:bg-gray-100 data-[highlighted]:text-red-600 cursor-pointer transition-colors text-xs font-medium text-red-600 hover:text-red-700"
@@ -370,64 +422,44 @@ const DraggableVideoPhase: React.FC<DraggableVideoPhaseProps> = ({
                 </div>
 
                 {/* Metadata Row */}
-                <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-                  {/* Order Badge */}
-                  <span className="inline-flex items-center gap-0.5 sm:gap-1 bg-gradient-to-r from-muted/20 to-secondary/20 text-muted px-1.5 sm:px-2 py-0.5 rounded-lg text-[10px] sm:text-xs font-bold border border-muted/30 shadow-sm">
-                    <Folder className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
-                    <span>Order: {video.order || video.videoNumber}</span>
+                <div className="flex items-center gap-2 text-[11px] sm:text-xs text-gray-600">
+                  {/* Order */}
+                  <span className="flex items-center gap-1">
+                    <span className="font-medium">Ordre:</span>
+                    <span className="font-semibold text-gray-900">{video.order || video.videoNumber}</span>
                   </span>
+                  
+                  <span className="text-gray-400">•</span>
 
-                  {/* Status Badges */}
-                  {video.isNew && (
-                    <span className="inline-flex items-center gap-0.5 sm:gap-1 text-[10px] sm:text-xs bg-gradient-to-r from-orange-500 via-orange-400 to-yellow-400 text-white px-1.5 sm:px-2 py-0.5 rounded-lg font-bold shadow-sm animate-pulse ring-1 ring-white/30">
-                      <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-white rounded-full animate-ping absolute"></div>
-                      <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-white rounded-full"></div>
-                      Nouveau
+                  {/* File Size */}
+                  {video.fileSize && (
+                    <>
+                      <span className="font-semibold text-gray-900">{formatFileSize(video.fileSize)}</span>
+                      <span className="text-gray-400">•</span>
+                    </>
+                  )}
+
+                  {/* Skills Count */}
+                  {video.skills && video.skills.length > 0 && (
+                    <span className="font-semibold text-primary">
+                      {video.skills.length} {video.skills.length === 1 ? 'compétence' : 'compétences'}
                     </span>
+                  )}
+
+                  {/* Status Indicators */}
+                  {video.isNew && (
+                    <>
+                      <span className="text-gray-400">•</span>
+                      <span className="text-orange-600 font-semibold">Nouveau</span>
+                    </>
                   )}
                   {video.isMoved && (
-                    <span className="inline-flex items-center gap-0.5 sm:gap-1 text-[10px] sm:text-xs bg-gradient-to-r from-orange-600 to-orange-500 text-white px-1.5 sm:px-2 py-0.5 rounded-lg font-bold shadow-sm ring-1 ring-white/20">
-                      <div className="w-0.5 h-0.5 sm:w-1 sm:h-1 bg-white rounded-full"></div>
-                      MOVED
-                    </span>
-                  )}
-
-                  {/* File Info */}
-                  <div className="flex items-center gap-0.5 sm:gap-1 text-gray-600 bg-gray-100/80 px-1.5 sm:px-2 py-0.5 rounded-lg font-medium border border-gray-200/50 text-[10px] sm:text-xs">
-                    <FileVideo className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
-                    <span>
-                      {video.videoUrl
-                        ?.split(".")
-                        .pop()
-                        ?.split("?")[0]
-                        ?.toUpperCase() || "MP4"}
-                    </span>
-                  </div>
-                  {video.fileSize && (
-                    <div className="flex items-center text-gray-600 bg-gray-100/80 px-1.5 sm:px-2 py-0.5 rounded-lg font-medium border border-gray-200/50 text-[10px] sm:text-xs">
-                      <span>{formatFileSize(video.fileSize)}</span>
-                    </div>
+                    <>
+                      <span className="text-gray-400">•</span>
+                      <span className="text-orange-600 font-semibold">Déplacé</span>
+                    </>
                   )}
                 </div>
-
-                {/* Skills */}
-                {video.skills && video.skills.length > 0 && (
-                  <div className="flex flex-wrap gap-1">
-                    {video.skills.slice(0, 2).map((skill) => (
-                      <span
-                        key={skill.id}
-                        className="inline-flex items-center bg-gradient-to-r from-primary/10 to-secondary/10 text-primary px-1.5 sm:px-2 py-0.5 rounded-lg text-[10px] sm:text-xs font-bold border border-primary/20 shadow-sm"
-                      >
-                        {skill.name}
-                      </span>
-                    ))}
-                    {video.skills.length > 2 && (
-                      <span className="inline-flex items-center bg-gray-100 text-gray-600 px-1.5 sm:px-2 py-0.5 rounded-lg text-[10px] sm:text-xs font-bold border border-gray-200">
-                        +{video.skills.length - 2}
-                      </span>
-                    )}
-                  </div>
-                )}
               </div>
             </div>
           </div>
@@ -467,6 +499,26 @@ const DraggableVideoPhase: React.FC<DraggableVideoPhaseProps> = ({
             initialSkills={video.skills || []}
             existingSkills={existingSkills}
             onSave={handleSaveSkills}
+          />,
+          document.body,
+        )}
+
+      {/* Quiz Management Modal */}
+      {showQuizModal &&
+        video.originalLessonId &&
+        createPortal(
+          <QuizManagementModal
+            open={showQuizModal}
+            onClose={() => {
+              setShowQuizModal(false);
+              setExistingQuiz(null);
+            }}
+            quizType="SIMPLE_QUIZ"
+            resourceId={video.originalLessonId}
+            resourceTitle={video.title}
+            availableSkills={video.skills || []}
+            existingQuiz={existingQuiz}
+            onSuccess={handleQuizSuccess}
           />,
           document.body,
         )}

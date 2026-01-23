@@ -24,8 +24,12 @@ import { useCourseChapters } from "@/hooks/useCourseQueries";
 import { useParams, useNavigate } from "react-router-dom";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import SkillsModal from "./SkillsModal";
+import QuizManagementModal from "./QuizManagementModal";
+import FinalQuizSection from "./FinalQuizSection";
 import { getAllSkills } from "@/services/skill.service";
 import { uploadVideos, type UploadProgressCallback } from "@/services/chapter.service";
+import { quizManagementService } from "@/services/quizManagement.service";
+import type { QuizDetailResponse } from "@/types/QuizManagement";
 import DroppablePhase from "./DroppablePhase";
 import DroppableChapterPhase from "./DroppableChapterPhase";
 import DraggableVideoPhase from "./DraggableVideoPhase";
@@ -98,6 +102,12 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
     videoId: string;
   } | null>(null);
   const [existingSkills, setExistingSkills] = useState<Skill[]>([]);
+
+  // Quiz Management State
+  const [showQuizModal, setShowQuizModal] = useState(false);
+  const [currentQuizPhase, setCurrentQuizPhase] = useState<UnifiedPhase | null>(null);
+  const [existingQuiz, setExistingQuiz] = useState<QuizDetailResponse | null>(null);
+  const [isLoadingQuiz, setIsLoadingQuiz] = useState(false);
 
   // Afficher la page immédiatement - ne pas bloquer sur le loading des skills
   const isLoading = chaptersLoading;
@@ -411,10 +421,9 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
       // Permettre le rechargement des données après la sauvegarde
       isInitialLoadRef.current = true;
       
-      // Invalider le cache sans refetch immédiat
-      await queryClient.invalidateQueries({ 
+      // Invalider le cache et refetch immédiatement pour synchroniser les données
+      await queryClient.invalidateQueries({
         queryKey: ['course-chapters', courseId],
-        refetchType: 'none' // Ne pas refetch immédiatement
       });
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Erreur lors de la sauvegarde");
@@ -613,7 +622,7 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
     }
 
     const { phaseId, chapterId, videoId } = currentEditingVideo;
-    
+
     setPhases((prev) =>
       prev.map((p) =>
         p.id === phaseId
@@ -625,7 +634,7 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
                       ...ch,
                       videos: ch.videos.map((v) => {
                         if (v.id === videoId) {
-                          return { ...v, skills, isEditing: true };
+                          return { ...v, skills, isEditing: false };
                         }
                         return v;
                       }),
@@ -639,7 +648,118 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
 
     setCurrentEditingVideo(null);
     setHasChanges(true);
-  }, [currentEditingVideo]);  // Organize uploaded files into phase/chapter/video structure
+    // Ajoute un toast succès pour feedback utilisateur
+    toast.success({
+      title: "Succès",
+      description: "Les compétences de la vidéo ont été enregistrées et synchronisées.",
+    });
+  }, [currentEditingVideo]);
+
+  // Handle phase quiz management
+  const handleManagePhaseQuiz = async (phase: UnifiedPhase) => {
+    if (!phase.originalPhaseId) {
+      toast.error({
+        title: "Erreur",
+        description: "La phase doit être enregistrée avant de créer un quiz",
+      });
+      return;
+    }
+
+    setCurrentQuizPhase(phase);
+    setShowQuizModal(true);
+    setIsLoadingQuiz(true);
+
+    quizManagementService.getQuizByChapterId(phase.originalPhaseId)
+      .then((quiz) => {
+        setExistingQuiz(quiz);
+      })
+      .catch((error) => {
+        console.error("Error loading phase quiz:", error);
+        toast.error({
+          title: "Erreur",
+          description: "Impossible de charger les informations du quiz",
+        });
+      })
+      .finally(() => {
+        setIsLoadingQuiz(false);
+      });
+  };
+
+  // Get all skills from a phase (from all lessons in all chapters)
+  const getPhaseSkills = (phase: UnifiedPhase): Skill[] => {
+    const skillsMap = new Map<string, Skill>();
+    
+    phase.chapters
+      .filter((ch) => !ch.isDeleted)
+      .forEach((chapter) => {
+        chapter.videos
+          .filter((v) => !v.isDeleted)
+          .forEach((video) => {
+            video.skills?.forEach((skill) => {
+              if (!skillsMap.has(skill.id)) {
+                skillsMap.set(skill.id, skill);
+              }
+            });
+          });
+      });
+
+    return Array.from(skillsMap.values());
+  };
+
+  // Get all skills from the entire course
+  const getCourseSkills = (): Skill[] => {
+    const skillsMap = new Map<string, Skill>();
+    
+    phases
+      .filter((p) => !p.isDeleted)
+      .forEach((phase) => {
+        phase.chapters
+          .filter((ch) => !ch.isDeleted)
+          .forEach((chapter) => {
+            chapter.videos
+              .filter((v) => !v.isDeleted)
+              .forEach((video) => {
+                video.skills?.forEach((skill) => {
+                  if (!skillsMap.has(skill.id)) {
+                    skillsMap.set(skill.id, skill);
+                  }
+                });
+              });
+          });
+      });
+
+    return Array.from(skillsMap.values());
+  };
+
+  const handleQuizSuccess = () => {
+    toast.success({
+      title: "Succès",
+      description: "Le quiz a été enregistré avec succès",
+    });
+    // Mettre à jour les compétences de la phase localement
+    if (currentQuizPhase && existingQuiz) {
+      setPhases((prevPhases) =>
+        prevPhases.map((phase) =>
+          phase.id === currentQuizPhase.id
+            ? {
+                ...phase,
+                quiz: existingQuiz,
+                // Si le quiz contient des compétences, les mettre à jour
+                skills: existingQuiz.skills?.map((s) => ({
+                  id: s.skillId,
+                  name: s.skillName,
+                })) || phase.skills,
+              }
+            : phase
+        )
+      );
+    }
+    setShowQuizModal(false);
+    setCurrentQuizPhase(null);
+    setExistingQuiz(null);
+  };
+
+  // Organize uploaded files into phase/chapter/video structure
   const organizeFiles = useCallback((files: VideoFile[]) => {
     const phaseMap = new Map<number, Map<number, VideoFile[]>>();
 
@@ -1146,6 +1266,7 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
                         onUpdate={(field, value) => updatePhaseField(phase.id!, field, value)}
                         onDropVideo={() => {}}
                         onAddChapter={() => {}}
+                        onManageQuiz={phase.originalPhaseId ? () => handleManagePhaseQuiz(phase) : undefined}
                       >
                         {phase.chapters
                           .filter((ch) => !ch.isDeleted)
@@ -1248,6 +1369,21 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
                 </div>
               )}
             </div>
+
+            {/* Final Quiz Section */}
+            {courseId && (
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-1 h-6 bg-gradient-to-b from-primary to-secondary rounded-full"></div>
+                  <h3 className="text-xl font-semibold">Quiz Final du Cours</h3>
+                </div>
+                <FinalQuizSection
+                  courseId={courseId}
+                  courseTitle="Cours"
+                  availableSkills={getCourseSkills()}
+                />
+              </div>
+            )}
 
             {hasChanges && (
               <div className="bg-gradient-to-r from-gray-50 to-secondary/10 rounded-2xl p-6 border">
@@ -1356,6 +1492,25 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
         }
         existingSkills={existingSkills}
       />
+
+      {/* Phase Quiz Management Modal */}
+      {showQuizModal && currentQuizPhase && currentQuizPhase.originalPhaseId && (
+        <QuizManagementModal
+          open={showQuizModal}
+          onClose={() => {
+            setShowQuizModal(false);
+            setCurrentQuizPhase(null);
+            setExistingQuiz(null);
+          }}
+          quizType="PHASE_QUIZ"
+          resourceId={currentQuizPhase.originalPhaseId}
+          resourceTitle={currentQuizPhase.title}
+          availableSkills={getPhaseSkills(currentQuizPhase)}
+          existingQuiz={existingQuiz}
+          onSuccess={handleQuizSuccess}
+          loading={isLoadingQuiz}
+        />
+      )}
 
       {/* Phase Delete Confirmation Modal */}
       {deletePhaseModal.isOpen && (

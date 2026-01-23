@@ -168,6 +168,7 @@ export interface DroppablePhaseProps {
   onDelete: () => void;
   onUpdate: (field: 'title' | 'description', value: string) => void;
   onAddChapter: () => void;
+  onManageQuiz?: () => void;
   children: ReactNode;
 }
 
