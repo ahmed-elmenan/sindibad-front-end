@@ -38,6 +38,7 @@ interface SubscriptionRequestsResponse {
   empty: boolean;
 }
 
+import { Card, CardContent } from '../ui/card';
 import {
   Table,
   TableBody,
@@ -118,117 +119,128 @@ export const SubscriptionRequestsTable = ({
 
   return (
     <div className="space-y-4">
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Organisation</TableHead>
-              <TableHead>Responsable</TableHead>
-              <TableHead>Cours</TableHead>
-              <TableHead>Pack</TableHead>
-              <TableHead>Montant</TableHead>
-              <TableHead>Statut</TableHead>
-              <TableHead>Date</TableHead>
-              <TableHead>Reçu</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {data.content.map((request: SubscriptionRequest) => (
-              <TableRow key={request.id}>
-                <TableCell className="font-medium">{request.organisationName}</TableCell>
-                
-                <TableCell>
-                  <div className="text-sm">
-                    <div className="font-medium">{request.responsibleFullName}</div>
-                    <div className="text-muted-foreground">{request.responsibleEmail}</div>
-                  </div>
-                </TableCell>
-                
-                <TableCell>{request.courseName}</TableCell>
-                
-                <TableCell>
-                  <div className="text-sm">
-                    <div>{request.packName}</div>
-                    <div className="text-muted-foreground">
-                      {request.minLearners}-{request.maxLearners} apprenants
-                    </div>
-                  </div>
-                </TableCell>
-                
-                <TableCell>
-                  <div className="text-sm">
-                    <div className="font-semibold">{formatCurrency(request.amount)}</div>
-                    {request.discountPercentage > 0 && (
-                      <div className="text-green-600">-{request.discountPercentage}%</div>
-                    )}
-                  </div>
-                </TableCell>
-                
-                <TableCell>
-                  <Badge className={statusConfig[request.status].className}>
-                    {statusConfig[request.status].label}
-                  </Badge>
-                </TableCell>
-                
-                <TableCell>
-                  <div className="text-sm">
-                    <div className="text-muted-foreground">Créée:</div>
-                    <div>{formatDate(request.createdAt)}</div>
-                  </div>
-                </TableCell>
-                
-                <TableCell>
-                  {request.receiptUrl ? (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => onViewReceipt(request.id)}
-                    >
-                      <Eye className="h-4 w-4 mr-1" />
-                      Voir
-                    </Button>
-                  ) : (
-                    <span className="text-sm text-muted-foreground">-</span>
-                  )}
-                </TableCell>
-                
-                <TableCell className="text-right">
-                  <div className="flex justify-end gap-2">
-                    {request.status === 'PENDING' && (
-                      <>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => onAccept(request.id)}
-                          className="text-green-600 hover:text-green-700 hover:bg-green-50"
-                        >
-                          <Check className="h-4 w-4 mr-1" />
-                          Accepter
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => onRefuse(request.id)}
-                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                        >
-                          <X className="h-4 w-4 mr-1" />
-                          Refuser
-                        </Button>
-                      </>
-                    )}
-                    {request.status === 'REFUSED' && request.refusedReason && (
-                      <div className="text-xs text-red-600 max-w-[200px] truncate" title={request.refusedReason}>
-                        {request.refusedReason}
+      <Card className="p-0 w-full overflow-hidden">
+        <CardContent className="p-0 w-full">
+          <div className="w-full overflow-x-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-500">
+            <Table className="w-full border-collapse table-fixed min-w-full">
+              <colgroup>
+                <col style={{ width: '12%' }} /> {/* Organisation */}
+                <col style={{ width: '14%' }} /> {/* Responsable */}
+                <col style={{ width: '13%' }} /> {/* Cours */}
+                <col style={{ width: '12%' }} /> {/* Pack */}
+                <col style={{ width: '10%' }} /> {/* Montant */}
+                <col style={{ width: '9%' }} /> {/* Statut */}
+                <col style={{ width: '10%' }} /> {/* Date */}
+                <col style={{ width: '8%' }} /> {/* Reçu */}
+                <col style={{ width: '12%' }} /> {/* Actions */}
+              </colgroup>
+              <TableHeader className="sticky top-0 bg-[#f8fafc] z-[5] shadow-sm">
+                <TableRow className="border-b">
+                  <TableHead className="text-center border-b border-gray-300 bg-[#f8fafc] font-semibold h-10 px-2 sm:px-4 align-middle text-xs sm:text-sm"><div className="truncate">Organisation</div></TableHead>
+                  <TableHead className="text-center border-b border-gray-300 bg-[#f8fafc] font-semibold h-10 px-2 sm:px-4 align-middle text-xs sm:text-sm"><div className="truncate">Responsable</div></TableHead>
+                  <TableHead className="text-center border-b border-gray-300 bg-[#f8fafc] font-semibold h-10 px-2 sm:px-4 align-middle text-xs sm:text-sm"><div className="truncate">Cours</div></TableHead>
+                  <TableHead className="text-center border-b border-gray-300 bg-[#f8fafc] font-semibold h-10 px-2 sm:px-4 align-middle text-xs sm:text-sm"><div className="truncate">Pack</div></TableHead>
+                  <TableHead className="text-center border-b border-gray-300 bg-[#f8fafc] font-semibold h-10 px-2 sm:px-4 align-middle text-xs sm:text-sm"><div className="truncate">Montant</div></TableHead>
+                  <TableHead className="text-center border-b border-gray-300 bg-[#f8fafc] font-semibold h-10 px-2 sm:px-4 align-middle text-xs sm:text-sm"><div className="truncate">Statut</div></TableHead>
+                  <TableHead className="text-center border-b border-gray-300 bg-[#f8fafc] font-semibold h-10 px-2 sm:px-4 align-middle text-xs sm:text-sm"><div className="truncate">Date</div></TableHead>
+                  <TableHead className="text-center border-b border-gray-300 bg-[#f8fafc] font-semibold h-10 px-2 sm:px-4 align-middle text-xs sm:text-sm"><div className="truncate">Reçu</div></TableHead>
+                  <TableHead className="text-center border-b border-gray-300 bg-[#f8fafc] font-semibold h-10 px-2 sm:px-4 align-middle text-xs sm:text-sm"><div className="truncate">Actions</div></TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody className="[&_tr:last-child]:border-0">
+                {data.content.map((request: SubscriptionRequest) => (
+                  <TableRow key={request.id} className="hover:bg-gray-50 transition-colors">
+                    <TableCell className="text-center border-b border-gray-300 p-2 sm:p-3 font-medium">{request.organisationName}</TableCell>
+                    
+                    <TableCell className="text-center border-b border-gray-300 p-2 sm:p-3">
+                      <div className="text-sm">
+                        <div className="font-medium">{request.responsibleFullName}</div>
+                        <div className="text-muted-foreground text-xs truncate">{request.responsibleEmail}</div>
                       </div>
-                    )}
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+                    </TableCell>
+                    
+                    <TableCell className="text-center border-b border-gray-300 p-2 sm:p-3">{request.courseName}</TableCell>
+                    
+                    <TableCell className="text-center border-b border-gray-300 p-2 sm:p-3">
+                      <div className="text-sm">
+                        {request.packName}
+                      </div>
+                    </TableCell>
+                    
+                    <TableCell className="text-center border-b border-gray-300 p-2 sm:p-3">
+                      <div className="text-sm">
+                        <div className="font-semibold">{formatCurrency(request.amount)}</div>
+                        {request.discountPercentage > 0 && (
+                          <div className="text-green-600 text-xs">-{request.discountPercentage}%</div>
+                        )}
+                      </div>
+                    </TableCell>
+                    
+                    <TableCell className="text-center border-b border-gray-300 p-2 sm:p-3">
+                      <Badge className={statusConfig[request.status].className}>
+                        {statusConfig[request.status].label}
+                      </Badge>
+                    </TableCell>
+                    
+                    <TableCell className="text-center border-b border-gray-300 p-2 sm:p-3">
+                      <div className="text-sm">
+                        <div>{formatDate(request.createdAt)}</div>
+                      </div>
+                    </TableCell>
+                    
+                    <TableCell className="text-center border-b border-gray-300 p-2 sm:p-3">
+                      {request.receiptUrl ? (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => onViewReceipt(request.id)}
+                        >
+                          <Eye className="h-4 w-4 mr-1" />
+                          Voir
+                        </Button>
+                      ) : (
+                        <span className="text-sm text-muted-foreground">-</span>
+                      )}
+                    </TableCell>
+                    
+                    <TableCell className="text-center border-b border-gray-300 p-2 sm:p-3">
+                      <div className="flex justify-end gap-2">
+                        {request.status === 'PENDING' && (
+                          <>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => onAccept(request.id)}
+                              className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                            >
+                              <Check className="h-4 w-4 mr-1" />
+                              Accepter
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => onRefuse(request.id)}
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                            >
+                              <X className="h-4 w-4 mr-1" />
+                              Refuser
+                            </Button>
+                          </>
+                        )}
+                        {request.status === 'REFUSED' && request.refusedReason && (
+                          <div className="text-xs text-red-600 max-w-[200px] truncate" title={request.refusedReason}>
+                            {request.refusedReason}
+                          </div>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Pagination */}
       {data.totalPages > 1 && (

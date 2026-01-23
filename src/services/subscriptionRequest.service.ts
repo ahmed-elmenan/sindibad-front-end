@@ -1,4 +1,4 @@
-import axios from 'axios';
+import api from "@/lib/axios";
 
 // Types définis localement pour éviter les problèmes de cache
 type SubscriptionRequestStatus = 'PENDING' | 'ACCEPTED' | 'REFUSED' | 'ACTIVE' | 'EXPIRED';
@@ -65,8 +65,7 @@ interface PresignedUrlResponse {
   fileName: string;
 }
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
-const BASE_PATH = '/api/subscription-requests';
+const BASE_PATH = '/subscription-requests';
 
 /**
  * Service pour la gestion des demandes d'abonnement
@@ -85,8 +84,8 @@ export const subscriptionRequestService = {
     params.append('page', (filters.page ?? 0).toString());
     params.append('size', (filters.size ?? 20).toString());
 
-    const response = await axios.get<SubscriptionRequestsResponse>(
-      `${API_URL}${BASE_PATH}?${params.toString()}`
+    const response = await api.get<SubscriptionRequestsResponse>(
+      `${BASE_PATH}?${params.toString()}`
     );
     return response.data;
   },
@@ -98,8 +97,8 @@ export const subscriptionRequestService = {
     subscriptionId: string,
     data: ProcessSubscriptionDTO
   ): Promise<SubscriptionRequest> {
-    const response = await axios.post<SubscriptionRequest>(
-      `${API_URL}${BASE_PATH}/${subscriptionId}/accept`,
+    const response = await api.post<SubscriptionRequest>(
+      `${BASE_PATH}/${subscriptionId}/accept`,
       data
     );
     return response.data;
@@ -112,8 +111,8 @@ export const subscriptionRequestService = {
     subscriptionId: string,
     data: RefuseRequestDTO
   ): Promise<SubscriptionRequest> {
-    const response = await axios.post<SubscriptionRequest>(
-      `${API_URL}${BASE_PATH}/${subscriptionId}/refuse`,
+    const response = await api.post<SubscriptionRequest>(
+      `${BASE_PATH}/${subscriptionId}/refuse`,
       data
     );
     return response.data;
@@ -126,8 +125,8 @@ export const subscriptionRequestService = {
     const formData = new FormData();
     formData.append('file', file);
 
-    const response = await axios.post<SubscriptionRequest>(
-      `${API_URL}${BASE_PATH}/${subscriptionId}/receipt`,
+    const response = await api.post<SubscriptionRequest>(
+      `${BASE_PATH}/${subscriptionId}/receipt`,
       formData,
       {
         headers: {
@@ -142,8 +141,8 @@ export const subscriptionRequestService = {
    * Supprime le reçu d'une demande
    */
   async deleteReceipt(subscriptionId: string): Promise<SubscriptionRequest> {
-    const response = await axios.delete<SubscriptionRequest>(
-      `${API_URL}${BASE_PATH}/${subscriptionId}/receipt`
+    const response = await api.delete<SubscriptionRequest>(
+      `${BASE_PATH}/${subscriptionId}/receipt`
     );
     return response.data;
   },
@@ -155,8 +154,8 @@ export const subscriptionRequestService = {
     const formData = new FormData();
     formData.append('file', file);
 
-    const response = await axios.put<SubscriptionRequest>(
-      `${API_URL}${BASE_PATH}/${subscriptionId}/receipt`,
+    const response = await api.put<SubscriptionRequest>(
+      `${BASE_PATH}/${subscriptionId}/receipt`,
       formData,
       {
         headers: {
@@ -171,8 +170,8 @@ export const subscriptionRequestService = {
    * Génère une URL présignée pour visualiser le reçu
    */
   async getReceiptPresignedUrl(subscriptionId: string): Promise<PresignedUrlResponse> {
-    const response = await axios.get<PresignedUrlResponse>(
-      `${API_URL}${BASE_PATH}/${subscriptionId}/receipt/presigned-url`
+    const response = await api.get<PresignedUrlResponse>(
+      `${BASE_PATH}/${subscriptionId}/receipt/presigned-url`
     );
     return response.data;
   },

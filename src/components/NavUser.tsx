@@ -6,6 +6,7 @@ import {
   IconNotification,
   IconUserCircle,
 } from "@tabler/icons-react";
+import { Loader2 } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -43,13 +44,16 @@ export function NavUser({
   const { isMobile } = useSidebar();
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [isLoggingOut, setIsLoggingOut] = React.useState(false);
 
   const handleLogout = React.useCallback(async () => {
+    setIsLoggingOut(true);
     try {
       await handleLogoutUser();
       navigate("/signin");
     } catch (error) {
       console.error("Error logging out:", error);
+      setIsLoggingOut(false);
     }
   }, [navigate]);
 
@@ -135,9 +139,17 @@ export function NavUser({
                 e.preventDefault();
                 handleLogout();
               }}
+              disabled={isLoggingOut}
+              className="cursor-pointer"
             >
-              <IconLogout className="mr-2 h-4 w-4 hover:text-accent-foreground" />
-              {t("navUser.logout")}
+              {isLoggingOut ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <IconLogout className="mr-2 h-4 w-4 hover:text-accent-foreground" />
+              )}
+              <span className={isLoggingOut ? "text-muted-foreground" : ""}>
+                {isLoggingOut ? t("navUser.loggingOut") : t("navUser.logout")}
+              </span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

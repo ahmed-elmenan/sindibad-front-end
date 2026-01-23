@@ -123,69 +123,28 @@ export default function RankingTable({
     headers.push(t("learnerRanking.actions") ?? "Actions");
   }
 
-  // Calculate optimal column widths with inline styles for table-fixed layout
-  const getColumnWidth = (index: number, label: string): string => {
-    // Rank column
-    if (index === 0) return "10%";
-    
-    // Avatar column
-    if (index === 1) return "10%";
-    
-    // Full Name
-    if (index === 2) return "24%";
-    
-    // Username
-    if (index === 3) return "20%";
-    
-    // Score columns
-    if (label.includes("Score") || label.includes("score")) {
-      return "16%";
-    }
-    
-    // Status column
-    if (label === (t("learnerRanking.status") ?? "Statut")) {
-      return "12%";
-    }
-    
-    // Actions column
-    if (label === (t("learnerRanking.actions") ?? "Actions")) {
-      return "8%";
-    }
-    
-    return "auto";
-  };
-
   return (
     <div className="w-full">
-      <Card className="p-0 w-full">
+      <Card className="p-0 w-full overflow-hidden">
         <CardContent className="p-0 w-full">
-          <div 
-            className="w-full overflow-x-auto overflow-y-visible scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-500"
-            style={{ 
-              overflowX: 'auto',
-              WebkitOverflowScrolling: 'touch'
-            }}
-          >
-            <table 
-              className="caption-bottom text-sm"
-              style={{ 
-                minWidth: '100%',
-                width: '100%',
-                tableLayout: 'fixed'
-              }}
-            >
+          <div className="w-full overflow-x-auto">
+            <table className="w-full border-collapse table-fixed min-w-full">
             <colgroup>
-              {headers.map((label, i) => (
-                <col key={i} style={{ width: getColumnWidth(i, label) }} />
-              ))}
+              <col style={{ width: '8%' }} /> {/* Rang */}
+              <col style={{ width: '10%' }} /> {/* Avatar */}
+              <col style={{ width: selectedFormation ? '20%' : '24%' }} /> {/* Nom complet */}
+              <col style={{ width: selectedFormation ? '18%' : '22%' }} /> {/* Username */}
+              <col style={{ width: '15%' }} /> {/* Score */}
+              {selectedFormation && <col style={{ width: '15%' }} />} {/* Score global */}
+              <col style={{ width: '10%' }} /> {/* Statut */}
+              {canManageLearners && <col style={{ width: selectedFormation ? '4%' : '6%' }} />} {/* Actions */}
             </colgroup>
             <thead className="sticky top-0 bg-[#f8fafc] z-[5] shadow-sm">
-              <tr className="border-b">
+              <tr className="border-b w-full">
                 {headers.map((label, i) => (
                   <th
                     key={i}
                     className="text-center border-b border-gray-300 bg-[#f8fafc] font-semibold h-10 px-2 sm:px-4 align-middle text-xs sm:text-sm"
-                    style={{ minWidth: i <= 1 ? '60px' : i === headers.length - 1 && canManageLearners ? '80px' : '100px' }}
                   >
                     <div className="truncate">{label}</div>
                   </th>
@@ -197,7 +156,7 @@ export default function RankingTable({
                 ? Array.from({ length: itemsPerPage }).map((_, idx) => (
                     <tr
                       key={`loading-${idx}`}
-                      className="border-b"
+                      className="border-b w-full"
                     >
                       {/* Rang */}
                       <td
@@ -268,7 +227,7 @@ export default function RankingTable({
                     return (
                       <tr
                         key={learner.id}
-                        className="hover:bg-gray-50 transition-colors cursor-pointer"
+                        className="hover:bg-gray-50 transition-colors cursor-pointer w-full"
                         onClick={() => {
                           // Navigation vers le profil analytics du learner
                           navigate(`/learners/${learner.id}/analytics`);

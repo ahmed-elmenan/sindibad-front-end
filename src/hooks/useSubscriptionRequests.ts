@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { subscriptionRequestService } from '../services/subscriptionRequestService';
+import { subscriptionRequestService } from '../services/subscriptionRequest.service';
 import { toast } from 'sonner';
 
 // Types définis localement pour éviter les problèmes de cache

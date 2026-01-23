@@ -1425,7 +1425,8 @@
   "navUser": {
     "account": "Mon Compte",
     "notifications": "Notifications",
-    "logout": "Se Déconnecter"
+    "logout": "Se Déconnecter",
+    "loggingOut": "Déconnexion en cours..."
   },
   "auth": {
     "newPassword": "Nouveau mot de passe",
