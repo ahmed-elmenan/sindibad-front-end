@@ -222,10 +222,10 @@ const DraggableVideoPhase: React.FC<DraggableVideoPhaseProps> = ({
   };
 
   const handleQuizSuccess = () => {
-    toast.success({
-      title: "Succès",
-      description: "Le quiz a été enregistré avec succès",
-    });
+    // Success toast is shown by the QuizManagementModal itself.
+    // Avoid showing a duplicate generic success toast here.
+    // Keep this callback for future local updates if needed.
+    return;
   };
 
   const handleDelete = () => {

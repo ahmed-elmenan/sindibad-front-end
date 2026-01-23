@@ -30,7 +30,7 @@ export const Toaster = ({ richColors = true, ...props }: ToastProps) => {
           actionButton: "group-[.toast]:bg-primary group-[.toast]:text-primary-foreground",
           cancelButton: "group-[.toast]:bg-muted group-[.toast]:text-muted-foreground",
           closeButton:
-            "absolute right-2 top-2 p-1 rounded-full text-foreground/60 opacity-80 transition-transform transition-opacity hover:scale-125 hover:opacity-100 focus:ring-2 focus:ring-ring focus:outline-none disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg]:size-5",
+            "absolute right-2 top-2 p-1 rounded-full text-foreground/60 opacity-80 transition-transform transition-opacity hover:scale-125 hover:opacity-100 focus:ring-2 focus:ring-ring focus:outline-none disabled:pointer-events-none pointer-events-auto z-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg]:size-5",
         },
       }}
       style={
