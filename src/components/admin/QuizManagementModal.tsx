@@ -263,9 +263,20 @@ const QuizManagementModal: React.FC<QuizManagementModalProps> = ({
       onSuccess?.();
       onClose();
     } catch (error: any) {
+      // Extract a user-friendly message from various backend error shapes
+      const respData = error?.response?.data;
+      let serverMsg: any = respData?.message || respData?.error || respData?.detail || respData;
+      if (typeof serverMsg === "object") {
+        // try common fields
+        serverMsg = serverMsg?.message || serverMsg?.error || JSON.stringify(serverMsg);
+      }
+      serverMsg = serverMsg || error?.message || "Une erreur est survenue";
+      // Strip generic English prefix if present
+      serverMsg = (serverMsg as string).replace(/^Invalid input format:\s*/i, "");
+
       toast.error({
         title: "Erreur",
-        description: error.response?.data?.message || error.message || "Une erreur est survenue",
+        description: serverMsg,
       });
     } finally {
       setIsLoading(false);
