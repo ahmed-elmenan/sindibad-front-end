@@ -138,7 +138,7 @@ export default function AddLearnerModal({
         });
       }
     } catch (error) {
-      console.error("💥 Erreur lors de l'ajout:", error);
+      console.error("Erreur lors de l'ajout:", error);
       toast.error(t("common.error"), {
         description: "Une erreur s'est produite lors de l'ajout de l'apprenant",
       });

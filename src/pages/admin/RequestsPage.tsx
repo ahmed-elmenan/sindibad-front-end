@@ -15,9 +15,9 @@ import { toast } from "sonner";
 // Types définis localement
 type SubscriptionRequestStatus =
   | "PENDING"
-  | "ACCEPTED"
   | "REFUSED"
   | "ACTIVE"
+  | "SUSPENDED"
   | "EXPIRED";
 
 interface SubscriptionFilters {

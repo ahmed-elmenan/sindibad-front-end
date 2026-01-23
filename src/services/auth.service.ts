@@ -102,7 +102,7 @@ export const registerLearner = async (learnerData: LearnerPayload & { profilePic
     if (isAxiosError(error) && error.response) {
       const errorData = error.response.data;
       const errorMessage = errorData?.error || errorData?.message || error.message;
-      console.error("❌ Erreur backend:", errorMessage);
+      console.error("  Erreur backend:", errorMessage);
       
       if (error.response.status === 409) {
         // 409 Conflict - User already exists or duplicate data

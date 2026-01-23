@@ -71,7 +71,7 @@ export const ManageSubscriptionDialog = ({
           const presignedUrl = await getReceiptPresignedUrl(subscription.id);
           setReceiptPreviewUrl(presignedUrl);
         } catch (error) {
-          console.error('❌ Erreur chargement reçu:', error);
+          console.error('  Erreur chargement reçu:', error);
           setReceiptPreviewUrl(null);
         } finally {
           setIsLoadingReceipt(false);
@@ -252,7 +252,7 @@ export const ManageSubscriptionDialog = ({
                             alt="Reçu"
                             className="w-full h-auto max-h-96 object-contain"
                             onError={(e) => {
-                              console.error('❌ Erreur chargement image:', e);
+                              console.error('  Erreur chargement image:', e);
                             }}
                           />
                         );

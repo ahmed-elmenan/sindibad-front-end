@@ -88,7 +88,7 @@ const DraggableVideoPhase: React.FC<DraggableVideoPhaseProps> = ({
         };
 
         videoElement.onerror = (e) => {
-          console.error(`❌ Erreur chargement vidéo File: ${video.title}`, e);
+          console.error(`  Erreur chargement vidéo File: ${video.title}`, e);
           setThumbnail("");
         };
       }
@@ -135,7 +135,7 @@ const DraggableVideoPhase: React.FC<DraggableVideoPhaseProps> = ({
         });
 
         if (!presignedUrl) {
-          console.error("❌ Presigned URL is null or empty");
+          console.error("  Presigned URL is null or empty");
           toast.error({
             title: "Erreur",
             description: "Impossible de générer l'URL de prévisualisation",
@@ -154,7 +154,7 @@ const DraggableVideoPhase: React.FC<DraggableVideoPhaseProps> = ({
         });
       }
     } catch (error) {
-      console.error("❌ Error fetching presigned URL:", error);
+      console.error("  Error fetching presigned URL:", error);
       toast.error({
         title: "Erreur",
         description: "Impossible de charger la vidéo",
@@ -209,7 +209,7 @@ const DraggableVideoPhase: React.FC<DraggableVideoPhaseProps> = ({
         description: `La vidéo "${video.title}" a été supprimée avec succès`,
       });
     } catch (error) {
-      console.error("❌ Erreur suppression:", error);
+      console.error("  Erreur suppression:", error);
       toast.error({
         title: "Erreur de suppression",
         description:

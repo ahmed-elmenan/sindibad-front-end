@@ -46,7 +46,7 @@ export default function ChapterAccordion({
       const presignedUrl = await getPresignedUrlForVideo({ videoUrl: lesson.videoUrl });
       
       if (!presignedUrl) {
-        console.error("❌ Presigned URL is null or empty");
+        console.error("  Presigned URL is null or empty");
         toast.error("URL présignée non disponible", {
           description: "Le serveur n'a pas pu générer l'URL d'accès à la vidéo"
         });
@@ -56,7 +56,7 @@ export default function ChapterAccordion({
       setVideoUrl(presignedUrl);
       setIsPreviewModalOpen(true);
     } catch (error: any) {
-      console.error("❌ Error loading video preview:", error);
+      console.error("  Error loading video preview:", error);
       
       const errorMessage = error?.response?.data?.message 
         || error?.response?.data?.error 

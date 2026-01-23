@@ -1154,7 +1154,7 @@
     "success": "Félicitations ! Vous avez réussi le quiz.",
     "failure": "Continuez vos efforts ! ",
     "passed": "✅ Quiz réussi !",
-    "failed": "❌ Quiz échoué",
+    "failed": "  Quiz échoué",
     "score": "Score obtenu :",
     "results": "Résultats du Quiz",
     "correctAnswers": "bonnes réponses",

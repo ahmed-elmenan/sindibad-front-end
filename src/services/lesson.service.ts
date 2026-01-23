@@ -51,7 +51,7 @@ export async function deleteLesson(lessonId: string): Promise<void> {
   try {
     await api.delete(`/lessons/${lessonId}`);
   } catch (error) {
-    console.error(`❌ Erreur lors de la suppression de la leçon ${lessonId}:`, error);
+    console.error(`  Erreur lors de la suppression de la leçon ${lessonId}:`, error);
     handleApiError(error);
   }
 }

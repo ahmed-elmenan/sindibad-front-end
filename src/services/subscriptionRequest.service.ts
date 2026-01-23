@@ -79,8 +79,8 @@ export const subscriptionRequestService = {
     
     if (filters.searchTerm) params.append('searchTerm', filters.searchTerm);
     if (filters.status) params.append('status', filters.status);
-    if (filters.startDate) params.append('startDate', filters.startDate.toString());
-    if (filters.endDate) params.append('endDate', filters.endDate.toString());
+    if (filters.startDate) params.append('startDate', filters.startDate.getTime().toString());
+    if (filters.endDate) params.append('endDate', filters.endDate.getTime().toString());
     params.append('page', (filters.page ?? 0).toString());
     params.append('size', (filters.size ?? 20).toString());
 

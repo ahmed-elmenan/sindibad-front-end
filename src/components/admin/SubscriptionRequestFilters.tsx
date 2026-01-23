@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 // Types définis localement
-type SubscriptionRequestStatus = 'PENDING' | 'ACCEPTED' | 'REFUSED' | 'ACTIVE' | 'EXPIRED';
+type SubscriptionRequestStatus = 'PENDING' | 'REFUSED' | 'ACTIVE' | 'SUSPENDED' | 'EXPIRED';
 
 interface SubscriptionFilters {
   searchTerm?: string;
@@ -122,9 +122,9 @@ export const SubscriptionRequestFilters = ({
               <SelectContent>
                 <SelectItem value="all">Tous les statuts</SelectItem>
                 <SelectItem value="PENDING">En attente</SelectItem>
-                <SelectItem value="ACCEPTED">Acceptées</SelectItem>
                 <SelectItem value="REFUSED">Refusées</SelectItem>
                 <SelectItem value="ACTIVE">Actives</SelectItem>
+                <SelectItem value="SUSPENDED">Suspendues</SelectItem>
                 <SelectItem value="EXPIRED">Expirées</SelectItem>
               </SelectContent>
             </Select>
