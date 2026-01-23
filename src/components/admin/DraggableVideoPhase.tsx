@@ -200,20 +200,25 @@ const DraggableVideoPhase: React.FC<DraggableVideoPhaseProps> = ({
       return;
     }
 
+    // Open modal immediately for better UX and show skeletons while fetching
+    setExistingQuiz(null);
+    setShowQuizModal(true);
     setIsLoadingQuiz(true);
-    try {
-      const quiz = await quizManagementService.getQuizByLessonId(video.originalLessonId);
-      setExistingQuiz(quiz);
-      setShowQuizModal(true);
-    } catch (error) {
-      console.error("Error loading quiz:", error);
-      toast.error({
-        title: "Erreur",
-        description: "Impossible de charger les informations du quiz",
+
+    quizManagementService.getQuizByLessonId(video.originalLessonId)
+      .then((quiz) => {
+        setExistingQuiz(quiz);
+      })
+      .catch((error) => {
+        console.error("Error loading quiz:", error);
+        toast.error({
+          title: "Erreur",
+          description: "Impossible de charger les informations du quiz",
+        });
+      })
+      .finally(() => {
+        setIsLoadingQuiz(false);
       });
-    } finally {
-      setIsLoadingQuiz(false);
-    }
   };
 
   const handleQuizSuccess = () => {
@@ -576,6 +581,7 @@ const DraggableVideoPhase: React.FC<DraggableVideoPhaseProps> = ({
             availableSkills={video.skills || []}
             existingQuiz={existingQuiz}
             onSuccess={handleQuizSuccess}
+            loading={isLoadingQuiz}
           />,
           document.body,
         )}

@@ -1,5 +1,5 @@
 export interface QuizSkillRequest {
-  skillId: string;
+  skillName: string;
   numberOfQuestions: number;
 }
 

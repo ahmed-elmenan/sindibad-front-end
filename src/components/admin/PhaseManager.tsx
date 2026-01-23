@@ -732,10 +732,7 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
   };
 
   const handleQuizSuccess = () => {
-    toast.success({
-      title: "Succès",
-      description: "Le quiz a été enregistré avec succès",
-    });
+    // Success toast is shown by the Quiz modal; avoid duplicate toasts here.
     // Mettre à jour les compétences de la phase localement
     if (currentQuizPhase && existingQuiz) {
       setPhases((prevPhases) =>

@@ -37,6 +37,7 @@ interface QuizManagementModalProps {
   availableSkills: Skill[]; // Skills available for this quiz
   existingQuiz?: QuizDetailResponse | null;
   onSuccess?: () => void;
+  loading?: boolean;
 }
 
 const QuizManagementModal: React.FC<QuizManagementModalProps> = ({
@@ -61,6 +62,11 @@ const QuizManagementModal: React.FC<QuizManagementModalProps> = ({
   const [timerPoints, setTimerPoints] = useState(25);
   const [selectedSkills, setSelectedSkills] = useState<QuizSkillRequest[]>([]);
 
+  useEffect(() => {
+    console.log("Existing Quiz:", existingQuiz);
+    console.log("Selected Skills:", selectedSkills);
+  }, [existingQuiz, selectedSkills]);
+
   // Initialize form with existing quiz data
   useEffect(() => {
     if (existingQuiz) {
@@ -70,7 +76,7 @@ const QuizManagementModal: React.FC<QuizManagementModalProps> = ({
       setTimerPoints(existingQuiz.timerPoints);
       setSelectedSkills(
         existingQuiz.skills.map((s) => ({
-          skillId: s.skillId,
+          skillName: s.skillName,
           numberOfQuestions: s.numberOfQuestions,
         }))
       );
@@ -106,7 +112,7 @@ const QuizManagementModal: React.FC<QuizManagementModalProps> = ({
 
     // Find first skill not already added
     const availableSkill = availableSkills.find(
-      (skill) => !selectedSkills.some((s) => s.skillId === skill.id)
+      (skill) => !selectedSkills.some((s) => s.skillName === skill.name)
     );
 
     if (!availableSkill) {
@@ -117,9 +123,11 @@ const QuizManagementModal: React.FC<QuizManagementModalProps> = ({
       return;
     }
 
+    console.log("Adding skill:", availableSkill);
+
     setSelectedSkills([
       ...selectedSkills,
-      { skillId: availableSkill.id, numberOfQuestions: 1 },
+      { skillName: availableSkill.name, numberOfQuestions: 1 },
     ]);
   };
 
@@ -127,9 +135,9 @@ const QuizManagementModal: React.FC<QuizManagementModalProps> = ({
     setSelectedSkills(selectedSkills.filter((_, i) => i !== index));
   };
 
-  const handleSkillChange = (index: number, skillId: string) => {
+  const handleSkillChange = (index: number, skillName: string) => {
     const updatedSkills = [...selectedSkills];
-    updatedSkills[index].skillId = skillId;
+    updatedSkills[index].skillName = skillName;
     setSelectedSkills(updatedSkills);
   };
 
@@ -165,7 +173,7 @@ const QuizManagementModal: React.FC<QuizManagementModalProps> = ({
     }
 
     // Check for duplicate skills
-    const skillIds = selectedSkills.map((s) => s.skillId);
+    const skillIds = selectedSkills.map((s) => s.skillName);
     const uniqueSkillIds = new Set(skillIds);
     if (skillIds.length !== uniqueSkillIds.size) {
       toast.error({
@@ -395,7 +403,7 @@ const QuizManagementModal: React.FC<QuizManagementModalProps> = ({
                     >
                       <div className="flex-1">
                         <Select
-                          value={skill.skillId}
+                          value={skill.skillName}
                           onValueChange={(value) => handleSkillChange(index, value)}
                           disabled={loading}
                         >
@@ -406,10 +414,9 @@ const QuizManagementModal: React.FC<QuizManagementModalProps> = ({
                             {availableSkills.map((s) => (
                               <SelectItem
                                 key={s.id}
-                                value={s.id}
+                                value={s.name}
                                 disabled={selectedSkills.some(
-                                  (selected, i) =>
-                                    i !== index && selected.skillId === s.id
+                                  (selected, i) => i !== index && selected.skillName === s.name
                                 )}
                               >
                                 {s.name}
