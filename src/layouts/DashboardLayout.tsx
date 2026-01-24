@@ -144,6 +144,11 @@ export default function DashboardLayout() {
         icon: IconUsers,
       },
       {
+        title: "skills",
+        url: "/admin/skills",
+        icon: IconFileAi,
+      },
+      {
         title: "organizations",
         url: "/admin/organizations",
         icon: IconUsers,
@@ -179,6 +184,11 @@ export default function DashboardLayout() {
         title: "organizations",
         url: "/admin/organizations",
         icon: IconUsers,
+      },
+      {
+        title: "skills",
+        url: "/admin/skills",
+        icon: IconFileAi,
       },
       {
         title: "admins",

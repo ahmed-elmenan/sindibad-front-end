@@ -234,11 +234,6 @@ export const SubscriptionRequestsTable = ({
                               <Settings className="h-4 w-4 mr-1" />
                               Gérer
                             </Button>
-                            {request.status === 'REFUSED' && request.refusedReason && (
-                              <div className="text-xs text-red-600 max-w-[150px] truncate" title={request.refusedReason}>
-                                {request.refusedReason}
-                              </div>
-                            )}
                           </>
                         )}
                       </div>

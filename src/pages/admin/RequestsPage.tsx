@@ -22,8 +22,8 @@ type SubscriptionRequestStatus =
 interface SubscriptionFilters {
   searchTerm?: string;
   status?: SubscriptionRequestStatus;
-  startDate?: number;
-  endDate?: number;
+  startDate?: Date;
+  endDate?: Date;
   page?: number;
   size?: number;
 }
@@ -148,7 +148,21 @@ const RequestsPage = () => {
   };
 
   const handleFilterChange = (newFilters: Partial<SubscriptionFilters>) => {
-    setFilters((prev) => ({ ...prev, ...newFilters, page: 0 }));
+    setFilters((prev) => ({
+      ...prev,
+      ...{
+        ...newFilters,
+        startDate:
+          typeof newFilters.startDate === "number"
+            ? new Date(newFilters.startDate)
+            : newFilters.startDate,
+        endDate:
+          typeof newFilters.endDate === "number"
+            ? new Date(newFilters.endDate)
+            : newFilters.endDate,
+      },
+      page: 0,
+    }));
   };
 
   const handlePageChange = (newPage: number) => {
@@ -276,12 +290,13 @@ const RequestsPage = () => {
           }
         }}
         subscriptionId={selectedRequestId}
+        processedBy={user?.email ?? ''}
       />
       
       <ManageSubscriptionDialog
         open={manageDialogOpen}
         onOpenChange={setManageDialogOpen}
-        subscription={selectedRequestId ? data?.content.find(r => r.id === selectedRequestId) : null}
+        subscription={data?.content?.find((r) => r.id === selectedRequestId) ?? null}
         onStatusChange={handleStatusChange}
         onReceiptUpload={handleReceiptUpload}
         onReceiptDelete={handleReceiptDelete}

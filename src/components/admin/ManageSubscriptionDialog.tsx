@@ -33,6 +33,9 @@ interface ManageSubscriptionDialogProps {
     status: SubscriptionStatus;
     receiptUrl: string | null;
     receiptFileName: string | null;
+    refusedReason?: string | null;
+    processedBy?: string | null;
+    processedAt?: string | null;
   } | null;
   onStatusChange: (subscriptionId: string, newStatus: SubscriptionStatus) => void;
   onReceiptUpload: (subscriptionId: string, file: File) => void;
@@ -280,6 +283,26 @@ export const ManageSubscriptionDialog = ({
 
             {!subscription.receiptUrl && (
               <p className="text-sm text-muted-foreground mt-2">Aucun reçu disponible</p>
+            )}
+
+            {/* Afficher raison de refus et processedBy si la demande est refusée */}
+            {subscription.status === 'REFUSED' && (
+              <div className="mt-4 border-t pt-4 space-y-2">
+                <div>
+                  <Label>Traitée par</Label>
+                  <p className="text-sm">{subscription.processedBy ?? '—'}</p>
+                </div>
+                <div>
+                  <Label>Raison du refus</Label>
+                  <p className="text-sm whitespace-pre-wrap">{subscription.refusedReason ?? '—'}</p>
+                </div>
+                {subscription.processedAt && (
+                  <div>
+                    <Label>Date de traitement</Label>
+                    <p className="text-sm">{new Date(subscription.processedAt).toLocaleString()}</p>
+                  </div>
+                )}
+              </div>
             )}
           </div>
         </div>
