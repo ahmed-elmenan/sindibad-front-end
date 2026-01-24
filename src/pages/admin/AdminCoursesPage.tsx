@@ -23,7 +23,7 @@ const AdminCourseCard = ({ course }: { course: Course }) => {
 };
 
 export default function AdminCoursesPage() {
-  usePageTitle("courses"); // Définit le titre de la page
+  usePageTitle("manageCourses"); // Définit le titre de la page
   const [searchQuery, setSearchQuery] = useState("");
   const PAGE_LIMIT = 50; // Show more courses in admin view
 

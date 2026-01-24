@@ -7,7 +7,6 @@ import {
 import {
   updateSubscriptionStatus,
   replaceSubscriptionReceipt,
-  getReceiptPresignedUrl,
   deleteSubscriptionReceipt,
 } from "../../services/subscriptionManagement.service";
 import { toast } from "sonner";
@@ -43,8 +42,10 @@ import {
 import { Button } from "../../components/ui/button";
 import { Skeleton } from "../../components/ui/skeleton";
 import { RefreshCw, FileCheck, FileX, Clock } from "lucide-react";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 const RequestsPage = () => {
+  usePageTitle("manageSubscriptions");
   const { user } = useAuth();
   const [filters, setFilters] = useState<SubscriptionFilters>({
     page: 0,

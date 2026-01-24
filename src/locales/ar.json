@@ -1379,8 +1379,12 @@
     "courseDetails": "تفاصيل الدورة",
     "addCourse": "إضافة دورة",
     "editCourse": "تعديل الدورة",
+    "manageCourses": "إدارة الدورات",
     "manageChapters": "إدارة الفصول",
+    "profile_learner": "الملف الشخصي للمتعلم",
     "managePhases": "إدارة المراحل",
+    "manageLearners": "إدارة المتعلمين",
+    "manageSubscriptions": "إدارة الاشتراكات",
     "quizManagement": "إدارة الاختبارات"
   },
   "statistics": {

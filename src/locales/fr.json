@@ -1399,8 +1399,12 @@
     "courseDetails": "Détails du cours",
     "addCourse": "Cours  >  Ajouter",
     "editCourse": "Cours > Modifier",
+    "manageCourses": "Gérer les cours",
     "manageChapters": "Gérer les chapitres",
+    "profile_learner": "Profil de l'apprenant",
     "managePhases": "Gérer les phases",
+    "manageLearners": "Gérer les apprenants",
+    "manageSubscriptions": "Gérer les abonnements",
     "quizManagement": "Gestion des quiz"
   },
   "statistics": {

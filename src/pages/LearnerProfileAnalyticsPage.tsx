@@ -14,8 +14,10 @@ import { CourseProgressListSkeleton } from "@/components/learner-analytics/Cours
 import { CertificatesListSkeleton } from "@/components/learner-analytics/CertificateCardSkeleton";
 import { useLearnerAnalytics, useLearnerCertificates } from "@/hooks/useLearnerAnalytics";
 import { useState } from "react";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function LearnerProfileAnalyticsPage() {
+  usePageTitle("profile_learner");
   const { id } = useParams<{ id: string }>();
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [activeTab, setActiveTab] = useState("courses");

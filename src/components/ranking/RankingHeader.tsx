@@ -1,3 +1,4 @@
+import { usePageTitle } from "@/hooks/usePageTitle";
 import { useTranslation } from "react-i18next";
 
 interface Formation {
@@ -12,6 +13,7 @@ interface RankingHeaderProps {
 export default function RankingHeader({
   selectedFormation,
 }: RankingHeaderProps) {
+  usePageTitle("manageLearners");
   const { t } = useTranslation();
 
   return (
@@ -30,8 +32,8 @@ export default function RankingHeader({
           ? `${t("learnerRanking.rankingFor") ?? "Classement pour"} ${
               selectedFormation.name
             }`
-          : t("learnerRanking.subtitle") ??
-            "Découvrez le classement de tous les particuliers"}
+          : (t("learnerRanking.subtitle") ??
+            "Découvrez le classement de tous les particuliers")}
       </p>
     </div>
   );
