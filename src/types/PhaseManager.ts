@@ -34,6 +34,7 @@ export interface UnifiedVideo {
   phaseNumber?: number; // For display in video card
   chapterNumber?: number; // For display in video card
   videoNumber?: number; // For display in video card
+  hasQuiz?: boolean; // Indicates whether this lesson/video has a quiz
 }
 
 export interface UnifiedChapter {
@@ -48,6 +49,7 @@ export interface UnifiedChapter {
   isExpanded?: boolean;
   isSelected?: boolean;
   originalChapterId?: string;
+  hasQuiz?: boolean; // True if any video in chapter has a quiz
 }
 
 export interface UnifiedPhase {
@@ -65,6 +67,7 @@ export interface UnifiedPhase {
   isSelected?: boolean;
   originalPhaseId?: string; // Pour les phases existantes (Chapter entity)
   videoPath?: string;
+  hasQuiz?: boolean; // True if any chapter in phase has a quiz
 }
 
 export interface VideoMoveOperation {

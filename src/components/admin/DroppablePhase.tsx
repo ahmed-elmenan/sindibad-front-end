@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useDrop } from 'react-dnd';
 import { Folder, ChevronDown, ChevronRight, Edit, Trash2, FolderOpen, Check, MoreVertical, ClipboardList } from 'lucide-react';
 import { Button } from '@/components/ui/button';

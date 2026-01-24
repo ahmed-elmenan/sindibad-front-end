@@ -461,50 +461,54 @@ const DraggableVideoPhase: React.FC<DraggableVideoPhaseProps> = ({
                   )}
 
                   {/* Skills Count with hover list (rendered in portal to avoid clipping) */}
-                  {video.skills && video.skills.length > 0 && (
-                    <>
-                      <div
-                        ref={countRef as any}
-                        onMouseEnter={() => {
-                          if (countRef.current) {
-                            setAnchorRect(countRef.current.getBoundingClientRect());
-                            setShowSkillsPopover(true);
-                          }
-                        }}
-                        onMouseLeave={() => setShowSkillsPopover(false)}
-                        className="inline-flex items-center"
-                      >
-                        <span className="font-semibold text-primary cursor-default">
-                          {video.skills.length} {video.skills.length === 1 ? 'compétence' : 'compétences'}
-                        </span>
-                      </div>
+                        {video.skills && video.skills.length > 0 && (
+                          <>
+                            <div
+                              ref={countRef as any}
+                              onMouseEnter={() => {
+                                if (countRef.current) {
+                                  setAnchorRect(countRef.current.getBoundingClientRect());
+                                  setShowSkillsPopover(true);
+                                }
+                              }}
+                              onMouseLeave={() => setShowSkillsPopover(false)}
+                              className="inline-flex items-center gap-2"
+                            >
+                              <span className="font-semibold text-primary cursor-default">
+                                {video.skills.length} {video.skills.length === 1 ? 'compétence' : 'compétences'}
+                              </span>
 
-                      {showSkillsPopover && anchorRect && createPortal(
-                        <div
-                          style={{
-                            position: 'absolute',
-                            top: anchorRect.bottom + window.scrollY + 6,
-                            left: Math.max(8, anchorRect.right + window.scrollX - 224),
-                            width: 224,
-                            maxHeight: 224,
-                            overflow: 'auto',
-                          }}
-                          className="bg-white border border-gray-200 rounded-lg shadow-lg p-2 z-[9999]"
-                          onMouseEnter={() => setShowSkillsPopover(true)}
-                          onMouseLeave={() => setShowSkillsPopover(false)}
-                        >
-                          <ul className="space-y-1">
-                            {video.skills.map((s) => (
-                              <li key={s.id} className="text-sm text-gray-700 px-2 py-1 hover:bg-gray-50 rounded">
-                                {s.name}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>,
-                        document.body
-                      )}
-                    </>
-                  )}
+                              <span className="text-[11px] text-gray-700 bg-gray-100 px-2 py-0.5 rounded-lg">
+                                {video.hasQuiz ? "1 quiz" : "0 quiz"}
+                              </span>
+                            </div>
+
+                            {showSkillsPopover && anchorRect && createPortal(
+                              <div
+                                style={{
+                                  position: 'absolute',
+                                  top: anchorRect.bottom + window.scrollY + 6,
+                                  left: Math.max(8, anchorRect.right + window.scrollX - 224),
+                                  width: 224,
+                                  maxHeight: 224,
+                                  overflow: 'auto',
+                                }}
+                                className="bg-white border border-gray-200 rounded-lg shadow-lg p-2 z-[9999]"
+                                onMouseEnter={() => setShowSkillsPopover(true)}
+                                onMouseLeave={() => setShowSkillsPopover(false)}
+                              >
+                                <ul className="space-y-1">
+                                  {video.skills.map((s) => (
+                                    <li key={s.id} className="text-sm text-gray-700 px-2 py-1 hover:bg-gray-50 rounded">
+                                      {s.name}
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>,
+                              document.body
+                            )}
+                          </>
+                        )}
 
                   {/* Status Indicators */}
                   {video.isNew && (

@@ -242,6 +242,48 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
 
     
     setPhases(processedPhases);
+
+    // Populate hasQuiz for videos by querying the quiz API per lesson (if lesson id exists)
+    const populateQuizFlags = async () => {
+      try {
+        const tasks: Array<Promise<void>> = [];
+
+        processedPhases.forEach((phase) => {
+          phase.chapters.forEach((chapter) => {
+            chapter.videos.forEach((video) => {
+              if (video.originalLessonId) {
+                const p = quizManagementService.getQuizByLessonId(video.originalLessonId)
+                  .then((quiz) => {
+                    video.hasQuiz = !!quiz;
+                  })
+                  .catch(() => {
+                    video.hasQuiz = false;
+                  });
+                tasks.push(p);
+              } else {
+                video.hasQuiz = false;
+              }
+            });
+          });
+        });
+
+        await Promise.allSettled(tasks);
+
+        // Derive chapter and phase hasQuiz flags
+        processedPhases.forEach((phase) => {
+          phase.chapters.forEach((chapter) => {
+            chapter.hasQuiz = chapter.videos.some((v) => v.hasQuiz === true);
+          });
+          phase.hasQuiz = phase.chapters.some((ch) => ch.hasQuiz === true);
+        });
+      } catch (err) {
+        console.error("Error populating quiz flags:", err);
+      } finally {
+        setPhases(processedPhases);
+      }
+    };
+
+    void populateQuizFlags();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chaptersData, hasChanges, isSavingMetadata]);
 
