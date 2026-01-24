@@ -55,7 +55,7 @@ const FinalQuizSection: React.FC<FinalQuizSectionProps> = ({
 
   if (isLoading) {
     return (
-      <Card className="border-2 border-dashed border-gray-300 bg-gray-50/50">
+      <Card className="border-2 border-dashed border-gray-300 bg-white">
         <CardContent className="flex items-center justify-center py-12">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent mx-auto mb-3" />
@@ -69,17 +69,16 @@ const FinalQuizSection: React.FC<FinalQuizSectionProps> = ({
   return (
     <>
       <Card className={`
-        border-2 shadow-lg hover:shadow-xl transition-all duration-300
+        border-2 shadow-lg hover:shadow-xl transition-all duration-300 rounded-2xl
         ${existingQuiz 
           ? 'border-primary/40 bg-gradient-to-br from-primary/5 via-white to-secondary/5' 
-          : 'border-dashed border-gray-300 bg-gradient-to-br from-gray-50/50 to-white'
+          : 'border-dashed border-gray-300 bg-white'
         }
       `}>
         <CardHeader className={`
-          border-b-2
           ${existingQuiz 
-            ? 'bg-gradient-to-r from-primary/10 to-secondary/10 border-primary/20' 
-            : 'bg-gray-50 border-gray-200'
+            ? 'border-b-2 bg-gradient-to-r from-primary/10 to-secondary/10 border-primary/20' 
+            : 'bg-white border-transparent'
           }
         `}>
           <div className="flex items-center justify-between">
@@ -97,7 +96,7 @@ const FinalQuizSection: React.FC<FinalQuizSectionProps> = ({
                 <CardTitle className="text-xl font-bold">
                   {existingQuiz ? existingQuiz.title : "Quiz Final du Cours"}
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-sm text-gray-600">
                   {existingQuiz 
                     ? `${existingQuiz.numberOfQuestions} questions • ${existingQuiz.duration} minutes`
                     : "Aucun quiz final créé pour ce cours"
@@ -112,7 +111,7 @@ const FinalQuizSection: React.FC<FinalQuizSectionProps> = ({
                 shadow-md hover:shadow-lg transition-all duration-300
                 ${existingQuiz 
                   ? 'bg-primary hover:bg-primary/90' 
-                  : 'bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90'
+                  : 'bg-gradient-to-r from-orange-500 to-yellow-400 hover:from-orange-600 hover:to-yellow-500 text-white'
                 }
               `}
             >

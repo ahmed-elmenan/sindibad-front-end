@@ -228,6 +228,24 @@ const DraggableVideoPhase: React.FC<DraggableVideoPhaseProps> = ({
     return;
   };
 
+  // After quiz create/update/delete, refresh quiz state for this lesson
+  const handleQuizModalSuccess = async () => {
+    try {
+      if (!video.originalLessonId) return;
+      setIsLoadingQuiz(true);
+      const quiz = await quizManagementService.getQuizByLessonId(video.originalLessonId);
+      setExistingQuiz(quiz);
+      const has = !!quiz;
+      // Inform parent to update the unified video hasQuiz flag
+      onUpdate(video.id!, { hasQuiz: has });
+    } catch (err) {
+      console.error("Error refreshing quiz after success:", err);
+      onUpdate(video.id!, { hasQuiz: false });
+    } finally {
+      setIsLoadingQuiz(false);
+    }
+  };
+
   const handleDelete = () => {
     setDropdownOpen(false);
 
@@ -580,7 +598,7 @@ const DraggableVideoPhase: React.FC<DraggableVideoPhaseProps> = ({
           resourceTitle={video.title}
           availableSkills={video.skills || []}
           existingQuiz={existingQuiz}
-          onSuccess={handleQuizSuccess}
+          onSuccess={handleQuizModalSuccess}
           loading={isLoadingQuiz}
         />,
         document.body,

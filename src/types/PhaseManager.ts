@@ -59,6 +59,7 @@ export interface UnifiedPhase {
   description: string;
   order: number;
   chapters: UnifiedChapter[];
+  skills?: Skill[]; // Compétences agrégées pour la phase (optionnel)
   isNew?: boolean;
   isDeleted?: boolean;
   isEditing?: boolean;

@@ -4,10 +4,32 @@ import { XIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
-function Dialog({
-  ...props
-}: React.ComponentProps<typeof DialogPrimitive.Root>) {
-  return <DialogPrimitive.Root data-slot="dialog" {...props} />
+function Dialog({ open, onOpenChange, ...props }: React.ComponentProps<typeof DialogPrimitive.Root>) {
+  React.useEffect(() => {
+    if (typeof document === 'undefined') return;
+
+    // When a dialog closes, defensively ensure body styles are restored
+    if (!open) {
+      const body = document.body;
+      if (body) {
+        if (body.style.pointerEvents === 'none') body.style.pointerEvents = '';
+        if (body.style.overflow === 'hidden') body.style.overflow = '';
+        if (body.style.touchAction === 'none') body.style.touchAction = '';
+      }
+    }
+
+    return () => {
+      if (typeof document === 'undefined') return;
+      const body = document.body;
+      if (body) {
+        if (body.style.pointerEvents === 'none') body.style.pointerEvents = '';
+        if (body.style.overflow === 'hidden') body.style.overflow = '';
+        if (body.style.touchAction === 'none') body.style.touchAction = '';
+      }
+    };
+  }, [open]);
+
+  return <DialogPrimitive.Root data-slot="dialog" open={open} onOpenChange={onOpenChange} {...props} />
 }
 
 function DialogTrigger({

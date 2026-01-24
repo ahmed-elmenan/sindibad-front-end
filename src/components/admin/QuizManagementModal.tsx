@@ -307,7 +307,7 @@ const QuizManagementModal: React.FC<QuizManagementModalProps> = ({
 
   return (
     <>
-      <Dialog open={open} onOpenChange={onClose}>
+      <Dialog open={open} onOpenChange={(isOpen) => { if (!isOpen) onClose(); }}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-white">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-xl">
@@ -550,59 +550,57 @@ const QuizManagementModal: React.FC<QuizManagementModalProps> = ({
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation Dialog */}
-      {showDeleteConfirm && (
-        <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
-          <DialogContent className="max-w-md bg-white">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2 text-red-600">
-                <Trash2 className="h-5 w-5" />
-                Confirmer la suppression
-              </DialogTitle>
-              <DialogDescription>
-                Êtes-vous sûr de vouloir supprimer ce quiz ? Cette action est
-                irréversible.
-              </DialogDescription>
-            </DialogHeader>
+      {/* Delete Confirmation Dialog - always mounted, controlled via `open` to avoid unmount-while-open races */}
+      <Dialog open={showDeleteConfirm} onOpenChange={(isOpen) => setShowDeleteConfirm(isOpen)}>
+        <DialogContent className="max-w-md bg-white">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-red-600">
+              <Trash2 className="h-5 w-5" />
+              Confirmer la suppression
+            </DialogTitle>
+            <DialogDescription>
+              Êtes-vous sûr de vouloir supprimer ce quiz ? Cette action est
+              irréversible.
+            </DialogDescription>
+          </DialogHeader>
 
-            <div className="bg-red-50 border border-red-200 rounded-lg p-3 my-4">
-              <p className="text-sm font-medium text-red-900">
-                {existingQuiz?.title}
-              </p>
-              <p className="text-xs text-red-700 mt-1">
-                {existingQuiz?.numberOfQuestions} question(s) • {existingQuiz?.duration} minutes
-              </p>
-            </div>
+          <div className="bg-red-50 border border-red-200 rounded-lg p-3 my-4">
+            <p className="text-sm font-medium text-red-900">
+              {existingQuiz?.title}
+            </p>
+            <p className="text-xs text-red-700 mt-1">
+              {existingQuiz?.numberOfQuestions} question(s) • {existingQuiz?.duration} minutes
+            </p>
+          </div>
 
-            <DialogFooter>
-              <Button
-                variant="outline"
-                onClick={() => setShowDeleteConfirm(false)}
-                disabled={isDeleting}
-              >
-                Annuler
-              </Button>
-              <Button
-                variant="destructive"
-                onClick={handleDelete}
-                disabled={isDeleting}
-              >
-                {isDeleting ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2" />
-                    Suppression...
-                  </>
-                ) : (
-                  <>
-                    <Trash2 className="h-4 w-4 mr-2" />
-                    Supprimer définitivement
-                  </>
-                )}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      )}
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowDeleteConfirm(false)}
+              disabled={isDeleting}
+            >
+              Annuler
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+              disabled={isDeleting}
+            >
+              {isDeleting ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2" />
+                  Suppression...
+                </>
+              ) : (
+                <>
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Supprimer définitivement
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };

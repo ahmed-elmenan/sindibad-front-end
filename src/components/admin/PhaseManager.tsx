@@ -27,7 +27,10 @@ import SkillsModal from "./SkillsModal";
 import QuizManagementModal from "./QuizManagementModal";
 import FinalQuizSection from "./FinalQuizSection";
 import { getAllSkills } from "@/services/skill.service";
-import { uploadVideos, type UploadProgressCallback } from "@/services/chapter.service";
+import {
+  uploadVideos,
+  type UploadProgressCallback,
+} from "@/services/chapter.service";
 import { quizManagementService } from "@/services/quizManagement.service";
 import type { QuizDetailResponse } from "@/types/QuizManagement";
 import DroppablePhase from "./DroppablePhase";
@@ -51,10 +54,8 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
 
-  const {
-    data: chaptersData = [],
-    isLoading: chaptersLoading,
-  } = useCourseChapters(courseId);
+  const { data: chaptersData = [], isLoading: chaptersLoading } =
+    useCourseChapters(courseId);
 
   const [phases, setPhases] = useState<UnifiedPhase[]>([]);
   const [hasChanges, setHasChanges] = useState(false);
@@ -63,10 +64,10 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [isSavingMetadata, setIsSavingMetadata] = useState(false);
   const isInitialLoadRef = React.useRef(true);
-  
+
   // Skills Modal State
   const [skillsModalOpen, setSkillsModalOpen] = useState(false);
-  
+
   // Chapter Delete Modal State
   const [deleteChapterModal, setDeleteChapterModal] = useState<{
     isOpen: boolean;
@@ -74,26 +75,26 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
     chapterId: string | null;
     chapterName: string | null;
     hasUploadedVideos: boolean;
-  }>({ 
-    isOpen: false, 
-    phaseId: null, 
-    chapterId: null, 
+  }>({
+    isOpen: false,
+    phaseId: null,
+    chapterId: null,
     chapterName: null,
-    hasUploadedVideos: false 
+    hasUploadedVideos: false,
   });
   const [isDeletingChapter, setIsDeletingChapter] = useState(false);
-  
+
   // Phase Delete Modal State
   const [deletePhaseModal, setDeletePhaseModal] = useState<{
     isOpen: boolean;
     phaseId: string | null;
     phaseName: string | null;
     hasUploadedVideos: boolean;
-  }>({ 
-    isOpen: false, 
-    phaseId: null, 
+  }>({
+    isOpen: false,
+    phaseId: null,
     phaseName: null,
-    hasUploadedVideos: false 
+    hasUploadedVideos: false,
   });
   const [isDeletingPhase, setIsDeletingPhase] = useState(false);
   const [currentEditingVideo, setCurrentEditingVideo] = useState<{
@@ -105,8 +106,12 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
 
   // Quiz Management State
   const [showQuizModal, setShowQuizModal] = useState(false);
-  const [currentQuizPhase, setCurrentQuizPhase] = useState<UnifiedPhase | null>(null);
-  const [existingQuiz, setExistingQuiz] = useState<QuizDetailResponse | null>(null);
+  const [currentQuizPhase, setCurrentQuizPhase] = useState<UnifiedPhase | null>(
+    null,
+  );
+  const [existingQuiz, setExistingQuiz] = useState<QuizDetailResponse | null>(
+    null,
+  );
   const [isLoadingQuiz, setIsLoadingQuiz] = useState(false);
 
   // Afficher la page immédiatement - ne pas bloquer sur le loading des skills
@@ -133,17 +138,17 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
     if (chaptersData.length === 0) {
       return;
     }
-    
+
     // Ne pas charger si on est en train de sauvegarder
     if (isSavingMetadata) {
       return;
     }
-    
+
     // Ne pas recharger si on a des modifications non sauvegardées ET que ce n'est pas le premier chargement
     if (hasChanges && !isInitialLoadRef.current) {
       return;
     }
-    
+
     // Marquer comme chargé après le premier rendu
     if (isInitialLoadRef.current) {
       isInitialLoadRef.current = false;
@@ -151,9 +156,9 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
 
     // Sauvegarder l'état isEditing actuel des vidéos pour le préserver
     const currentEditingState = new Map<string, boolean>();
-    phases.forEach(phase => {
-      phase.chapters.forEach(chapter => {
-        chapter.videos.forEach(video => {
+    phases.forEach((phase) => {
+      phase.chapters.forEach((chapter) => {
+        chapter.videos.forEach((video) => {
           if (video.originalLessonId && video.isEditing) {
             currentEditingState.set(video.originalLessonId, true);
           }
@@ -162,85 +167,90 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
     });
 
     // Group lessons by miniChapter to create chapters
-    const processedPhases: UnifiedPhase[] = chaptersData.map((backendChapter, phaseIndex) => {
-      
-      // Group lessons by miniChapter
-      const chapterMap = new Map<string, UnifiedVideo[]>();
-      
-      (backendChapter.lessons || [])
-        .sort((a, b) => a.order - b.order)
-        .forEach((lesson) => {
-          const miniChapter = lesson.miniChapter || "Default Chapter";
-          if (!chapterMap.has(miniChapter)) {
-            chapterMap.set(miniChapter, []);
-          }
-          
-          // Préserver l'état isEditing si la vidéo était en cours d'édition
-          const wasEditing = currentEditingState.get(lesson.id) || false;
-          
-          chapterMap.get(miniChapter)!.push({
-            id: `unified-video-${lesson.id}`,
-            originalLessonId: lesson.id,
-            name: lesson.title,
-            title: lesson.title,
-            description: "",
-            duration: typeof lesson.duration === "number" ? lesson.duration : 0,
-            videoUrl: lesson.videoUrl,
-            thumbnailUrl: lesson.thumbnailUrl,
-            fileSize: lesson.fileSize,
-            order: lesson.order,
-            skills: lesson.skills?.map(skillName => ({ 
-              id: skillName, 
-              name: skillName, 
-              level: "BEGINNER" 
-            })) || [],
-            isNew: false,
-            isDeleted: false,
-            isEditing: wasEditing, // Préserver l'état d'édition
-            isMoved: false,
-            originalChapterId: `unified-chapter-${backendChapter.id}-${miniChapter}`,
-            originalPhaseId: `unified-phase-${backendChapter.id}`,
-            sourceChapterType: "existing",
-            sourcePhaseType: "existing",
+    const processedPhases: UnifiedPhase[] = chaptersData.map(
+      (backendChapter, phaseIndex) => {
+        // Group lessons by miniChapter
+        const chapterMap = new Map<string, UnifiedVideo[]>();
+
+        (backendChapter.lessons || [])
+          .sort((a, b) => a.order - b.order)
+          .forEach((lesson) => {
+            const miniChapter = lesson.miniChapter || "Default Chapter";
+            if (!chapterMap.has(miniChapter)) {
+              chapterMap.set(miniChapter, []);
+            }
+
+            // Préserver l'état isEditing si la vidéo était en cours d'édition
+            const wasEditing = currentEditingState.get(lesson.id) || false;
+
+            chapterMap.get(miniChapter)!.push({
+              id: `unified-video-${lesson.id}`,
+              originalLessonId: lesson.id,
+              name: lesson.title,
+              title: lesson.title,
+              description: "",
+              duration:
+                typeof lesson.duration === "number" ? lesson.duration : 0,
+              videoUrl: lesson.videoUrl,
+              thumbnailUrl: lesson.thumbnailUrl,
+              fileSize: lesson.fileSize,
+              order: lesson.order,
+              skills:
+                lesson.skills?.map((skillName) => ({
+                  id: skillName,
+                  name: skillName,
+                  level: "BEGINNER",
+                })) || [],
+              hasQuiz: false,
+              isNew: false,
+              isDeleted: false,
+              isEditing: wasEditing, // Préserver l'état d'édition
+              isMoved: false,
+              originalChapterId: `unified-chapter-${backendChapter.id}-${miniChapter}`,
+              originalPhaseId: `unified-phase-${backendChapter.id}`,
+              sourceChapterType: "existing",
+              sourcePhaseType: "existing",
+            });
           });
-        });
 
-      // Create chapters from the map
-      const chapters: UnifiedChapter[] = Array.from(chapterMap.entries()).map(
-        ([miniChapter, videos], chapterIndex) => {
-          return {
-            id: `unified-chapter-${backendChapter.id}-${miniChapter}`,
-            chapterNumber: chapterIndex + 1,
-            miniChapter,
-            videos,
-            isNew: false,
-            isDeleted: false,
-            isEditing: false,
-            isExpanded: chapterIndex === 0,
-            isSelected: false,
-            originalChapterId: `${backendChapter.id}-${miniChapter}`,
-          };
-        }
-      );
+        // Create chapters from the map
+        const chapters: UnifiedChapter[] = Array.from(chapterMap.entries()).map(
+          ([miniChapter, videos], chapterIndex) => {
+            return {
+              id: `unified-chapter-${backendChapter.id}-${miniChapter}`,
+              chapterNumber: chapterIndex + 1,
+              miniChapter,
+              videos,
+              hasQuiz: false,
+              isNew: false,
+              isDeleted: false,
+              isEditing: false,
+              isExpanded: chapterIndex === 0,
+              isSelected: false,
+              originalChapterId: `${backendChapter.id}-${miniChapter}`,
+            };
+          },
+        );
 
-      return {
-        id: `unified-phase-${backendChapter.id}`,
-        originalPhaseId: backendChapter.id,
-        phaseNumber: backendChapter.order,
-        title: backendChapter.title,
-        description: backendChapter.description || "",
-        order: backendChapter.order,
-        chapters,
-        isNew: false,
-        isDeleted: false,
-        isEditing: false,
-        isExpanded: phaseIndex === 0,
-        isSelected: false,
-      };
-    });
+        return {
+          id: `unified-phase-${backendChapter.id}`,
+          originalPhaseId: backendChapter.id,
+          phaseNumber: backendChapter.order,
+          title: backendChapter.title,
+          description: backendChapter.description || "",
+          order: backendChapter.order,
+          chapters,
+          skills: [],
+          hasQuiz: false,
+          isNew: false,
+          isDeleted: false,
+          isEditing: false,
+          isExpanded: phaseIndex === 0,
+          isSelected: false,
+        };
+      },
+    );
 
-
-    
     setPhases(processedPhases);
 
     // Populate hasQuiz for videos by querying the quiz API per lesson (if lesson id exists)
@@ -252,7 +262,8 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
           phase.chapters.forEach((chapter) => {
             chapter.videos.forEach((video) => {
               if (video.originalLessonId) {
-                const p = quizManagementService.getQuizByLessonId(video.originalLessonId)
+                const p = quizManagementService
+                  .getQuizByLessonId(video.originalLessonId)
                   .then((quiz) => {
                     video.hasQuiz = !!quiz;
                   })
@@ -294,22 +305,29 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
   };
 
   // Extract phase, chapter, video numbers from filename
-  const parseFileName = useCallback((fileName: string): { phase: number; chapter: number; video: number } | null => {
-    const match = fileName.match(/^ph(\d+)-ch(\d+)-v(\d+)/);
-    if (!match) return null;
-    return {
-      phase: parseInt(match[1]),
-      chapter: parseInt(match[2]),
-      video: parseInt(match[3]),
-    };
-  }, []);
+  const parseFileName = useCallback(
+    (
+      fileName: string,
+    ): { phase: number; chapter: number; video: number } | null => {
+      const match = fileName.match(/^ph(\d+)-ch(\d+)-v(\d+)/);
+      if (!match) return null;
+      return {
+        phase: parseInt(match[1]),
+        chapter: parseInt(match[2]),
+        video: parseInt(match[3]),
+      };
+    },
+    [],
+  );
 
   // Toggle phase expansion
   const togglePhaseExpansion = (phaseId: string) => {
     setPhases((prev) =>
       prev.map((phase) =>
-        phase.id === phaseId ? { ...phase, isExpanded: !phase.isExpanded } : phase
-      )
+        phase.id === phaseId
+          ? { ...phase, isExpanded: !phase.isExpanded }
+          : phase,
+      ),
     );
   };
 
@@ -321,11 +339,13 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
           ? {
               ...phase,
               chapters: phase.chapters.map((ch) =>
-                ch.id === chapterId ? { ...ch, isExpanded: !ch.isExpanded } : ch
+                ch.id === chapterId
+                  ? { ...ch, isExpanded: !ch.isExpanded }
+                  : ch,
               ),
             }
-          : phase
-      )
+          : phase,
+      ),
     );
   };
 
@@ -333,17 +353,25 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
   const togglePhaseEdit = (phaseId: string) => {
     setPhases((prev) =>
       prev.map((phase) =>
-        phase.id === phaseId ? { ...phase, isEditing: !phase.isEditing } : phase
-      )
+        phase.id === phaseId
+          ? { ...phase, isEditing: !phase.isEditing }
+          : phase,
+      ),
     );
   };
 
   // Update phase field
-  const updatePhaseField = (phaseId: string, field: "title" | "description", value: string) => {
+  const updatePhaseField = (
+    phaseId: string,
+    field: "title" | "description",
+    value: string,
+  ) => {
     setPhases((prev) =>
       prev.map((phase) =>
-        phase.id === phaseId ? { ...phase, [field]: value, hasModifications: true } : phase
-      )
+        phase.id === phaseId
+          ? { ...phase, [field]: value, hasModifications: true }
+          : phase,
+      ),
     );
     setHasChanges(true);
   };
@@ -356,27 +384,33 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
           ? {
               ...phase,
               chapters: phase.chapters.map((ch) =>
-                ch.id === chapterId ? { ...ch, isEditing: !ch.isEditing } : ch
+                ch.id === chapterId ? { ...ch, isEditing: !ch.isEditing } : ch,
               ),
             }
-          : phase
-      )
+          : phase,
+      ),
     );
   };
 
   // Update chapter field
-  const updateChapterField = (phaseId: string, chapterId: string, value: string) => {
+  const updateChapterField = (
+    phaseId: string,
+    chapterId: string,
+    value: string,
+  ) => {
     setPhases((prev) =>
       prev.map((phase) =>
         phase.id === phaseId
           ? {
               ...phase,
               chapters: phase.chapters.map((ch) =>
-                ch.id === chapterId ? { ...ch, miniChapter: value.trim(), hasModifications: true } : ch
+                ch.id === chapterId
+                  ? { ...ch, miniChapter: value.trim(), hasModifications: true }
+                  : ch,
               ),
             }
-          : phase
-      )
+          : phase,
+      ),
     );
     setHasChanges(true);
   };
@@ -385,12 +419,16 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
   const handleSaveMetadataOnly = async () => {
     setIsSavingMetadata(true);
     try {
-      
       let updatedCount = 0;
-      
+
       // Update existing phases (Chapter entities in backend)
       for (const phase of phases) {
-        if (!phase.isNew && !phase.isDeleted && phase.originalPhaseId && phase.hasModifications) {
+        if (
+          !phase.isNew &&
+          !phase.isDeleted &&
+          phase.originalPhaseId &&
+          phase.hasModifications
+        ) {
           // Update phase (Chapter in backend)
           await api.patch(`/admin/chapters/${phase.originalPhaseId}`, {
             title: phase.title,
@@ -399,35 +437,52 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
           });
           updatedCount++;
         }
-        
+
         // Update chapters and their videos
         for (const chapter of phase.chapters) {
           // Track which videos have been updated to avoid duplicate requests
           const updatedVideoIds = new Set<string>();
-                              
+
           // Update existing videos with skills or other modifications
           for (const video of chapter.videos) {
-            
-            if (video.originalLessonId && !video.isNew && !video.isDeleted && video.isEditing) {
+            if (
+              video.originalLessonId &&
+              !video.isNew &&
+              !video.isDeleted &&
+              video.isEditing
+            ) {
               // Update video with skills AND miniChapter if chapter was edited
               const payload = {
                 title: video.title,
                 description: video.description,
-                skills: video.skills?.map(s => s.name) || [],
+                skills: video.skills?.map((s) => s.name) || [],
                 referenceUrl: video.referenceUrl || "",
-                ...(chapter.hasModifications && { miniChapter: chapter.miniChapter }), // Include miniChapter if chapter was edited
+                ...(chapter.hasModifications && {
+                  miniChapter: chapter.miniChapter,
+                }), // Include miniChapter if chapter was edited
               };
-              
-              await api.patch(`/admin/videos/${video.originalLessonId}`, payload);
+
+              await api.patch(
+                `/admin/videos/${video.originalLessonId}`,
+                payload,
+              );
               updatedCount++;
               updatedVideoIds.add(video.originalLessonId);
             }
           }
-          
+
           // If chapter name (miniChapter) was edited, update remaining videos that weren't already updated
-          if (chapter.hasModifications && !chapter.isNew && !chapter.isDeleted) {
+          if (
+            chapter.hasModifications &&
+            !chapter.isNew &&
+            !chapter.isDeleted
+          ) {
             for (const video of chapter.videos) {
-              if (video.originalLessonId && !video.isDeleted && !updatedVideoIds.has(video.originalLessonId)) {
+              if (
+                video.originalLessonId &&
+                !video.isDeleted &&
+                !updatedVideoIds.has(video.originalLessonId)
+              ) {
                 await api.patch(`/admin/videos/${video.originalLessonId}`, {
                   miniChapter: chapter.miniChapter,
                 });
@@ -437,7 +492,7 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
           }
         }
       }
-      
+
       // Désactiver le mode édition pour toutes les phases et chapitres
       setPhases((prev) =>
         prev.map((phase) => ({
@@ -449,26 +504,28 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
             isEditing: false,
             hasModifications: false,
           })),
-        }))
+        })),
       );
-      
+
       if (updatedCount > 0) {
         toast.success("Modifications sauvegardées avec succès !");
       } else {
         toast.info("Aucune modification à sauvegarder");
       }
-      
+
       setHasChanges(false);
-      
+
       // Permettre le rechargement des données après la sauvegarde
       isInitialLoadRef.current = true;
-      
+
       // Invalider le cache et refetch immédiatement pour synchroniser les données
       await queryClient.invalidateQueries({
-        queryKey: ['course-chapters', courseId],
+        queryKey: ["course-chapters", courseId],
       });
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Erreur lors de la sauvegarde");
+      toast.error(
+        error.response?.data?.message || "Erreur lors de la sauvegarde",
+      );
     } finally {
       setIsSavingMetadata(false);
     }
@@ -476,17 +533,19 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
 
   // Delete chapter with confirmation if it has uploaded videos
   const handleDeleteChapter = (phaseId: string, chapterId: string) => {
-    const phase = phases.find(p => p.id === phaseId);
-    const chapter = phase?.chapters.find(ch => ch.id === chapterId);
-    
+    const phase = phases.find((p) => p.id === phaseId);
+    const chapter = phase?.chapters.find((ch) => ch.id === chapterId);
+
     if (!chapter || !phase) return;
-    
+
     // Vérifier si le chapitre contient des vidéos déjà uploadées (avec originalLessonId)
-    const hasUploadedVideos = chapter.videos.some(v => v.originalLessonId && !v.isDeleted);
-    
+    const hasUploadedVideos = chapter.videos.some(
+      (v) => v.originalLessonId && !v.isDeleted,
+    );
+
     // Vérifier si le chapitre existe dans le backend (pas nouveau)
     const existsInBackend = !chapter.isNew && phase.originalPhaseId;
-    
+
     if (existsInBackend) {
       // Toujours afficher le modal de confirmation pour les chapitres existants
       setDeleteChapterModal({
@@ -504,11 +563,11 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
             ? {
                 ...p,
                 chapters: p.chapters.map((ch) =>
-                  ch.id === chapterId ? { ...ch, isDeleted: true } : ch
+                  ch.id === chapterId ? { ...ch, isDeleted: true } : ch,
                 ),
               }
-            : p
-        )
+            : p,
+        ),
       );
       setHasChanges(true);
       toast.success({
@@ -520,18 +579,18 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
 
   // Delete phase with confirmation if it has uploaded videos
   const handleDeletePhase = (phaseId: string) => {
-    const phase = phases.find(p => p.id === phaseId);
-    
+    const phase = phases.find((p) => p.id === phaseId);
+
     if (!phase) return;
-    
+
     // Vérifier si la phase existe dans le backend (a un originalPhaseId)
     const existsInBackend = !phase.isNew && phase.originalPhaseId;
-    
+
     // Vérifier si la phase contient des vidéos déjà uploadées (avec originalLessonId)
-    const hasUploadedVideos = phase.chapters.some(ch => 
-      ch.videos.some(v => v.originalLessonId && !v.isDeleted)
+    const hasUploadedVideos = phase.chapters.some((ch) =>
+      ch.videos.some((v) => v.originalLessonId && !v.isDeleted),
     );
-    
+
     if (existsInBackend) {
       // Toujours afficher le modal de confirmation pour les phases existantes
       setDeletePhaseModal({
@@ -542,7 +601,9 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
       });
     } else {
       // Suppression immédiate uniquement pour les phases nouvelles (pas encore dans le backend)
-      setPhases((prev) => prev.map((p) => p.id === phaseId ? { ...p, isDeleted: true } : p));
+      setPhases((prev) =>
+        prev.map((p) => (p.id === phaseId ? { ...p, isDeleted: true } : p)),
+      );
       setHasChanges(true);
       toast.success({
         title: "Phase supprimée",
@@ -554,36 +615,38 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
   // Confirmer la suppression de la phase avec appel backend
   const confirmDeletePhase = async () => {
     if (!deletePhaseModal.phaseId) return;
-    
-    const phase = phases.find(p => p.id === deletePhaseModal.phaseId);
-    
+
+    const phase = phases.find((p) => p.id === deletePhaseModal.phaseId);
+
     if (!phase) return;
-    
+
     setIsDeletingPhase(true);
-    
+
     try {
       // Appeler le backend pour supprimer la phase complète (Chapter) et toutes ses vidéos
       await api.delete(`/chapters/${phase.originalPhaseId}`);
-            
+
       // Supprimer immédiatement la phase de l'UI
-      setPhases((prev) => prev.filter(p => p.id !== deletePhaseModal.phaseId));
-      
+      setPhases((prev) =>
+        prev.filter((p) => p.id !== deletePhaseModal.phaseId),
+      );
+
       // Invalider le cache ET recharger les données depuis le serveur
-      await queryClient.invalidateQueries({ 
-        queryKey: ['course-chapters', courseId],
-        refetchType: 'active' // Force le rechargement immédiat pour éviter les doublons affichés
+      await queryClient.invalidateQueries({
+        queryKey: ["course-chapters", courseId],
+        refetchType: "active", // Force le rechargement immédiat pour éviter les doublons affichés
       });
-      
+
       toast.success({
         title: "Phase supprimée",
         description: `La phase "${phase.title}" et toutes ses vidéos ont été supprimées avec succès`,
       });
-      
-      setDeletePhaseModal({ 
-        isOpen: false, 
-        phaseId: null, 
+
+      setDeletePhaseModal({
+        isOpen: false,
+        phaseId: null,
         phaseName: null,
-        hasUploadedVideos: false 
+        hasUploadedVideos: false,
       });
     } catch {
       toast.error({
@@ -597,15 +660,22 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
 
   // Confirmer la suppression du chapitre avec appel backend
   const confirmDeleteChapter = async () => {
-    if (!deleteChapterModal.phaseId || !deleteChapterModal.chapterId || !deleteChapterModal.chapterName) return;
-    
-    const phase = phases.find(p => p.id === deleteChapterModal.phaseId);
-    const chapter = phase?.chapters.find(ch => ch.id === deleteChapterModal.chapterId);
-    
+    if (
+      !deleteChapterModal.phaseId ||
+      !deleteChapterModal.chapterId ||
+      !deleteChapterModal.chapterName
+    )
+      return;
+
+    const phase = phases.find((p) => p.id === deleteChapterModal.phaseId);
+    const chapter = phase?.chapters.find(
+      (ch) => ch.id === deleteChapterModal.chapterId,
+    );
+
     if (!chapter || !phase) return;
-    
+
     setIsDeletingChapter(true);
-    
+
     try {
       // Appeler le backend pour supprimer le chapitre et ses vidéos
       // phase.originalPhaseId contient l'UUID du Chapter backend
@@ -613,44 +683,49 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
       await api.delete(`/chapters/delete`, {
         params: {
           chapterId: phase.originalPhaseId, // UUID du Chapter backend
-          chapterName: deleteChapterModal.chapterName // miniChapter à supprimer
-        }
+          chapterName: deleteChapterModal.chapterName, // miniChapter à supprimer
+        },
       });
-            
+
       // Supprimer immédiatement le chapitre de l'UI
       setPhases((prev) =>
         prev.map((p) =>
           p.id === deleteChapterModal.phaseId
             ? {
                 ...p,
-                chapters: p.chapters.filter(ch => ch.id !== deleteChapterModal.chapterId),
+                chapters: p.chapters.filter(
+                  (ch) => ch.id !== deleteChapterModal.chapterId,
+                ),
               }
-            : p
-        )
+            : p,
+        ),
       );
-      
+
       // Invalider le cache ET recharger les données depuis le serveur
-      await queryClient.invalidateQueries({ 
-        queryKey: ['course-chapters', courseId],
-        refetchType: 'active' // Force le rechargement immédiat pour éviter les doublons affichés
+      await queryClient.invalidateQueries({
+        queryKey: ["course-chapters", courseId],
+        refetchType: "active", // Force le rechargement immédiat pour éviter les doublons affichés
       });
-      
+
       toast.success({
         title: "Chapitre supprimé",
         description: `Le chapitre "${chapter.miniChapter}" et toutes ses vidéos ont été supprimés avec succès`,
       });
-      
-      setDeleteChapterModal({ 
-        isOpen: false, 
-        phaseId: null, 
-        chapterId: null, 
+
+      setDeleteChapterModal({
+        isOpen: false,
+        phaseId: null,
+        chapterId: null,
         chapterName: null,
-        hasUploadedVideos: false 
+        hasUploadedVideos: false,
       });
     } catch (error: unknown) {
       toast.error({
         title: "Erreur de suppression",
-        description: error instanceof Error ? error.message : "Impossible de supprimer le chapitre",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Impossible de supprimer le chapitre",
       });
     } finally {
       setIsDeletingChapter(false);
@@ -658,44 +733,48 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
   };
 
   // Handle skills save from modal
-  const handleSkillsSave = useCallback((skills: Skill[]) => {
-    if (!currentEditingVideo) {
-      return;
-    }
+  const handleSkillsSave = useCallback(
+    (skills: Skill[]) => {
+      if (!currentEditingVideo) {
+        return;
+      }
 
-    const { phaseId, chapterId, videoId } = currentEditingVideo;
+      const { phaseId, chapterId, videoId } = currentEditingVideo;
 
-    setPhases((prev) =>
-      prev.map((p) =>
-        p.id === phaseId
-          ? {
-              ...p,
-              chapters: p.chapters.map((ch) =>
-                ch.id === chapterId
+      setPhases((prev) =>
+        prev.map((p) =>
+          p.id === phaseId
+            ? {
+                ...p,
+                chapters: p.chapters.map((ch) =>
+                  ch.id === chapterId
                     ? {
-                      ...ch,
-                      videos: ch.videos.map((v) => {
-                        if (v.id === videoId) {
-                          return { ...v, skills, isEditing: false };
-                        }
-                        return v;
-                      }),
-                    }
-                  : ch
-              ),
-            }
-          : p
-      )
-    );
+                        ...ch,
+                        videos: ch.videos.map((v) => {
+                          if (v.id === videoId) {
+                            return { ...v, skills, isEditing: false };
+                          }
+                          return v;
+                        }),
+                      }
+                    : ch,
+                ),
+              }
+            : p,
+        ),
+      );
 
-    setCurrentEditingVideo(null);
-    setHasChanges(true);
-    // Ajoute un toast succès pour feedback utilisateur
-    toast.success({
-      title: "Succès",
-      description: "Les compétences de la vidéo ont été enregistrées et synchronisées.",
-    });
-  }, [currentEditingVideo]);
+      setCurrentEditingVideo(null);
+      setHasChanges(true);
+      // Ajoute un toast succès pour feedback utilisateur
+      toast.success({
+        title: "Succès",
+        description:
+          "Les compétences de la vidéo ont été enregistrées et synchronisées.",
+      });
+    },
+    [currentEditingVideo],
+  );
 
   // Handle phase quiz management
   const handleManagePhaseQuiz = async (phase: UnifiedPhase) => {
@@ -711,7 +790,8 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
     setShowQuizModal(true);
     setIsLoadingQuiz(true);
 
-    quizManagementService.getQuizByChapterId(phase.originalPhaseId)
+    quizManagementService
+      .getQuizByChapterId(phase.originalPhaseId)
       .then((quiz) => {
         setExistingQuiz(quiz);
       })
@@ -730,7 +810,7 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
   // Get all skills from a phase (from all lessons in all chapters)
   const getPhaseSkills = (phase: UnifiedPhase): Skill[] => {
     const skillsMap = new Map<string, Skill>();
-    
+
     phase.chapters
       .filter((ch) => !ch.isDeleted)
       .forEach((chapter) => {
@@ -751,7 +831,7 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
   // Get all skills from the entire course
   const getCourseSkills = (): Skill[] => {
     const skillsMap = new Map<string, Skill>();
-    
+
     phases
       .filter((p) => !p.isDeleted)
       .forEach((phase) => {
@@ -773,138 +853,162 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
     return Array.from(skillsMap.values());
   };
 
-  const handleQuizSuccess = () => {
-    // Success toast is shown by the Quiz modal; avoid duplicate toasts here.
-    // Mettre à jour les compétences de la phase localement
-    if (currentQuizPhase && existingQuiz) {
+  const handleQuizSuccess = async () => {
+    // After creating/updating/deleting a phase quiz, refresh its state from the API
+    if (!currentQuizPhase || !currentQuizPhase.originalPhaseId) {
+      setShowQuizModal(false);
+      setCurrentQuizPhase(null);
+      setExistingQuiz(null);
+      return;
+    }
+
+    try {
+      setIsLoadingQuiz(true);
+      const quiz = await quizManagementService.getQuizByChapterId(
+        currentQuizPhase.originalPhaseId,
+      );
+      setExistingQuiz(quiz);
+
       setPhases((prevPhases) =>
         prevPhases.map((phase) =>
           phase.id === currentQuizPhase.id
             ? {
                 ...phase,
-                quiz: existingQuiz,
-                // Si le quiz contient des compétences, les mettre à jour
-                skills: existingQuiz.skills?.map((s) => ({
-                  id: s.skillId,
-                  name: s.skillName,
-                })) || phase.skills,
+                quiz: quiz || null,
+                hasQuiz: !!quiz,
+                skills:
+                  quiz?.skills?.map((s) => ({ id: s.skillId, name: s.skillName })) || phase.skills,
               }
-            : phase
-        )
+            : phase,
+        ),
       );
+    } catch (err) {
+      console.error("Error refreshing phase quiz after success:", err);
+    } finally {
+      setIsLoadingQuiz(false);
+      setShowQuizModal(false);
+      setCurrentQuizPhase(null);
+      setExistingQuiz(null);
     }
-    setShowQuizModal(false);
-    setCurrentQuizPhase(null);
-    setExistingQuiz(null);
   };
 
   // Organize uploaded files into phase/chapter/video structure
-  const organizeFiles = useCallback((files: VideoFile[]) => {
-    const phaseMap = new Map<number, Map<number, VideoFile[]>>();
+  const organizeFiles = useCallback(
+    (files: VideoFile[]) => {
+      const phaseMap = new Map<number, Map<number, VideoFile[]>>();
 
-    files.forEach((file) => {
-      const parsed = parseFileName(file.name);
-      if (!parsed) return;
+      files.forEach((file) => {
+        const parsed = parseFileName(file.name);
+        if (!parsed) return;
 
-      const { phase, chapter } = parsed;
+        const { phase, chapter } = parsed;
 
-      if (!phaseMap.has(phase)) {
-        phaseMap.set(phase, new Map());
-      }
-      const chapterMap = phaseMap.get(phase)!;
-
-      if (!chapterMap.has(chapter)) {
-        chapterMap.set(chapter, []);
-      }
-      chapterMap.get(chapter)!.push(file);
-    });
-
-    setPhases((prev) => {
-      const updated = [...prev];
-
-      phaseMap.forEach((chapterMap, phaseNumber) => {
-        let phase = updated.find((p) => p.phaseNumber === phaseNumber && !p.isDeleted);
-
-        if (!phase) {
-          // Create new phase
-          phase = {
-            id: `new-phase-${Date.now()}-${phaseNumber}`,
-            phaseNumber,
-            title: `Phase ${phaseNumber}`,
-            description: "",
-            order: phaseNumber,
-            chapters: [],
-            isNew: true,
-            isDeleted: false,
-            isEditing: false,
-            isExpanded: true,
-            isSelected: false,
-          };
-          updated.push(phase);
+        if (!phaseMap.has(phase)) {
+          phaseMap.set(phase, new Map());
         }
+        const chapterMap = phaseMap.get(phase)!;
 
-        chapterMap.forEach((videos, chapterNumber) => {
-          const newVideos: UnifiedVideo[] = videos.map((video, index) => {
-            const parsed = parseFileName(video.name);
-            return {
-              id: `new-video-${Date.now()}-${Math.random()}-${index}`,
-              name: video.name,
-              fileName: video.name,
-              title: video.name.replace(/\.[^/.]+$/, ""),
-              description: "",
-              duration: 0,
-              order: 0,
-              file: video,
-              fileSize: video.size,
-              skills: [],
-              isNew: true,
-              isEditing: false,
-              isDeleted: false,
-              isMoved: false,
-              sourceChapterType: "new",
-              sourcePhaseType: "new",
-              phaseNumber: parsed?.phase || phaseNumber,
-              chapterNumber: parsed?.chapter || chapterNumber,
-              videoNumber: parsed?.video || (index + 1),
-            };
-          });
+        if (!chapterMap.has(chapter)) {
+          chapterMap.set(chapter, []);
+        }
+        chapterMap.get(chapter)!.push(file);
+      });
 
-          const chapter = phase!.chapters.find(
-            (ch) => ch.chapterNumber === chapterNumber && !ch.isDeleted
+      setPhases((prev) => {
+        const updated = [...prev];
+
+        phaseMap.forEach((chapterMap, phaseNumber) => {
+          let phase = updated.find(
+            (p) => p.phaseNumber === phaseNumber && !p.isDeleted,
           );
 
-          if (chapter) {
-            // Calculer maxOrder en excluant les vidéos supprimées
-            const activeVideos = chapter.videos.filter(v => !v.isDeleted);
-            const maxOrder = activeVideos.length > 0 ? Math.max(...activeVideos.map((v) => v.order)) : 0;
-            newVideos.forEach((video, index) => {
-              video.order = maxOrder + index + 1;
-            });
-            chapter.videos = [...chapter.videos, ...newVideos].sort((a, b) => a.order - b.order);
-          } else {
-            newVideos.forEach((video, index) => {
-              video.order = index + 1;
-            });
-            phase!.chapters.push({
-              id: `new-chapter-${Date.now()}-${chapterNumber}`,
-              chapterNumber,
-              miniChapter: `Chapter ${chapterNumber}`,
-              videos: newVideos,
+          if (!phase) {
+            // Create new phase
+            phase = {
+              id: `new-phase-${Date.now()}-${phaseNumber}`,
+              phaseNumber,
+              title: `Phase ${phaseNumber}`,
+              description: "",
+              order: phaseNumber,
+              chapters: [],
               isNew: true,
               isDeleted: false,
               isEditing: false,
               isExpanded: true,
               isSelected: false,
-            });
+            };
+            updated.push(phase);
           }
+
+          chapterMap.forEach((videos, chapterNumber) => {
+            const newVideos: UnifiedVideo[] = videos.map((video, index) => {
+              const parsed = parseFileName(video.name);
+              return {
+                id: `new-video-${Date.now()}-${Math.random()}-${index}`,
+                name: video.name,
+                fileName: video.name,
+                title: video.name.replace(/\.[^/.]+$/, ""),
+                description: "",
+                duration: 0,
+                order: 0,
+                file: video,
+                fileSize: video.size,
+                skills: [],
+                isNew: true,
+                isEditing: false,
+                isDeleted: false,
+                isMoved: false,
+                sourceChapterType: "new",
+                sourcePhaseType: "new",
+                phaseNumber: parsed?.phase || phaseNumber,
+                chapterNumber: parsed?.chapter || chapterNumber,
+                videoNumber: parsed?.video || index + 1,
+              };
+            });
+
+            const chapter = phase!.chapters.find(
+              (ch) => ch.chapterNumber === chapterNumber && !ch.isDeleted,
+            );
+
+            if (chapter) {
+              // Calculer maxOrder en excluant les vidéos supprimées
+              const activeVideos = chapter.videos.filter((v) => !v.isDeleted);
+              const maxOrder =
+                activeVideos.length > 0
+                  ? Math.max(...activeVideos.map((v) => v.order))
+                  : 0;
+              newVideos.forEach((video, index) => {
+                video.order = maxOrder + index + 1;
+              });
+              chapter.videos = [...chapter.videos, ...newVideos].sort(
+                (a, b) => a.order - b.order,
+              );
+            } else {
+              newVideos.forEach((video, index) => {
+                video.order = index + 1;
+              });
+              phase!.chapters.push({
+                id: `new-chapter-${Date.now()}-${chapterNumber}`,
+                chapterNumber,
+                miniChapter: `Chapter ${chapterNumber}`,
+                videos: newVideos,
+                isNew: true,
+                isDeleted: false,
+                isEditing: false,
+                isExpanded: true,
+                isSelected: false,
+              });
+            }
+          });
         });
+
+        return updated.sort((a, b) => a.phaseNumber - b.phaseNumber);
       });
 
-      return updated.sort((a, b) => a.phaseNumber - b.phaseNumber);
-    });
-
-    setHasChanges(true);
-  }, [parseFileName]);
+      setHasChanges(true);
+    },
+    [parseFileName],
+  );
 
   // Handle file drop
   const onDrop = useCallback(
@@ -918,11 +1022,14 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
       if (invalidNames.length > 0) {
         invalidNames.forEach((name) => {
           toast.error({
-            title: t("admin.phaseManager.errors.invalidNaming.title", "Nom de fichier invalide"),
+            title: t(
+              "admin.phaseManager.errors.invalidNaming.title",
+              "Nom de fichier invalide",
+            ),
             description: t(
               "admin.phaseManager.errors.invalidNaming.description",
               "Le fichier {{name}} ne respecte pas le format ph1-ch1-v1.mp4",
-              { name }
+              { name },
             ),
           });
         });
@@ -931,17 +1038,20 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
 
       setInvalidFiles([]);
       toast.success({
-        title: t("admin.phaseManager.success.filesValidated.title", "Fichiers validés"),
+        title: t(
+          "admin.phaseManager.success.filesValidated.title",
+          "Fichiers validés",
+        ),
         description: t(
           "admin.phaseManager.success.filesValidated.description",
           "{{count}} fichier(s) prêt(s) pour l'upload",
-          { count: videoFiles.length }
+          { count: videoFiles.length },
         ),
       });
 
       organizeFiles(videoFiles);
     },
-    [t, organizeFiles]
+    [t, organizeFiles],
   );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -979,7 +1089,7 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
                 if (!video.skills || video.skills.length === 0) {
                   videosWithoutSkills.push(video.title);
                 }
-                
+
                 if (video.file) {
                   allFiles.push(video.file);
                 }
@@ -989,7 +1099,7 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
                   title: video.title, // Titre modifiable
                   description: video.description || "",
                   order: video.order,
-                  skills: video.skills?.map(s => s.name) || [],
+                  skills: video.skills?.map((s) => s.name) || [],
                   referenceUrl: video.referenceUrl || "",
                   chapterName: chapter.miniChapter, // Nom du mini-chapitre (pour identifier les leçons du même chapitre)
                 };
@@ -1038,7 +1148,7 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
         courseId,
         allFiles,
         { chapters: chaptersMetadata },
-        onProgress
+        onProgress,
       );
 
       toast.success({
@@ -1053,14 +1163,15 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
       isInitialLoadRef.current = true;
 
       // Invalider le cache pour forcer le rechargement
-      await queryClient.invalidateQueries({ 
-        queryKey: ['course-chapters', courseId],
-        refetchType: 'active'
+      await queryClient.invalidateQueries({
+        queryKey: ["course-chapters", courseId],
+        refetchType: "active",
       });
     } catch (error) {
       toast.error({
         title: "Erreur d'upload",
-        description: error instanceof Error ? error.message : "Une erreur est survenue",
+        description:
+          error instanceof Error ? error.message : "Une erreur est survenue",
       });
     } finally {
       setIsUploading(false);
@@ -1069,8 +1180,49 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-lg">Chargement...</div>
+      <div className="min-h-screen p-4 md:p-6 lg:p-8 bg-white">
+        <div className="w-full max-w-7xl mx-auto space-y-6">
+          {/* Header skeleton */}
+          <div className="animate-pulse">
+            <div className="h-12 rounded-lg bg-gray-200 w-1/3 mb-4" />
+
+            {/* Upload area skeleton */}
+            <div className="border-2 border-dashed rounded-2xl p-6 bg-gray-50">
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 rounded-xl bg-gray-200" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-6 bg-gray-200 rounded w-1/2" />
+                  <div className="h-3 bg-gray-200 rounded w-1/3" />
+                </div>
+              </div>
+            </div>
+
+            {/* Phases skeleton list */}
+            <div className="space-y-6 mt-6">
+              <div className="h-6 bg-gray-200 rounded w-1/4" />
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="p-4 bg-white rounded-2xl shadow-sm border border-gray-100">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="w-14 h-14 rounded-xl bg-gray-200" />
+                      <div className="space-y-2">
+                        <div className="h-5 bg-gray-200 rounded w-48" />
+                        <div className="h-3 bg-gray-200 rounded w-64 mt-2" />
+                      </div>
+                    </div>
+                    <div className="h-10 w-40 bg-gray-200 rounded" />
+                  </div>
+
+                  <div className="mt-4 grid grid-cols-3 gap-3">
+                    <div className="h-20 bg-gray-100 rounded" />
+                    <div className="h-20 bg-gray-100 rounded" />
+                    <div className="h-20 bg-gray-100 rounded" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -1096,7 +1248,10 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
 
                     <div>
                       <CardTitle className="text-2xl md:text-3xl font-bold mb-2">
-                        {t("admin.phaseManager.title", "Gestionnaire de Phases")}
+                        {t(
+                          "admin.phaseManager.title",
+                          "Gestionnaire de Phases",
+                        )}
                       </CardTitle>
                       <p className="text-white/90 text-sm md:text-base">
                         Organisez les phases, chapitres et vidéos de votre cours
@@ -1118,8 +1273,13 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
                             total +
                             p.chapters
                               .filter((ch) => !ch.isDeleted)
-                              .reduce((chTotal, ch) => chTotal + ch.videos.filter((v) => !v.isDeleted).length, 0),
-                          0
+                              .reduce(
+                                (chTotal, ch) =>
+                                  chTotal +
+                                  ch.videos.filter((v) => !v.isDeleted).length,
+                                0,
+                              ),
+                          0,
                         )}{" "}
                       vidéos
                     </div>
@@ -1135,7 +1295,10 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
               <div className="flex items-center gap-2">
                 <div className="w-1 h-5 bg-gradient-to-b from-primary to-muted rounded-full"></div>
                 <h3 className="text-lg font-semibold bg-gradient-to-r from-primary to-muted bg-clip-text text-transparent">
-                  {t("admin.phaseManager.addContent", "Ajouter du Contenu Vidéo")}
+                  {t(
+                    "admin.phaseManager.addContent",
+                    "Ajouter du Contenu Vidéo",
+                  )}
                 </h3>
               </div>
 
@@ -1153,7 +1316,6 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
               >
                 <input {...getInputProps()} />
                 <div className="relative z-10 space-y-3">
-                  
                   {/* Upload Icon */}
                   <div
                     className={`w-14 h-14 mx-auto rounded-xl flex items-center justify-center transition-all duration-300 ${
@@ -1169,12 +1331,20 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
                   <div>
                     <h4
                       className={`text-lg md:text-xl font-bold mb-1 transition-colors ${
-                        isDragActive ? "text-primary" : "text-gray-900 group-hover:text-primary"
+                        isDragActive
+                          ? "text-primary"
+                          : "text-gray-900 group-hover:text-primary"
                       }`}
                     >
                       {isDragActive
-                        ? t("admin.phaseManager.dropHere", "Déposez vos fichiers ici")
-                        : t("admin.phaseManager.dragDrop", "Glissez-déposez vos vidéos")}
+                        ? t(
+                            "admin.phaseManager.dropHere",
+                            "Déposez vos fichiers ici",
+                          )
+                        : t(
+                            "admin.phaseManager.dragDrop",
+                            "Glissez-déposez vos vidéos",
+                          )}
                     </h4>
                     <p className="text-xs text-gray-500">
                       ou cliquez pour parcourir vos fichiers
@@ -1193,7 +1363,9 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
                       {/* Title */}
                       <div className="flex items-center gap-2 mb-2">
                         <div className="w-6 h-6 bg-orange-500 rounded-md flex items-center justify-center flex-shrink-0">
-                          <span className="text-white text-sm font-bold">📋</span>
+                          <span className="text-white text-sm font-bold">
+                            📋
+                          </span>
                         </div>
                         <h5 className="text-sm font-bold text-orange-900">
                           Guide de nomenclature
@@ -1203,7 +1375,9 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
                       {/* Format Pattern */}
                       <div className="bg-white/80 backdrop-blur-sm rounded-md p-2 mb-2 border border-orange-200/50">
                         <p className="text-center text-base font-mono font-bold text-gray-800 mb-2">
-                          ph<span className="text-primary">1</span>-ch<span className="text-primary">1</span>-v<span className="text-primary">1</span>.mp4
+                          ph<span className="text-primary">1</span>-ch
+                          <span className="text-primary">1</span>-v
+                          <span className="text-primary">1</span>.mp4
                         </p>
                         <div className="grid grid-cols-1 gap-1 text-xs">
                           <div className="flex items-center gap-2">
@@ -1211,7 +1385,10 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
                               ph1
                             </span>
                             <span className="text-gray-700 flex-1">
-                              → <span className="font-semibold text-gray-900">Phase 1</span>
+                              →{" "}
+                              <span className="font-semibold text-gray-900">
+                                Phase 1
+                              </span>
                             </span>
                           </div>
                           <div className="flex items-center gap-2">
@@ -1219,7 +1396,10 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
                               ch1
                             </span>
                             <span className="text-gray-700 flex-1">
-                              → <span className="font-semibold text-gray-900">Chapitre 1</span>
+                              →{" "}
+                              <span className="font-semibold text-gray-900">
+                                Chapitre 1
+                              </span>
                             </span>
                           </div>
                           <div className="flex items-center gap-2">
@@ -1227,7 +1407,10 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
                               v1
                             </span>
                             <span className="text-gray-700 flex-1">
-                              → <span className="font-semibold text-gray-900">Vidéo 1</span>
+                              →{" "}
+                              <span className="font-semibold text-gray-900">
+                                Vidéo 1
+                              </span>
                             </span>
                           </div>
                         </div>
@@ -1238,9 +1421,12 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
                         <div className="flex items-start gap-2">
                           <AlertCircle className="h-4 w-4 flex-shrink-0 mt-0.5" />
                           <div>
-                            <p className="font-bold text-xs mb-0.5">ATTENTION</p>
+                            <p className="font-bold text-xs mb-0.5">
+                              ATTENTION
+                            </p>
                             <p className="text-[10px] text-red-50">
-                              Respectez strictement cette nomenclature. Tout fichier non conforme sera rejeté.
+                              Respectez strictement cette nomenclature. Tout
+                              fichier non conforme sera rejeté.
                             </p>
                           </div>
                         </div>
@@ -1251,7 +1437,9 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
                   {/* Supported Formats */}
                   <div className="flex items-center justify-center gap-1.5 text-[10px] text-gray-500">
                     <span>Format accepté :</span>
-                    <span className="px-1.5 py-0.5 bg-gray-100 rounded font-mono">.mp4</span>
+                    <span className="px-1.5 py-0.5 bg-gray-100 rounded font-mono">
+                      .mp4
+                    </span>
                   </div>
                 </div>
               </div>
@@ -1261,7 +1449,9 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
                   <div className="flex items-start gap-3">
                     <AlertCircle className="h-5 w-5 text-red-600 mt-0.5" />
                     <div>
-                      <h4 className="text-red-800 font-medium mb-2">Erreurs de Validation</h4>
+                      <h4 className="text-red-800 font-medium mb-2">
+                        Erreurs de Validation
+                      </h4>
                       <ul className="space-y-1 text-sm text-red-700">
                         {invalidFiles.map((error, index) => (
                           <li key={index}>{error}</li>
@@ -1276,7 +1466,7 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
             {/* Phases List */}
             <div className="space-y-6">
               <div className="flex items-center gap-3">
-                <div className="w-1 h-6 bg-gradient-to-b from-muted to-secondary rounded-full"></div>
+                <div className="w-1 bg-gradient-to-b from-muted to-secondary rounded-full"></div>
                 <h3 className="text-xl font-semibold">Phases du cours</h3>
               </div>
 
@@ -1295,17 +1485,25 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
                         phase={phase}
                         onSelect={() => {}}
                         isSelected={false}
-                        onToggleExpansion={() => togglePhaseExpansion(phase.id!)}
+                        onToggleExpansion={() =>
+                          togglePhaseExpansion(phase.id!)
+                        }
                         onToggleEdit={() => togglePhaseEdit(phase.id!)}
                         onSave={() => {
                           togglePhaseEdit(phase.id!);
                           setHasChanges(true);
                         }}
                         onDelete={() => handleDeletePhase(phase.id!)}
-                        onUpdate={(field, value) => updatePhaseField(phase.id!, field, value)}
+                        onUpdate={(field, value) =>
+                          updatePhaseField(phase.id!, field, value)
+                        }
                         onDropVideo={() => {}}
                         onAddChapter={() => {}}
-                        onManageQuiz={phase.originalPhaseId ? () => handleManagePhaseQuiz(phase) : undefined}
+                        onManageQuiz={
+                          phase.originalPhaseId
+                            ? () => handleManagePhaseQuiz(phase)
+                            : undefined
+                        }
                       >
                         {phase.chapters
                           .filter((ch) => !ch.isDeleted)
@@ -1315,10 +1513,22 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
                               key={chapter.id}
                               chapter={chapter}
                               phaseId={phase.id!}
-                              onToggleExpansion={() => toggleChapterExpansion(phase.id!, chapter.id!)}
-                              onToggleEdit={() => toggleChapterEdit(phase.id!, chapter.id!)}
-                              onUpdate={(value: string) => updateChapterField(phase.id!, chapter.id!, value)}
-                              onDelete={() => handleDeleteChapter(phase.id!, chapter.id!)}
+                              onToggleExpansion={() =>
+                                toggleChapterExpansion(phase.id!, chapter.id!)
+                              }
+                              onToggleEdit={() =>
+                                toggleChapterEdit(phase.id!, chapter.id!)
+                              }
+                              onUpdate={(value: string) =>
+                                updateChapterField(
+                                  phase.id!,
+                                  chapter.id!,
+                                  value,
+                                )
+                              }
+                              onDelete={() =>
+                                handleDeleteChapter(phase.id!, chapter.id!)
+                              }
                               onDrop={() => {
                                 // TODO: Implement video move logic
                               }}
@@ -1345,32 +1555,40 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
                                       setPhases((prev) =>
                                         prev.map((p) => {
                                           if (p.id !== phase.id) return p;
-                                          
+
                                           // Marquer la vidéo comme supprimée
-                                          const updatedChapters = p.chapters.map((ch) => {
-                                            if (ch.id !== chapter.id) return ch;
-                                            
-                                            const updatedVideos = ch.videos.map((v) =>
-                                              v.id === videoId ? { ...v, isDeleted: true } : v
-                                            );
-                                            
-                                            // Vérifier s'il reste des vidéos actives dans ce chapitre
-                                            const hasActiveVideos = updatedVideos.some(v => !v.isDeleted);
-                                            
-                                            // Si plus de vidéos actives, marquer le chapitre comme supprimé
-                                            return {
-                                              ...ch,
-                                              videos: updatedVideos,
-                                              isDeleted: !hasActiveVideos
-                                            };
-                                          });
-                                          
+                                          const updatedChapters =
+                                            p.chapters.map((ch) => {
+                                              if (ch.id !== chapter.id)
+                                                return ch;
+
+                                              const updatedVideos =
+                                                ch.videos.map((v) =>
+                                                  v.id === videoId
+                                                    ? { ...v, isDeleted: true }
+                                                    : v,
+                                                );
+
+                                              // Vérifier s'il reste des vidéos actives dans ce chapitre
+                                              const hasActiveVideos =
+                                                updatedVideos.some(
+                                                  (v) => !v.isDeleted,
+                                                );
+
+                                              // Si plus de vidéos actives, marquer le chapitre comme supprimé
+                                              return {
+                                                ...ch,
+                                                videos: updatedVideos,
+                                                isDeleted: !hasActiveVideos,
+                                              };
+                                            });
+
                                           // Ne PAS supprimer la phase, juste mettre à jour les chapitres
                                           return {
                                             ...p,
-                                            chapters: updatedChapters
+                                            chapters: updatedChapters,
                                           };
-                                        })
+                                        }),
                                       );
                                       setHasChanges(true);
                                     }}
@@ -1380,22 +1598,31 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
                                           p.id === phase.id
                                             ? {
                                                 ...p,
-                                                chapters: p.chapters.map((ch) =>
-                                                  ch.id === chapter.id
-                                                    ? {
-                                                        ...ch,
-                                                        videos: ch.videos.map((v) => {
-                                                          if (v.id === videoId) {
-                                                            return { ...v, ...updates, isEditing: true };
-                                                          }
-                                                          return v;
-                                                        }),
-                                                      }
-                                                    : ch
+                                                chapters: p.chapters.map(
+                                                  (ch) =>
+                                                    ch.id === chapter.id
+                                                      ? {
+                                                          ...ch,
+                                                          videos: ch.videos.map(
+                                                            (v) => {
+                                                              if (
+                                                                v.id === videoId
+                                                              ) {
+                                                                return {
+                                                                  ...v,
+                                                                  ...updates,
+                                                                  isEditing: true,
+                                                                };
+                                                              }
+                                                              return v;
+                                                            },
+                                                          ),
+                                                        }
+                                                      : ch,
                                                 ),
                                               }
-                                            : p
-                                        )
+                                            : p,
+                                        ),
                                       );
                                       setHasChanges(true);
                                     }}
@@ -1413,7 +1640,6 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
             {courseId && (
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-1 h-6 bg-gradient-to-b from-primary to-secondary rounded-full"></div>
                   <h3 className="text-xl font-semibold">Quiz Final du Cours</h3>
                 </div>
                 <FinalQuizSection
@@ -1428,18 +1654,31 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
               <div className="bg-gradient-to-r from-gray-50 to-secondary/10 rounded-2xl p-6 border">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h4 className="font-semibold text-gray-900 mb-1">Modifications Non Sauvegardées</h4>
+                    <h4 className="font-semibold text-gray-900 mb-1">
+                      Modifications Non Sauvegardées
+                    </h4>
                     <p className="text-sm text-gray-600">
-                      {isUploading 
-                        ? `Upload en cours... ${uploadProgress}%` 
-                        : phases.some(p => !p.isDeleted && p.chapters.some(ch => ch.isNew && !ch.isDeleted && ch.videos.some(v => v.isNew && !v.isDeleted && v.file)))
-                        ? "Enregistrez vos nouvelles vidéos"
-                        : "Modifications de métadonnées en attente d'enregistrement"}
+                      {isUploading
+                        ? `Upload en cours... ${uploadProgress}%`
+                        : phases.some(
+                              (p) =>
+                                !p.isDeleted &&
+                                p.chapters.some(
+                                  (ch) =>
+                                    ch.isNew &&
+                                    !ch.isDeleted &&
+                                    ch.videos.some(
+                                      (v) => v.isNew && !v.isDeleted && v.file,
+                                    ),
+                                ),
+                            )
+                          ? "Enregistrez vos nouvelles vidéos"
+                          : "Modifications de métadonnées en attente d'enregistrement"}
                     </p>
                   </div>
                   <div className="flex gap-3">
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
                       onClick={() => setHasChanges(false)}
                       disabled={isUploading || isSavingMetadata}
                       className="border-gray-300 text-gray-700 hover:bg-gray-50 hover:shadow-md transition-all hover:text-black disabled:opacity-50 disabled:cursor-not-allowed"
@@ -1447,9 +1686,20 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
                       <X className="h-4 w-4 mr-2" />
                       Annuler
                     </Button>
-                    
+
                     {/* Button for saving metadata changes only (no video upload) */}
-                    {!phases.some(p => !p.isDeleted && p.chapters.some(ch => ch.isNew && !ch.isDeleted && ch.videos.some(v => v.isNew && !v.isDeleted && v.file))) && (
+                    {!phases.some(
+                      (p) =>
+                        !p.isDeleted &&
+                        p.chapters.some(
+                          (ch) =>
+                            ch.isNew &&
+                            !ch.isDeleted &&
+                            ch.videos.some(
+                              (v) => v.isNew && !v.isDeleted && v.file,
+                            ),
+                        ),
+                    ) && (
                       <Button
                         onClick={handleSaveMetadataOnly}
                         disabled={isUploading || isSavingMetadata}
@@ -1457,9 +1707,25 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
                       >
                         {isSavingMetadata ? (
                           <>
-                            <svg className="animate-spin h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            <svg
+                              className="animate-spin h-4 w-4 mr-2"
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                            >
+                              <circle
+                                className="opacity-25"
+                                cx="12"
+                                cy="12"
+                                r="10"
+                                stroke="currentColor"
+                                strokeWidth="4"
+                              ></circle>
+                              <path
+                                className="opacity-75"
+                                fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                              ></path>
                             </svg>
                             Enregistrement...
                           </>
@@ -1471,9 +1737,20 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
                         )}
                       </Button>
                     )}
-                    
+
                     {/* Button for uploading new videos */}
-                    {phases.some(p => !p.isDeleted && p.chapters.some(ch => ch.isNew && !ch.isDeleted && ch.videos.some(v => v.isNew && !v.isDeleted && v.file))) && (
+                    {phases.some(
+                      (p) =>
+                        !p.isDeleted &&
+                        p.chapters.some(
+                          (ch) =>
+                            ch.isNew &&
+                            !ch.isDeleted &&
+                            ch.videos.some(
+                              (v) => v.isNew && !v.isDeleted && v.file,
+                            ),
+                        ),
+                    ) && (
                       <Button
                         onClick={handleUpload}
                         disabled={isUploading || isSavingMetadata}
@@ -1481,9 +1758,25 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
                       >
                         {isUploading ? (
                           <>
-                            <svg className="animate-spin h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            <svg
+                              className="animate-spin h-4 w-4 mr-2"
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                            >
+                              <circle
+                                className="opacity-25"
+                                cx="12"
+                                cy="12"
+                                r="10"
+                                stroke="currentColor"
+                                strokeWidth="4"
+                              ></circle>
+                              <path
+                                className="opacity-75"
+                                fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                              ></path>
                             </svg>
                             Upload {uploadProgress}%
                           </>
@@ -1500,7 +1793,7 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
                 {isUploading && (
                   <div className="mt-4">
                     <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div 
+                      <div
                         className="bg-gradient-to-r from-primary to-muted h-2 rounded-full transition-all duration-300"
                         style={{ width: `${uploadProgress}%` }}
                       />
@@ -1526,7 +1819,8 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
             ? phases
                 .find((p) => p.id === currentEditingVideo.phaseId)
                 ?.chapters.find((ch) => ch.id === currentEditingVideo.chapterId)
-                ?.videos.find((v) => v.id === currentEditingVideo.videoId)?.skills || []
+                ?.videos.find((v) => v.id === currentEditingVideo.videoId)
+                ?.skills || []
             : []
         }
         existingSkills={existingSkills}
@@ -1543,7 +1837,9 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
         quizType="PHASE_QUIZ"
         resourceId={currentQuizPhase?.originalPhaseId ?? ""}
         resourceTitle={currentQuizPhase?.title ?? ""}
-        availableSkills={currentQuizPhase ? getPhaseSkills(currentQuizPhase) : []}
+        availableSkills={
+          currentQuizPhase ? getPhaseSkills(currentQuizPhase) : []
+        }
         existingQuiz={existingQuiz}
         onSuccess={handleQuizSuccess}
         loading={isLoadingQuiz}
@@ -1583,7 +1879,10 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
                 <p className="text-sm text-red-800 font-medium flex items-start gap-2">
                   <span className="text-lg">⚠️</span>
                   <span>
-                    Cette action est irréversible. La phase entière avec TOUS ses chapitres et TOUTES ses vidéos (avec leurs miniatures) seront définitivement supprimés de S3 et de la base de données.
+                    Cette action est irréversible. La phase entière avec TOUS
+                    ses chapitres et TOUTES ses vidéos (avec leurs miniatures)
+                    seront définitivement supprimés de S3 et de la base de
+                    données.
                   </span>
                 </p>
               </div>
@@ -1593,12 +1892,14 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
             <div className="px-6 py-4 bg-gray-50 flex gap-3 justify-end">
               <Button
                 variant="outline"
-                onClick={() => setDeletePhaseModal({ 
-                  isOpen: false, 
-                  phaseId: null, 
-                  phaseName: null,
-                  hasUploadedVideos: false 
-                })}
+                onClick={() =>
+                  setDeletePhaseModal({
+                    isOpen: false,
+                    phaseId: null,
+                    phaseName: null,
+                    hasUploadedVideos: false,
+                  })
+                }
                 disabled={isDeletingPhase}
                 className="border-gray-300 hover:bg-gray-100"
               >
@@ -1660,7 +1961,9 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
                 <p className="text-sm text-red-800 font-medium flex items-start gap-2">
                   <span className="text-lg">⚠️</span>
                   <span>
-                    Cette action est irréversible. Le chapitre et toutes ses vidéos (avec leurs miniatures) seront définitivement supprimés de S3 et de la base de données.
+                    Cette action est irréversible. Le chapitre et toutes ses
+                    vidéos (avec leurs miniatures) seront définitivement
+                    supprimés de S3 et de la base de données.
                   </span>
                 </p>
               </div>
@@ -1670,13 +1973,15 @@ const PhaseManager: React.FC<UnifiedPhaseManagerProps> = () => {
             <div className="px-6 py-4 bg-gray-50 flex gap-3 justify-end">
               <Button
                 variant="outline"
-                onClick={() => setDeleteChapterModal({ 
-                  isOpen: false, 
-                  phaseId: null, 
-                  chapterId: null, 
-                  chapterName: null,
-                  hasUploadedVideos: false 
-                })}
+                onClick={() =>
+                  setDeleteChapterModal({
+                    isOpen: false,
+                    phaseId: null,
+                    chapterId: null,
+                    chapterName: null,
+                    hasUploadedVideos: false,
+                  })
+                }
                 disabled={isDeletingChapter}
                 className="border-gray-300 hover:bg-gray-100"
               >

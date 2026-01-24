@@ -235,6 +235,13 @@ const DroppablePhase: React.FC<DroppablePhaseProps> = ({
                       <Folder className="h-4 w-4" />
                       <span>{phase.chapters.filter(ch => !ch.isDeleted).length} chapitre{phase.chapters.filter(ch => !ch.isDeleted).length > 1 ? 's' : ''}</span>
                     </div>
+                      {phase.hasQuiz !== undefined && (
+                        <div className="inline-flex items-center">
+                          <span className="text-[11px] text-gray-700 bg-gray-100 px-2 py-0.5 rounded-lg ml-2">
+                            {phase.hasQuiz ? '1 quiz' : '0 quiz'}
+                          </span>
+                        </div>
+                      )}
                   </div>
                   {phase.description && (
                     <CardDescription className="text-sm text-gray-600 leading-relaxed bg-gradient-to-r from-gray-50/50 to-white p-3 rounded-lg line-clamp-3 sm:line-clamp-none border border-gray-100/50">
