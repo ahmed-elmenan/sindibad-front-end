@@ -64,11 +64,6 @@ const QuizManagementModal: React.FC<QuizManagementModalProps> = ({
 
   const [hasChanges, setHasChanges] = useState(false);
 
-  useEffect(() => {
-    console.log("Existing Quiz:", existingQuiz);
-    console.log("Selected Skills:", selectedSkills);
-  }, [existingQuiz, selectedSkills]);
-
   // Initialize form with existing quiz data
   useEffect(() => {
     if (existingQuiz) {
@@ -154,8 +149,6 @@ const QuizManagementModal: React.FC<QuizManagementModalProps> = ({
       });
       return;
     }
-
-    console.log("Adding skill:", availableSkill);
 
     setSelectedSkills([
       ...selectedSkills,
