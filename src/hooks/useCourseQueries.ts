@@ -71,7 +71,6 @@ export const useCourseSubscription = (courseId: string | undefined) => {
     queryKey: ['user-data', courseId],
     queryFn: () => getCourseSubscription(courseId!),
     enabled: !!courseId,
-    staleTime: 1000 * 60 * 10, // Override: 10 minutes pour subscription (contenu user-specific)
   })
 }
 

@@ -72,9 +72,6 @@ export default function CourseDetailsPage() {
   const { data: chapters = [] } = useCourseChapters(courseId);
   const { data: CourseSubscription } = useCourseSubscription(courseId);
 
-  // Get number of learners from user data
-  const numberOfLearners = CourseSubscription?.learnersCount || 0;
-
   // Logic to determine button state and actions
   const getButtonState = () => {
     if (!CourseSubscription || !CourseSubscription.loggedIn) {
@@ -148,12 +145,7 @@ export default function CourseDetailsPage() {
         setShowRibModal(true);
         break;
       case "enroll": {
-        // If organization has no learners, show warning and prevent enrollment
-        if (isOrganisation && numberOfLearners === 0) {
-          toast.warning("Vous devez avoir au moins un apprenant dans votre organisation pour faire une demande de souscription");
-          return;
-        }
-        // Show confirmation modal
+        // Show confirmation modal (backend will validate learners count)
         setShowConfirmModal(true);
         break;
       }
@@ -729,11 +721,6 @@ export default function CourseDetailsPage() {
               <div>
                 <p className="text-sm text-gray-600 font-medium">Cours</p>
                 <p className="text-base font-semibold text-gray-900">{course?.title}</p>
-              </div>
-              
-              <div>
-                <p className="text-sm text-gray-600 font-medium">Nombre de bénéficiaires</p>
-                <p className="text-base font-semibold text-gray-900">{numberOfLearners}</p>
               </div>
             </div>
 
