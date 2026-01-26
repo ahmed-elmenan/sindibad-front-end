@@ -70,7 +70,7 @@ export default function CourseDetailsPage() {
   const { data: reviews = [], isLoading: reviewsLoading } =
     useCourseReviews(courseId);
   const { data: chapters = [] } = useCourseChapters(courseId);
-  const { data: CourseSubscription } = useCourseSubscription(courseId);
+  const { data: CourseSubscription, isLoading: subscriptionLoading } = useCourseSubscription(courseId);
 
   // Logic to determine button state and actions
   const getButtonState = () => {
@@ -464,18 +464,23 @@ export default function CourseDetailsPage() {
                   )}
                   <CardContent className="space-y-4 md:space-y-6 px-4 md:px-6">
                     {/* Show button only for non-subscribed users or with ACTIVE status */}
-                    {(!CourseSubscription?.subscription ||
-                      CourseSubscription?.subscription?.status ===
-                        "ACTIVE") && (
-                      <Button
-                        ref={enrollButtonRef}
-                        onClick={handleButtonClick}
-                        disabled={buttonState.disabled}
-                        className={`w-full py-3 md:py-4 text-sm md:text-base font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2 min-h-[3rem] ${buttonState.colorClass}`}
-                      >
-                        <buttonState.icon className="h-4 w-4 md:h-5 md:w-5 flex-shrink-0" />
-                        <span className="text-center leading-tight">{buttonState.text}</span>
-                      </Button>
+                    {subscriptionLoading ? (
+                      // Skeleton placeholder while subscription is loading
+                      <div className="w-full py-3 md:py-4 rounded-lg bg-gray-200 animate-pulse min-h-[3rem]"></div>
+                    ) : (
+                      (!CourseSubscription?.subscription ||
+                        CourseSubscription?.subscription?.status ===
+                          "ACTIVE") && (
+                        <Button
+                          ref={enrollButtonRef}
+                          onClick={handleButtonClick}
+                          disabled={buttonState.disabled}
+                          className={`w-full py-3 md:py-4 text-sm md:text-base font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2 min-h-[3rem] ${buttonState.colorClass}`}
+                        >
+                          <buttonState.icon className="h-4 w-4 md:h-5 md:w-5 flex-shrink-0" />
+                          <span className="text-center leading-tight">{buttonState.text}</span>
+                        </Button>
+                      )
                     )}
 
                     {/* Display subscription information if user is subscribed */}
