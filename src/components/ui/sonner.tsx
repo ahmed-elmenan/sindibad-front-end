@@ -44,9 +44,9 @@ export const Toaster = ({ richColors = true, ...props }: ToastProps) => {
           "--error-bg": "var(--destructive)",
           "--error-text": "#ffffff",
           "--error-border": "var(--destructive)",
-          "--warning-bg": "var(--muted)",
-          "--warning-text": "var(--muted-foreground)",
-          "--warning-border": "var(--muted)",
+          "--warning-bg": "#FFFBEB", /* amber-50 */
+          "--warning-text": "#92400E", /* amber-700 */
+          "--warning-border": "#F59E0B", /* amber-500 */
           "--info-bg": "var(--primary)",
           "--info-text": "var(--primary-foreground)",
           "--info-border": "var(--primary)",
@@ -80,7 +80,7 @@ const getToastIcon = (type: ToastType) => {
     case "error":
       return <AlertCircle className="h-5 w-5 text-white" />
     case "warning":
-      return <AlertTriangle className="h-5 w-5 text-muted-foreground" />
+      return <AlertTriangle className="h-5 w-5 text-amber-700" />
     case "info":
       return <Info className="h-5 w-5 text-primary-foreground" />
     default:

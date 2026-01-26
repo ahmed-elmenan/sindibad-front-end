@@ -1,13 +1,12 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import { CourseDetailsSkeleton } from "@/components/course/skeletons";
 import ReviewsSection from "@/components/course/ReviewsSection";
 import StarRating from "@/components/course/StarRating";
@@ -28,12 +27,10 @@ import {
   useCourse,
   useCourseReviews,
   useCourseChapters,
-  useCoursePacks,
   useCourseSubscription,
 } from "@/hooks/useCourseQueries";
-import { getOptimalPack, enrollInCourse } from "@/services/course.service";
+import { enrollInCourse } from "@/services/course.service";
 import { toast } from "@/components/ui/sonner";
-import type { Pack } from "@/types/Pack";
 import { useAuth } from "@/hooks/useAuth";
 import {
   Dialog,
@@ -51,10 +48,6 @@ export default function CourseDetailsPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { user } = useAuth();
-  const [selectedPack, setSelectedPack] = useState<{
-    pack: Pack;
-    learners: number;
-  } | null>(null);
   const [isEnrolling, setIsEnrolling] = useState(false);
   const enrollButtonRef = useRef<HTMLButtonElement>(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -77,18 +70,10 @@ export default function CourseDetailsPage() {
   const { data: reviews = [], isLoading: reviewsLoading } =
     useCourseReviews(courseId);
   const { data: chapters = [] } = useCourseChapters(courseId);
-  const { data: packs = [] } = useCoursePacks(courseId);
   const { data: CourseSubscription } = useCourseSubscription(courseId);
 
   // Get number of learners from user data
   const numberOfLearners = CourseSubscription?.learnersCount || 0;
-
-  // Automatic pack selection according to business logic
-  useEffect(() => {
-    
-    const { pack, learners } = getOptimalPack(packs, CourseSubscription);    
-    handlePackSelect(pack, learners);
-  }, [CourseSubscription, numberOfLearners, packs]);
 
   // Logic to determine button state and actions
   const getButtonState = () => {
@@ -127,28 +112,13 @@ export default function CourseDetailsPage() {
       };
     }
 
-    // Logged in user but not subscribed
-    if (selectedPack) {
-      return {
-        text: isEnrolling
-          ? t("courseDetails.enrolling")
-          : t("courseDetails.enrollNow"),
-        disabled: isEnrolling,
-        action: "enroll",
-        icon: ShoppingCart,
-        colorClass: isEnrolling
-          ? "bg-gradient-to-r from-gray-400 to-gray-500 cursor-not-allowed text-white"
-          : "bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white",
-      };
-    }
-
     return {
-      text: t("courseDetails.choosePack"),
-      disabled: true,
-      action: "choosePack",
+      text: isOrganisation ? t("courseDetails.enrollNow") : t("courseDetails.enrollNow"),
+      disabled: false,
+      action: "enroll",
       icon: ShoppingCart,
       colorClass:
-        "bg-gradient-to-r from-gray-400 to-gray-500 cursor-not-allowed text-white",
+        "bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white",
     };
   };
 
@@ -178,6 +148,11 @@ export default function CourseDetailsPage() {
         setShowRibModal(true);
         break;
       case "enroll": {
+        // If organization has no learners, show warning and prevent enrollment
+        if (isOrganisation && numberOfLearners === 0) {
+          toast.warning("Vous devez avoir au moins un apprenant dans votre organisation pour faire une demande de souscription");
+          return;
+        }
         // Show confirmation modal
         setShowConfirmModal(true);
         break;
@@ -190,24 +165,21 @@ export default function CourseDetailsPage() {
   // Function to confirm and process enrollment
   const confirmEnrollment = async () => {
     setShowConfirmModal(false);
-    
-    // Enrollment logic
-    if (!selectedPack || !courseId) {
-      toast.error({
-        title: t("courseDetails.enrollmentError"),
-        description: "Missing required enrollment data",
-      });
-      return;
-    }
 
     setIsEnrolling(true);
     const loadingToast = toast.loading(t("courseDetails.enrolling"));
 
     try {
+          if (!courseId) {
+            toast.error({
+              title: t("courseDetails.enrollmentError"),
+              description: t("courseDetails.courseIdMissing"),
+            });
+            setIsEnrolling(false);
+            return;
+          }
           const enrollmentData = {
-            courseId,
-            packId: selectedPack.pack.id,
-            numberOfLearners: selectedPack.learners,
+            courseId: courseId
           };
 
           const response = await enrollInCourse(enrollmentData);
@@ -298,24 +270,6 @@ export default function CourseDetailsPage() {
     } else {
       return `${minutes} ${t("courseDetails.chapterAccordion.minutes")}`;
     }
-  };
-
-  const handlePackSelect = (pack: Pack | null, learners: number) => {
-    if (pack) {
-      setSelectedPack({ pack, learners });
-    } else {
-      setSelectedPack(null);
-    }
-  };
-
-  const calculatePrice = (
-    pack: Pack,
-    basePrice: number,
-    numLearners: number
-  ) => {
-    const totalPrice = basePrice * numLearners;
-    const discount = (totalPrice * pack.discountPercentage) / 100;
-    return totalPrice - discount;
   };
 
   // Loading state - bloquer uniquement si le cours n'est pas chargé
@@ -713,124 +667,6 @@ export default function CourseDetailsPage() {
                       </div>
                     )}
 
-                    {/* Display selected pack details */}
-                    {selectedPack &&
-                      CourseSubscription?.loggedIn &&
-                      !CourseSubscription?.subscription &&
-                      !isOrganisation && (
-                        <div className="bg-gradient-to-r from-green-50 to-green-100/50 border border-green-200 rounded-lg p-4 space-y-4 animate-in slide-in-from-top-2">
-                          <div className="flex items-center gap-2">
-                            <CheckCircle className="h-5 w-5 text-green-500" />
-                            <h5 className="font-semibold text-gray-800">
-                              {t("courseDetails.selectedPack")}{" "}
-                              {selectedPack.pack.name}
-                            </h5>
-                          </div>
-
-                          {/* Informations sur la capacité du pack */}
-                          <div className="bg-white/50 rounded-lg p-3">
-                            <div className="flex items-center justify-between mb-2">
-                              <span className="text-sm font-medium text-gray-700">
-                                {t("courseDetails.packCapacity")}
-                              </span>
-                              <span className="text-sm font-semibold text-gray-800">
-                                {selectedPack.pack.minLearners ===
-                                selectedPack.pack.maxLearners
-                                  ? `${selectedPack.pack.minLearners} ${
-                                      selectedPack.pack.minLearners > 1
-                                        ? t("courseDetails.learners")
-                                        : t("courseDetails.learner")
-                                    }`
-                                  : `${selectedPack.pack.minLearners}-${
-                                      selectedPack.pack.maxLearners
-                                    } ${t("courseDetails.learners")}`}
-                              </span>
-                            </div>
-                            {selectedPack.pack.discountPercentage > 0 && (
-                              <div className="flex items-center gap-2">
-                                <Badge className="bg-green-100 text-green-800 border border-green-300 text-xs">
-                                  {t("courseDetails.packDiscount")}{" "}
-                                  {selectedPack.pack.discountPercentage}%
-                                </Badge>
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Description du pack */}
-                          <div className="bg-white/50 rounded-lg p-3">
-                            <h6 className="text-sm font-medium text-gray-700 mb-2">
-                              {t("courseDetails.packDescription")}
-                            </h6>
-                            <p className="text-sm text-gray-600 leading-relaxed">
-                              {selectedPack.pack.description}
-                            </p>
-                          </div>
-
-                          {/* Détails financiers */}
-                          <div className="space-y-2 text-sm">
-                            <div className="flex justify-between">
-                              <span className="text-gray-600">
-                                {t("courseDetails.unitPrice")}
-                              </span>
-                              <span className="font-medium">
-                                {course.price} MAD
-                              </span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-gray-600">
-                                {t("courseDetails.numLearners")}
-                              </span>
-                              <span className="font-medium">
-                                {selectedPack.learners}
-                              </span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-gray-600">
-                                {t("courseDetails.subtotal")}
-                              </span>
-                              <span className="font-medium">
-                                {(
-                                  (course.price ?? 0) * selectedPack.learners
-                                ).toFixed(2)}{" "}
-                                MAD
-                              </span>
-                            </div>
-                            {selectedPack.pack.discountPercentage > 0 && (
-                              <div className="flex justify-between">
-                                <span className="text-green-600">
-                                  {t("courseDetails.discount")} (
-                                  {selectedPack.pack.discountPercentage}%) :
-                                </span>
-                                <span className="font-medium text-green-600">
-                                  -
-                                  {(
-                                    ((course.price ?? 0) *
-                                      selectedPack.learners *
-                                      selectedPack.pack.discountPercentage) /
-                                    100
-                                  ).toFixed(0)}{" "}
-                                  MAD
-                                </span>
-                              </div>
-                            )}
-                            <Separator />
-                            <div className="flex justify-between text-lg font-bold">
-                              <span className="text-gray-800">
-                                {t("courseDetails.total")}
-                              </span>
-                              <span className="bg-gradient-to-r from-orange-500 to-orange-600 bg-clip-text text-transparent">
-                                {calculatePrice(
-                                  selectedPack.pack,
-                                  course.price ?? 0,
-                                  selectedPack.learners
-                                ).toFixed(0)}{" "}
-                                MAD
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
                     <div className="space-y-3">
                       <h4 className="font-semibold text-gray-800 text-sm md:text-base">
                         {t("courseDetails.includesTitle")}
@@ -897,9 +733,7 @@ export default function CourseDetailsPage() {
               
               <div>
                 <p className="text-sm text-gray-600 font-medium">Nombre de bénéficiaires</p>
-                <p className="text-base font-semibold text-gray-900">
-                  {selectedPack?.learners} {selectedPack?.learners && selectedPack.learners > 1 ? "apprenants" : "apprenant"}
-                </p>
+                <p className="text-base font-semibold text-gray-900">{numberOfLearners}</p>
               </div>
             </div>
 

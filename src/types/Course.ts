@@ -29,9 +29,7 @@ export interface CourseSubscription {
 }
 
 export interface EnrollmentData {
-  courseId: string;
-  packId: string;
-  numberOfLearners: number;
+  courseId: string
 }
 
 export interface EnrollmentResponse {
