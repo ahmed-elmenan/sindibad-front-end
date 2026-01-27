@@ -53,6 +53,7 @@ export default function CourseDetailsPage() {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showRibModal, setShowRibModal] = useState(false);
   const [copiedRib, setCopiedRib] = useState(false);
+  const [justEnrolled, setJustEnrolled] = useState(false);
 
   // Check if user is an organisation
   const isOrganisation = user?.role === "ORGANISATION";
@@ -85,19 +86,18 @@ export default function CourseDetailsPage() {
       };
     }
 
-    if (CourseSubscription.subscription) {
-      // If subscription is pending, show payment button
-      if (CourseSubscription.subscription.status === "PENDING") {
-        return {
-          text: t("courseDetails.paymentInfo"),
-          disabled: false,
-          action: "payment",
-          icon: CreditCard,
-          colorClass:
-            "bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white",
-        };
-      }
+    if (justEnrolled || (CourseSubscription.subscription && CourseSubscription.subscription.status === "PENDING")) {
+      return {
+        text: t("courseDetails.paymentInfo"),
+        disabled: false,
+        action: "payment",
+        icon: CreditCard,
+        colorClass:
+          "bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white",
+      };
+    }
 
+    if (CourseSubscription.subscription) {
       // If subscription is active, show view course button
       return {
         text: t("courseDetails.viewCourses"),
@@ -185,6 +185,9 @@ export default function CourseDetailsPage() {
               title: t("courseDetails.enrollmentSuccess"),
               description: t("courseDetails.enrollmentSuccessDescription"),
             });
+
+            // Set just enrolled to show payment button
+            setJustEnrolled(true);
 
             // Refetch query to get new subscription information
             // Use the same key as in useCourseSubscription
