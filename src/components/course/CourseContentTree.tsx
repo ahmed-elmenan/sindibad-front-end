@@ -16,12 +16,8 @@ import {
   type LessonContentDTO,
 } from "@/services/course.service";
 import { Badge } from "@/components/ui/badge";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import VideoPreviewModal from "@/components/admin/VideoPreviewModal";
+import { getPresignedUrlForVideo } from "@/services/chapter.service";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface CourseContentTreeProps {
@@ -38,6 +34,10 @@ const CourseContentTree = ({ courseId }: CourseContentTreeProps) => {
   const [selectedVideo, setSelectedVideo] = useState<LessonContentDTO | null>(
     null
   );
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [previewTitle, setPreviewTitle] = useState<string>("");
+  const [isLoadingVideo, setIsLoadingVideo] = useState(false);
 
   const { data, isLoading, error } = useQuery<CourseContentDTO>({
     queryKey: ["courseContent", courseId],
@@ -53,15 +53,31 @@ const CourseContentTree = ({ courseId }: CourseContentTreeProps) => {
     setExpandedChapters(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
-  const handleLessonClick = (lesson: LessonContentDTO) => {
+  const handleLessonClick = async (lesson: LessonContentDTO) => {
     if (!data) return;
 
     if (!data.hasActiveSubscription) {
       return; // Do nothing if no active subscription
     }
 
-    // Open video modal if user has active subscription
-    setSelectedVideo(lesson);
+    if (!lesson.videoUrl) return;
+
+    setIsLoadingVideo(true);
+    setPreviewTitle(lesson.title || "Aperçu vidéo");
+
+    try {
+      const presignedUrl = await getPresignedUrlForVideo({ videoUrl: lesson.videoUrl });
+      if (!presignedUrl) {
+        throw new Error("URL présignée non disponible");
+      }
+      setPreviewUrl(presignedUrl);
+      setIsPreviewOpen(true);
+    } catch (err: any) {
+      console.error("Erreur lors de la récupération de l'URL présignée:", err);
+      // show a basic alert via console or extend with toast if available in this module
+    } finally {
+      setIsLoadingVideo(false);
+    }
   };
 
   const formatDuration = (seconds: number): string => {
@@ -236,8 +252,9 @@ const CourseContentTree = ({ courseId }: CourseContentTreeProps) => {
                                               e.stopPropagation();
                                               handleLessonClick(lesson);
                                             }}
-                                            className="p-2 rounded-md bg-primary/5 text-primary hover:bg-primary hover:text-white transition-all opacity-0 group-hover:opacity-100"
+                                            className="p-2 rounded-md bg-primary/5 text-primary hover:bg-primary hover:text-white transition-all"
                                             title="Visualiser la vidéo"
+                                            aria-label={`Prévisualiser la vidéo: ${lesson.title}`}
                                           >
                                             <Eye className="w-4 h-4" />
                                           </button>
@@ -260,25 +277,17 @@ const CourseContentTree = ({ courseId }: CourseContentTreeProps) => {
         )}
       </div>
 
-      {/* Video Player Modal */}
-      <Dialog open={!!selectedVideo} onOpenChange={() => setSelectedVideo(null)}>
-        <DialogContent className="max-w-4xl max-h-[90vh]">
-          <DialogHeader>
-            <DialogTitle>{selectedVideo?.title}</DialogTitle>
-          </DialogHeader>
-          {selectedVideo?.videoUrl && (
-            <div className="aspect-video">
-              <video
-                controls
-                className="w-full h-full rounded-lg"
-                src={selectedVideo.videoUrl}
-              >
-                Your browser does not support the video tag.
-              </video>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+      {/* Video Player using shared admin VideoPreviewModal */}
+      <VideoPreviewModal
+        isOpen={isPreviewOpen}
+        onClose={() => {
+          setIsPreviewOpen(false);
+          setPreviewUrl(null);
+          setPreviewTitle("");
+        }}
+        videoUrl={previewUrl}
+        videoTitle={previewTitle}
+      />
     </>
   );
 };
