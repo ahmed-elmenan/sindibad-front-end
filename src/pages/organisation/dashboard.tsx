@@ -1,6 +1,5 @@
 import { ChartAreaInteractive } from "@/components/ChartAreaInteractive";
 import { SectionCards } from "@/components/SectionCards";
-import LearnersRankingPage from "../learners/LearnerRankingPage";
 
 export default function Page() {
   return (
@@ -11,7 +10,6 @@ export default function Page() {
           <div className="px-4 lg:px-6">
             <ChartAreaInteractive />
           </div>
-          <LearnersRankingPage userRole="organisations" />
         </div>
       </div>
     </div>

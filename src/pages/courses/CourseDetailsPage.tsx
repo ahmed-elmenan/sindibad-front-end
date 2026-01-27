@@ -3,7 +3,7 @@
 import { useState, useRef } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -29,7 +29,7 @@ import {
   useCourseChapters,
   useCourseSubscription,
 } from "@/hooks/useCourseQueries";
-import { enrollInCourse } from "@/services/course.service";
+import { enrollInCourse, getCourseStats } from "@/services/course.service";
 import { toast } from "@/components/ui/sonner";
 import { useAuth } from "@/hooks/useAuth";
 import {
@@ -72,6 +72,17 @@ export default function CourseDetailsPage() {
     useCourseReviews(courseId);
   const { data: chapters = [] } = useCourseChapters(courseId);
   const { data: CourseSubscription, isLoading: subscriptionLoading } = useCourseSubscription(courseId);
+
+  const { data: courseStats, isLoading: statsLoading } = useQuery({
+    queryKey: ["course-stats", courseId],
+    queryFn: async () => {
+      if (!courseId) {
+        return { organisationBeneficiariesCount: 0, completedLearnersCount: 0 };
+      }
+      return getCourseStats(courseId);
+    },
+    enabled: !!courseId,
+  });
 
   // Logic to determine button state and actions
   const getButtonState = () => {
@@ -471,19 +482,37 @@ export default function CourseDetailsPage() {
                       // Skeleton placeholder while subscription is loading
                       <div className="w-full py-3 md:py-4 rounded-lg bg-gray-200 animate-pulse min-h-[3rem]"></div>
                     ) : (
-                      (!CourseSubscription?.subscription ||
-                        CourseSubscription?.subscription?.status ===
-                          "ACTIVE") && (
-                        <Button
-                          ref={enrollButtonRef}
-                          onClick={handleButtonClick}
-                          disabled={buttonState.disabled}
-                          className={`w-full py-3 md:py-4 text-sm md:text-base font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2 min-h-[3rem] ${buttonState.colorClass}`}
-                        >
-                          <buttonState.icon className="h-4 w-4 md:h-5 md:w-5 flex-shrink-0" />
-                          <span className="text-center leading-tight">{buttonState.text}</span>
-                        </Button>
-                      )
+                      (() => {
+                        // If organisation and course is purchased, show a dedicated info panel
+                        if (CourseSubscription?.subscription && isOrganisation) {
+                          return (
+                            <div className="w-full bg-white border border-green-100 rounded-lg p-4 flex items-center gap-3">
+                              <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0" />
+                              <div>
+                                <div className="text-sm font-semibold text-gray-800">Cours acheté</div>
+                                <div className="text-xs text-gray-600">Ce cours a été acquis pour votre organisation. Les apprenants peuvent accéder aux leçons.</div>
+                              </div>
+                            </div>
+                          );
+                        }
+
+                        // Otherwise, render the normal action button(s)
+                        if (!CourseSubscription?.subscription || CourseSubscription?.subscription?.status === "ACTIVE" || buttonState.action === "payment" || buttonState.action === "login" || buttonState.action === "enroll") {
+                          return (
+                            <Button
+                              ref={enrollButtonRef}
+                              onClick={handleButtonClick}
+                              disabled={buttonState.disabled}
+                              className={`w-full py-3 md:py-4 text-sm md:text-base font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2 min-h-[3rem] ${buttonState.colorClass}`}
+                            >
+                              <buttonState.icon className="h-4 w-4 md:h-5 md:w-5 flex-shrink-0" />
+                              <span className="text-center leading-tight">{buttonState.text}</span>
+                            </Button>
+                          );
+                        }
+
+                        return null;
+                      })()
                     )}
 
                     {/* Display subscription information if user is subscribed */}
@@ -636,6 +665,33 @@ export default function CourseDetailsPage() {
                                 ).toLocaleDateString()}
                               </span>
                             </div>
+                          )}
+
+                          {/* Course stats: organisation beneficiaries and completed learners */}
+                          {statsLoading ? (
+                            <div className="mt-2 border-t pt-2 text-sm space-y-2">
+                              <div className="flex items-center justify-between">
+                                <span className="text-gray-600">Bénéficiaires (votre organisation)</span>
+                                <span className="inline-block h-4 w-16 bg-gray-200 rounded animate-pulse" />
+                              </div>
+                              <div className="flex items-center justify-between">
+                                <span className="text-gray-600">Apprenants ayant terminé</span>
+                                <span className="inline-block h-4 w-16 bg-gray-200 rounded animate-pulse" />
+                              </div>
+                            </div>
+                          ) : (
+                            courseStats && (
+                              <div className="mt-2 border-t pt-2 text-sm space-y-1">
+                                <div className="flex items-center justify-between">
+                                  <span className="text-gray-600">Bénéficiaires (votre organisation)</span>
+                                  <span className="font-medium text-gray-800">{courseStats.organisationBeneficiariesCount}</span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                  <span className="text-gray-600">Apprenants ayant terminé</span>
+                                  <span className="font-medium text-gray-800">{courseStats.completedLearnersCount}</span>
+                                </div>
+                              </div>
+                            )
                           )}
                         </div>
 

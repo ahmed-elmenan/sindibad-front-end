@@ -194,6 +194,16 @@ export const getCourseContent = async (
   }
 };
 
+export const getCourseStats = async (courseId: string): Promise<{ organisationBeneficiariesCount: number; completedLearnersCount: number }> => {
+  try {
+    const res = await api.get(`/courses/${courseId}/stats`);
+    return res.data;
+  } catch (error) {
+    console.error("Error fetching course stats:", error);
+    throw error;
+  }
+};
+
 export const getOptimalPack = (
   packs: Pack[],
   courseSubscription: CourseSubscription | undefined
