@@ -142,7 +142,7 @@ export const SubscriptionRequestsTable = ({
                   <TableHead className="text-center border-b border-gray-300 bg-[#f8fafc] font-semibold h-10 px-2 sm:px-4 align-middle text-xs sm:text-sm"><div className="truncate">Organisation</div></TableHead>
                   <TableHead className="text-center border-b border-gray-300 bg-[#f8fafc] font-semibold h-10 px-2 sm:px-4 align-middle text-xs sm:text-sm"><div className="truncate">Responsable</div></TableHead>
                   <TableHead className="text-center border-b border-gray-300 bg-[#f8fafc] font-semibold h-10 px-2 sm:px-4 align-middle text-xs sm:text-sm"><div className="truncate">Cours</div></TableHead>
-                  <TableHead className="text-center border-b border-gray-300 bg-[#f8fafc] font-semibold h-10 px-2 sm:px-4 align-middle text-xs sm:text-sm"><div className="truncate">Nombre des apprenants</div></TableHead>
+                  <TableHead className="text-center border-b border-gray-300 bg-[#f8fafc] font-semibold h-10 px-2 sm:px-4 align-middle text-xs sm:text-sm"><div className="truncate">Pack</div></TableHead>
                   <TableHead className="text-center border-b border-gray-300 bg-[#f8fafc] font-semibold h-10 px-2 sm:px-4 align-middle text-xs sm:text-sm"><div className="truncate">Prix unitaire</div></TableHead>
                   <TableHead className="text-center border-b border-gray-300 bg-[#f8fafc] font-semibold h-10 px-2 sm:px-4 align-middle text-xs sm:text-sm"><div className="truncate">Statut</div></TableHead>
                   <TableHead className="text-center border-b border-gray-300 bg-[#f8fafc] font-semibold h-10 px-2 sm:px-4 align-middle text-xs sm:text-sm"><div className="truncate">Date</div></TableHead>
@@ -171,7 +171,14 @@ export const SubscriptionRequestsTable = ({
                     
                     <TableCell className="text-center border-b border-gray-300 p-2 sm:p-3">
                       <div className="text-sm">
-                        <div className="font-semibold">{formatCurrency(request.amount)}</div>
+                        {request.discountPercentage > 0 ? (
+                          <>
+                            <div className="line-through text-gray-500">{formatCurrency(request.unitPrice)}</div>
+                            <div className="font-semibold text-green-600">{formatCurrency(request.amount)}</div>
+                          </>
+                        ) : (
+                          <div className="font-semibold">{formatCurrency(request.amount)}</div>
+                        )}
                         {request.discountPercentage > 0 && (
                           <div className="text-green-600 text-xs">-{request.discountPercentage}%</div>
                         )}
