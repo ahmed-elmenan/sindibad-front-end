@@ -123,7 +123,7 @@ export const SubscriptionRequestFilters = ({
           {/* Ligne 2: Statut, dates et bouton réinitialiser */}
           <div className="flex flex-col sm:flex-row flex-wrap gap-2 items-start sm:items-end">
             {/* Filtre par statut */}
-            <div className="space-y-2 w-full sm:flex-shrink-0">
+            <div className="space-y-2 w-full sm:w-1/4 sm:flex-shrink-0">
               <Label htmlFor="status">Statut</Label>
               <Select
                 value={filters.status || 'all'}
@@ -143,17 +143,17 @@ export const SubscriptionRequestFilters = ({
               </Select>
             </div>
 
-            {/* Plage de dates */}
-            <div className="space-y-2 w-full sm:flex-shrink-0">
+            {/* Plage de dates + reset inline */}
+            <div className="space-y-2 w-full sm:w-1/3 sm:flex-shrink-0">
               <Label>Période</Label>
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-center">
                 {/* Bouton calendrier début */}
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
                       className={cn(
-                        'flex items-center justify-start text-left font-normal h-9 px-3 overflow-hidden w-full',
+                        'flex items-center justify-start text-left font-normal h-9 px-3 overflow-hidden w-full sm:w-44',
                         !startDate && 'text-muted-foreground'
                       )}
                     >
@@ -180,7 +180,7 @@ export const SubscriptionRequestFilters = ({
                     <Button
                       variant="outline"
                       className={cn(
-                        'flex items-center justify-start text-left font-normal h-9 px-3 overflow-hidden w-full',
+                        'flex items-center justify-start text-left font-normal h-9 px-3 overflow-hidden w-full sm:w-44',
                         !endDate && 'text-muted-foreground'
                       )}
                     >
@@ -200,14 +200,14 @@ export const SubscriptionRequestFilters = ({
                     />
                   </PopoverContent>
                 </Popover>
-              </div>
-            </div>
 
-            {/* Bouton réinitialiser les filtres */}
-            <div className="w-full sm:flex-shrink-0">
-              <Button variant="outline" onClick={handleResetFilters} className="w-full">
-                Réinitialiser
-              </Button>
+                {/* Reset button inline with dates (full width on mobile) */}
+                <div className="w-full sm:w-auto">
+                  <Button variant="outline" onClick={handleResetFilters} className="w-full sm:w-auto">
+                    Réinitialiser
+                  </Button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
