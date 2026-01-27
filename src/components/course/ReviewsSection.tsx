@@ -24,6 +24,7 @@ export default function ReviewsSection({
   const { t } = useTranslation();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [selectedReview, setSelectedReview] = useState<Review | null>(null);
   const [visibleCount, setVisibleCount] = useState<number>(5);
   const [expandedReviewIds, setExpandedReviewIds] = useState<Record<string, boolean>>({});
   
@@ -65,17 +66,20 @@ export default function ReviewsSection({
   };
 
   const handleSaveReview = async (updatedData: { rating: number; comment: string }) => {
-    if (!userReview) return;
-    
+    const target = selectedReview ?? userReview;
+    if (!target) return;
+
     try {
       await updateReviewMutation.mutateAsync({
-        reviewId: userReview.id,
+        reviewId: target.id,
         updateData: updatedData
       });
       toast.success({
         title: t("courseDetails.reviewsSection.updateSuccess"),
         description: t("courseDetails.reviewsSection.updateSuccessDescription")
       });
+      setIsEditModalOpen(false);
+      setSelectedReview(null);
     } catch (error) {
       console.error("Error updating review:", error);
       toast.error({
@@ -87,14 +91,17 @@ export default function ReviewsSection({
   };
 
   const handleDeleteReview = async () => {
-    if (!userReview) return;
-    
+    const target = selectedReview ?? userReview;
+    if (!target) return;
+
     try {
-      await deleteReviewMutation.mutateAsync(userReview.id);
+      await deleteReviewMutation.mutateAsync(target.id);
       toast.success({
         title: t("courseDetails.reviewsSection.deleteSuccess"),
         description: t("courseDetails.reviewsSection.deleteSuccessDescription")
       });
+      setIsEditModalOpen(false);
+      setSelectedReview(null);
     } catch (error) {
       console.error("Error deleting review:", error);
       toast.error({
@@ -192,7 +199,12 @@ export default function ReviewsSection({
                           <div className="ml-4 flex-shrink-0 flex flex-col items-end gap-2">
                             {isUser && (
                               <Button
-                                onClick={() => setIsEditModalOpen(true)}
+                                onClick={() => {
+                                  // Only allow editing if this review is owned by current user
+                                  if (review.canEdit !== true) return;
+                                  setSelectedReview(review);
+                                  setIsEditModalOpen(true);
+                                }}
                                 variant="ghost"
                                 size="sm"
                                 className="h-8 w-8 p-0 text-orange-600"
@@ -242,11 +254,11 @@ export default function ReviewsSection({
       </CardContent>
 
       {/* Edit review modal */}
-      {userReview && (
+      {(selectedReview || userReview) && (
         <EditReviewModal
           isOpen={isEditModalOpen}
-          onClose={() => setIsEditModalOpen(false)}
-          review={userReview}
+          onClose={() => { setIsEditModalOpen(false); setSelectedReview(null); }}
+          review={selectedReview ?? userReview!}
           onSave={handleSaveReview}
           onDelete={handleDeleteReview}
         />
