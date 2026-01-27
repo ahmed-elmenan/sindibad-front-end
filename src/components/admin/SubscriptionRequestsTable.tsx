@@ -145,7 +145,7 @@ export const SubscriptionRequestsTable = ({
                   <TableHead className="text-center border-b border-gray-300 bg-[#f8fafc] font-semibold h-10 px-2 sm:px-4 align-middle text-xs sm:text-sm"><div className="truncate">Pack</div></TableHead>
                   <TableHead className="text-center border-b border-gray-300 bg-[#f8fafc] font-semibold h-10 px-2 sm:px-4 align-middle text-xs sm:text-sm"><div className="truncate">Prix unitaire</div></TableHead>
                   <TableHead className="text-center border-b border-gray-300 bg-[#f8fafc] font-semibold h-10 px-2 sm:px-4 align-middle text-xs sm:text-sm"><div className="truncate">Statut</div></TableHead>
-                  <TableHead className="text-center border-b border-gray-300 bg-[#f8fafc] font-semibold h-10 px-2 sm:px-4 align-middle text-xs sm:text-sm"><div className="truncate">Date</div></TableHead>
+                  <TableHead className="text-center border-b border-gray-300 bg-[#f8fafc] font-semibold h-10 px-2 sm:px-4 align-middle text-xs sm:text-sm"><div className="truncate">Date du demande</div></TableHead>
                   <TableHead className="text-center border-b border-gray-300 bg-[#f8fafc] font-semibold h-10 px-2 sm:px-4 align-middle text-xs sm:text-sm"><div className="truncate">Actions</div></TableHead>
                 </TableRow>
               </TableHeader>

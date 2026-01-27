@@ -36,6 +36,8 @@ interface ManageSubscriptionDialogProps {
     refusedReason?: string | null;
     processedBy?: string | null;
     processedAt?: string | null;
+    startDate?: string | null;
+    endDate?: string | null;
   } | null;
   onStatusChange: (subscriptionId: string, newStatus: SubscriptionStatus) => void;
   onReceiptUpload: (subscriptionId: string, file: File) => void;
@@ -153,6 +155,25 @@ export const ManageSubscriptionDialog = ({
               <Badge className={statusConfig[subscription.status].className}>
                 {statusConfig[subscription.status].label}
               </Badge>
+            </div>
+          </div>
+
+          {/* Dates de l'abonnement */}
+          <div className="space-y-2">
+            <Label>Dates de l'abonnement</Label>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label className="text-sm text-muted-foreground">Date de début</Label>
+                <div className="text-sm font-medium">
+                  {subscription.startDate ? new Date(subscription.startDate).toLocaleDateString('fr-FR') : 'Non définie'}
+                </div>
+              </div>
+              <div>
+                <Label className="text-sm text-muted-foreground">Date de fin</Label>
+                <div className="text-sm font-medium">
+                  {subscription.endDate ? new Date(subscription.endDate).toLocaleDateString('fr-FR') : 'Non définie'}
+                </div>
+              </div>
             </div>
           </div>
 
