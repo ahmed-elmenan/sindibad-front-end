@@ -144,16 +144,16 @@ export const SubscriptionRequestFilters = ({
             </div>
 
             {/* Plage de dates */}
-            <div className="space-y-2 flex-shrink-0">
+            <div className="space-y-2 w-full sm:flex-shrink-0">
               <Label>Période</Label>
-              <div className="flex flex-col xs:flex-row gap-2 items-start xs:items-center">
+              <div className="flex flex-col gap-2">
                 {/* Bouton calendrier début */}
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
                       className={cn(
-                        'flex items-center justify-start text-left font-normal h-9 px-3 overflow-hidden w-full sm:w-40',
+                        'flex items-center justify-start text-left font-normal h-9 px-3 overflow-hidden w-full',
                         !startDate && 'text-muted-foreground'
                       )}
                     >
@@ -180,7 +180,7 @@ export const SubscriptionRequestFilters = ({
                     <Button
                       variant="outline"
                       className={cn(
-                        'flex items-center justify-start text-left font-normal h-9 px-3 overflow-hidden w-32 sm:w-40',
+                        'flex items-center justify-start text-left font-normal h-9 px-3 overflow-hidden w-full',
                         !endDate && 'text-muted-foreground'
                       )}
                     >
@@ -204,8 +204,8 @@ export const SubscriptionRequestFilters = ({
             </div>
 
             {/* Bouton réinitialiser les filtres */}
-            <div className="flex-shrink-0">
-              <Button variant="outline" onClick={handleResetFilters}>
+            <div className="w-full sm:flex-shrink-0">
+              <Button variant="outline" onClick={handleResetFilters} className="w-full">
                 Réinitialiser
               </Button>
             </div>
