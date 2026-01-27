@@ -41,7 +41,6 @@ import OrganizationsPage from "@/pages/admin/OrganizationsPage";
 import RequestsPage from "@/pages/admin/RequestsPage";
 
 import AdminsManagementPage from "@/pages/admin/AdminsManagementPage";
-import ManagementSkillsPage from "@/pages/admin/ManagementSkillsPage";
 
 export const router = createBrowserRouter([
   {
@@ -223,10 +222,6 @@ export const router = createBrowserRouter([
       {
         path: "requests",
         element: <RequestsPage />,
-      },
-      {
-        path: "skills",
-        element: <ManagementSkillsPage />,
       },
       {
         path: "courses/:courseId/questions",

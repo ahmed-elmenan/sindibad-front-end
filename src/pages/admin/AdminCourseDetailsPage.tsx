@@ -22,6 +22,7 @@ import {
   useCourseChapters,
   useCourseReviews,
   useCoursePacks,
+  useDeleteReview,
 } from "@/hooks/useCourseQueries";
 import StarRating from "@/components/course/StarRating";
 import PackDisplay from "@/components/course/PackDisplay";
@@ -36,13 +37,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useState } from "react";
+import React, { useState } from "react";
 import { deleteCourse } from "@/services/course.service";
 import { getPresignedUrlForVideo } from "@/services/chapter.service";
 import { toast } from "sonner";
 import VideoPreviewModal from "@/components/admin/VideoPreviewModal";
 import { useQueryClient } from "@tanstack/react-query";
-import QuizManagementPage from "./QuizManagementPage";
+import QuestionManagementPage from "./QuestionManagementPage";
 import SkeletonCourseDetailsPage from "@/components/course/SkeletonCourseDetailsPage";
 import {
   ChaptersSkeleton,
@@ -67,7 +68,55 @@ export default function AdminCourseDetailsPage() {
   const { data: packs = [], isLoading: isPacksLoading } =
     useCoursePacks(courseId);
 
-  const [isQuizzesOpen, setIsQuizzesOpen] = useState(false);
+  const deleteReviewMutation = useDeleteReview();
+
+  // Modal state for deleting a review
+  const [deleteReviewDialogOpen, setDeleteReviewDialogOpen] = useState(false);
+  const [selectedReviewToDelete, setSelectedReviewToDelete] = useState<{
+    id: string;
+    name?: string | null;
+  } | null>(null);
+  const [deletingReviewId, setDeletingReviewId] = useState<string | null>(null);
+
+  const handleDeleteReview = (reviewId: string, name?: string | null) => {
+    setSelectedReviewToDelete({ id: reviewId, name });
+    setDeleteReviewDialogOpen(true);
+  };
+
+  const confirmDeleteReview = async () => {
+    if (!selectedReviewToDelete) return;
+    try {
+      setDeletingReviewId(selectedReviewToDelete.id);
+      await deleteReviewMutation.mutateAsync(selectedReviewToDelete.id);
+
+      // Optimistically remove the deleted review from the cached reviews for this course
+      try {
+        queryClient.setQueryData(['course-reviews', courseId], (old: any) => {
+          if (!old) return old;
+          return old.filter((r: any) => r.id !== selectedReviewToDelete.id);
+        });
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      } catch (e) {
+        // ignore cache update errors
+      }
+
+      // Ensure the correct query is refetched (invalidate specific course key)
+      queryClient.invalidateQueries({ queryKey: ['course-reviews', courseId] });
+
+      toast.success("Avis supprimé");
+    } catch (error: any) {
+      console.error("Error deleting review:", error);
+      toast.error("Erreur lors de la suppression de l'avis", {
+        description: error?.message || "Impossible de supprimer l'avis",
+      });
+    } finally {
+      setDeleteReviewDialogOpen(false);
+      setSelectedReviewToDelete(null);
+      setDeletingReviewId(null);
+    }
+  };
+
+  const [isQuestionsManagement, setIsQuestionsManagement] = useState(false);
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -132,6 +181,34 @@ export default function AdminCourseDetailsPage() {
       ADVANCED: "Avancé",
     };
     return levelTranslations[level] || level;
+  };
+
+  // Calculer la durée totale du cours à partir de toutes les lessons (durations en secondes)
+  const totalCourseSeconds = React.useMemo(() => {
+    if (!chapters || chapters.length === 0) return 0;
+    return chapters.reduce((total: number, phase: any) => {
+      if (!phase.lessons) return total;
+      const phaseSum = phase.lessons.reduce((s: number, lesson: any) => s + (lesson.duration || 0), 0);
+      return total + phaseSum;
+    }, 0);
+  }, [chapters]);
+
+  const formatDuration = (seconds: number) => {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+    const parts: string[] = [];
+    if (h > 0) parts.push(`${h}h`);
+    if (m > 0) parts.push(`${m}min`);
+    if (s > 0 || parts.length === 0) parts.push(`${s}s`);
+    return parts.join(" ");
+  };
+
+  const getInitials = (name?: string) => {
+    if (!name) return "A";
+    const parts = name.trim().split(/\s+/);
+    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
   };
 
   // Fonction pour supprimer le cours
@@ -229,12 +306,9 @@ export default function AdminCourseDetailsPage() {
     );
   }
 
-  if (isQuizzesOpen && course) {
+  if (isQuestionsManagement && course) {
     return (
-      <QuizManagementPage
-        courseTitle={course.title}
-        onBack={() => setIsQuizzesOpen(false)}
-      />
+      <QuestionManagementPage />
     );
   }
 
@@ -262,15 +336,7 @@ export default function AdminCourseDetailsPage() {
             className="bg-red-600 hover:bg-red-700 text-white text-sm sm:text-base w-full sm:w-auto"
           >
             <Trash2 className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
-            <span className="truncate">Supprimer</span>
-          </Button>
-          <Button
-            onClick={() => setIsQuizzesOpen(true)}
-            variant="secondary"
-            className="text-sm sm:text-base w-full sm:w-auto"
-          >
-            <BookOpen className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
-            <span className="truncate">Gérer les Quiz</span>
+            <span className="truncate">Supprimer le cours</span>
           </Button>
         </div>
       </div>
@@ -542,7 +608,7 @@ export default function AdminCourseDetailsPage() {
             <Card>
               <CardHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-2 sm:pb-3">
                 <CardTitle className="text-base sm:text-lg">
-                  Avis des Étudiants
+                  Gestion des Avis
                 </CardTitle>
               </CardHeader>
               <CardContent className="px-4 sm:px-6 pb-4 sm:pb-6">
@@ -558,21 +624,56 @@ export default function AdminCourseDetailsPage() {
                         {averageRating.toFixed(1)} ({reviews.length} avis)
                       </span>
                     </div>
-                    <div className="space-y-3 sm:space-y-4">
+                    <div className="grid gap-4">
                       {reviews.map((review) => (
                         <div
                           key={review.id}
-                          className="border-b border-gray-100 pb-3 sm:pb-4"
+                          className="bg-white border rounded-lg p-4 shadow-sm hover:shadow-md transition-all duration-150"
                         >
-                          <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-2">
-                            <StarRating rating={review.rating} size="sm" />
-                            <span className="text-xs sm:text-sm text-gray-500">
-                              {new Date(review.createdAt).toLocaleDateString()}
-                            </span>
+                          <div className="flex items-start gap-3">
+                            <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-sm font-semibold text-gray-800">
+                              {getInitials(review.name)}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between gap-3">
+                                <div className="flex items-center gap-2 min-w-0">
+                                  <span className="text-sm font-medium text-gray-900 truncate">
+                                    { review.name || "Anonyme"}
+                                  </span>
+                                  <span className="text-xs text-gray-500">
+                                    {new Date(review.createdAt).toLocaleDateString()}
+                                  </span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <StarRating rating={review.rating} size="sm" />
+                                  <button
+                                    onClick={() => handleDeleteReview(review.id, review.name)}
+                                    title={deletingReviewId === review.id ? "Suppression..." : "Supprimer l'avis"}
+                                    className={
+                                      deletingReviewId === review.id
+                                        ? "ml-2 px-3 py-1 rounded-md bg-red-600 text-white text-xs font-medium flex items-center gap-2"
+                                        : "p-1 rounded-md text-red-600 hover:bg-red-50 ml-2"
+                                    }
+                                    disabled={deletingReviewId !== null}
+                                    aria-busy={deletingReviewId === review.id}
+                                  >
+                                    {deletingReviewId === review.id ? (
+                                      <>
+                                        <div className="animate-spin rounded-full h-3 w-3 border-2 border-white border-t-transparent" />
+                                        <span>Suppression...</span>
+                                      </>
+                                    ) : (
+                                      <Trash2 className="w-4 h-4" />
+                                    )}
+                                  </button>
+                                </div>
+                              </div>
+
+                              <p className="mt-2 text-sm text-gray-700 leading-relaxed break-words">
+                                {review.comment}
+                              </p>
+                            </div>
                           </div>
-                          <p className="text-sm sm:text-base text-gray-700 leading-relaxed">
-                            {review.comment}
-                          </p>
                         </div>
                       ))}
                     </div>
@@ -597,7 +698,7 @@ export default function AdminCourseDetailsPage() {
                 <div className="flex items-center gap-2">
                   <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-gray-500 flex-shrink-0" />
                   <span className="text-xs sm:text-sm text-gray-700 truncate">
-                    {course.duration} h
+                    {formatDuration(totalCourseSeconds)}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -653,7 +754,7 @@ export default function AdminCourseDetailsPage() {
                   className="w-full text-sm sm:text-base"
                   variant="outline"
                 >
-                  Modifier le Cours
+                  Modifier les informations
                 </Button>
               </Link>
               <Link
@@ -664,9 +765,16 @@ export default function AdminCourseDetailsPage() {
                   className="w-full text-sm sm:text-base"
                   variant="outline"
                 >
-                  Gérer le Contenu
+                  Gérer le Contenu du Cours
                 </Button>
               </Link>
+              <Button
+                className="w-full text-sm sm:text-base"
+                variant="outline"
+                onClick={() => setIsQuestionsManagement(true)}
+              >
+                Gérer les questions
+              </Button>
               <Link
                 to={`/admin/courses/${courseId}/reviews`}
                 className="w-full"
@@ -772,6 +880,56 @@ export default function AdminCourseDetailsPage() {
         videoUrl={currentVideoUrl}
         videoTitle={currentVideoTitle}
       />
+
+      {/* Delete Review Confirmation Dialog */}
+      <AlertDialog open={deleteReviewDialogOpen} onOpenChange={setDeleteReviewDialogOpen}>
+        <AlertDialogContent className="max-w-[95vw] sm:max-w-lg max-h-[90vh] overflow-y-auto">
+          <AlertDialogHeader>
+            <div className="flex items-center gap-2 sm:gap-3 mb-2">
+              <div className="p-2 sm:p-3 rounded-full bg-red-100 flex-shrink-0">
+                <AlertTriangle className="h-5 w-5 sm:h-6 sm:w-6 text-red-600" />
+              </div>
+              <AlertDialogTitle className="text-lg sm:text-xl lg:text-2xl">
+                Supprimer l'avis ?
+              </AlertDialogTitle>
+            </div>
+            <AlertDialogDescription className="space-y-2 sm:space-y-3 text-sm sm:text-base">
+              <p className="font-semibold text-gray-900 leading-relaxed break-words">
+                Vous êtes sur le point de supprimer définitivement cet avis de
+                <span className="font-bold"> {selectedReviewToDelete?.name || "l'utilisateur"}</span>.
+              </p>
+              <p className="text-gray-700 font-medium text-sm sm:text-base">
+                Cette action est irréversible. Voulez-vous continuer ?
+              </p>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-col sm:flex-row gap-2 sm:gap-3">
+            <AlertDialogCancel
+              onClick={() => {
+                setDeleteReviewDialogOpen(false);
+                setSelectedReviewToDelete(null);
+              }}
+              className="w-full sm:w-auto text-sm sm:text-base bg-gray-100 hover:bg-gray-200 text-gray-900 hover:text-gray-900 transition-colors duration-200"
+            >
+              Annuler
+            </AlertDialogCancel>
+            <Button
+              onClick={confirmDeleteReview}
+              className="bg-red-600 hover:bg-red-700 focus:ring-red-600 disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto text-sm sm:text-base"
+              disabled={deletingReviewId !== null}
+            >
+              {deletingReviewId !== null ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2 flex-shrink-0" />
+                  Suppression...
+                </>
+              ) : (
+                "Supprimer"
+              )}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
