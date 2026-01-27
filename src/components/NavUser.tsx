@@ -27,7 +27,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import * as React from "react";
-import { handleLogoutUser } from "@/services/auth.service";
+import { useAuth } from "@/hooks/useAuth";
 import UserSummarySkeleton from "@/components/UserSummarySkeleton";
 
 export function NavUser({
@@ -45,17 +45,36 @@ export function NavUser({
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [isLoggingOut, setIsLoggingOut] = React.useState(false);
+  const { logout } = useAuth();
 
   const handleLogout = React.useCallback(async () => {
     setIsLoggingOut(true);
     try {
-      await handleLogoutUser();
+      // Empêcher l'intercepteur d'effectuer une redirection via window.location
+      // (évite un reload complet lorsque l'UI effectue déjà une navigation SPA)
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem('suppressSessionRedirect', 'true')
+      }
+
+      await logout();
       navigate("/signin");
+
+      // Nettoyer le flag après navigation (petit délai pour laisser l'intercepteur finir)
+      if (typeof window !== "undefined") {
+        setTimeout(() => {
+          try {
+            sessionStorage.removeItem('suppressSessionRedirect')
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          } catch (err) {
+            /* ignore */
+          }
+        }, 1500)
+      }
     } catch (error) {
       console.error("Error logging out:", error);
       setIsLoggingOut(false);
     }
-  }, [navigate]);
+  }, [logout, navigate]);
 
   // Afficher le skeleton pendant le chargement
   if (isLoading) {

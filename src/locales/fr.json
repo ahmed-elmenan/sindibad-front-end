@@ -428,6 +428,7 @@
     "reviewsSection": {
       "title": "Avis des participants",
       "averageRating": "Note moyenne",
+      "overall": "Note globale",
       "reviewsCount": "avis",
       "seeAll": "Voir tous les avis",
       "noReviews": "Aucun avis pour cette formation.",

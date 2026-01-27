@@ -451,6 +451,7 @@
     "reviewsSection": {
       "title": "تقييمات المشاركين",
       "averageRating": "متوسط التقييم",
+      "overall": "التقييم العام",
       "reviewsCount": "تقييم",
       "seeAll": "عرض جميع التقييمات",
       "noReviews": "لا توجد تقييمات لهذه الدورة.",

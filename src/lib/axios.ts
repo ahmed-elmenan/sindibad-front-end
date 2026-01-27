@@ -106,20 +106,25 @@ api.interceptors.response.use(
         localStorage.removeItem('accessToken')
         localStorage.removeItem('userEmail')
         localStorage.removeItem('userRole')
-        
+
         // Afficher un message à l'utilisateur
         if (typeof window !== 'undefined') {
           // Utiliser un événement personnalisé pour notifier l'expiration de session
-          window.dispatchEvent(new CustomEvent('sessionExpired', { 
+          window.dispatchEvent(new CustomEvent('sessionExpired', {
             detail: { message: 'Your session has expired. Please login again.' }
           }))
-          
-          // Rediriger vers la page de connexion après un court délai
-          setTimeout(() => {
-            window.location.href = '/signin'
-          }, 1000)
+
+          // Respecter un flag temporaire qui empêche la redirection automatique
+          // (utile lorsqu'on fait un logout explicite depuis l'UI)
+          const suppress = sessionStorage.getItem('suppressSessionRedirect') === 'true'
+          if (!suppress) {
+            // Rediriger vers la page de connexion après un court délai
+            setTimeout(() => {
+              window.location.href = '/signin'
+            }, 1000)
+          }
         }
-        
+
         return Promise.reject(refreshError)
       } finally {
         isRefreshing = false
