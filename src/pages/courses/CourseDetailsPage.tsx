@@ -519,19 +519,6 @@ export default function CourseDetailsPage() {
                         )}
 
                         <div className="space-y-3">
-                          {/* Number of learners */}
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm text-gray-600">
-                              {t("courseDetails.subscriptionLearners")}
-                            </span>
-                            <span className="font-medium text-gray-800">
-                              {CourseSubscription.learnersCount}{" "}
-                              {CourseSubscription.learnersCount > 1
-                                ? t("courseDetails.learners")
-                                : t("courseDetails.learner")}
-                            </span>
-                          </div>
-
                           {/* Price information - only show if not organisation */}
                           {!isOrganisation && (
                             <>
