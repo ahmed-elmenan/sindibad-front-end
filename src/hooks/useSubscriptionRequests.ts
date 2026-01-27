@@ -32,7 +32,9 @@ export const useSubscriptionRequests = (filters: SubscriptionFilters) => {
   return useQuery({
     queryKey: [QUERY_KEY, filters],
     queryFn: () => subscriptionRequestService.getAllRequests(filters),
-    staleTime: 30000, // 30 secondes
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnMount: 'always',
   });
 };
 
