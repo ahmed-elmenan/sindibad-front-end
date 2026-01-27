@@ -64,29 +64,37 @@ export const SubscriptionRequestFilters = ({
 
   const handleStartDateChange = (date: Date | undefined) => {
     setStartDate(date);
-    onFilterChange({ startDate: date?.getTime() });
+    onFilterChange({ startDate: date ? date.getTime() : undefined });
   };
 
   const handleEndDateChange = (date: Date | undefined) => {
     setEndDate(date);
-    onFilterChange({ endDate: date?.getTime() });
+    onFilterChange({ endDate: date ? date.getTime() : undefined });
   };
 
-  const handleClearDates = () => {
+
+
+  const handleResetFilters = () => {
+    setSearchInput('');
     setStartDate(undefined);
     setEndDate(undefined);
-    onFilterChange({ startDate: undefined, endDate: undefined });
+    onFilterChange({
+      searchTerm: undefined,
+      status: undefined,
+      startDate: undefined,
+      endDate: undefined,
+    });
   };
 
   return (
     <Card>
       <CardContent className="pt-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          {/* Recherche textuelle */}
-          <div className="md:col-span-2 space-y-2">
-            <Label htmlFor="search">Rechercher</Label>
-            <div className="flex gap-2">
-              <div className="relative flex-1">
+        <div className="space-y-4">
+          {/* Ligne 1: Recherche textuelle et bouton rechercher */}
+          <div className="flex gap-2 items-end">
+            <div className="flex-1 space-y-2">
+              <Label htmlFor="search">Rechercher</Label>
+              <div className="relative">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="search"
@@ -105,87 +113,97 @@ export const SubscriptionRequestFilters = ({
                   </button>
                 )}
               </div>
-              <Button onClick={handleSearch}>Rechercher</Button>
             </div>
+            <Button onClick={handleSearch}>Rechercher</Button>
           </div>
 
-          {/* Filtre par statut */}
-          <div className="space-y-2">
-            <Label htmlFor="status">Statut</Label>
-            <Select
-              value={filters.status || 'all'}
-              onValueChange={handleStatusChange}
-            >
-              <SelectTrigger id="status">
-                <SelectValue placeholder="Tous les statuts" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tous les statuts</SelectItem>
-                <SelectItem value="PENDING">En attente</SelectItem>
-                <SelectItem value="REFUSED">Refusées</SelectItem>
-                <SelectItem value="ACTIVE">Actives</SelectItem>
-                <SelectItem value="SUSPENDED">Suspendues</SelectItem>
-                <SelectItem value="EXPIRED">Expirées</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Plage de dates */}
-          <div className="space-y-2">
-            <Label>Période</Label>
-            <div className="flex gap-2">
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      'flex-1 justify-start text-left font-normal',
-                      !startDate && 'text-muted-foreground'
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {startDate ? format(startDate, 'dd/MM/yyyy', { locale: fr }) : 'Du'}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={startDate}
-                    onSelect={handleStartDateChange}
-                    locale={fr}
-                  />
-                </PopoverContent>
-              </Popover>
-
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      'flex-1 justify-start text-left font-normal',
-                      !endDate && 'text-muted-foreground'
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {endDate ? format(endDate, 'dd/MM/yyyy', { locale: fr }) : 'Au'}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={endDate}
-                    onSelect={handleEndDateChange}
-                    locale={fr}
-                  />
-                </PopoverContent>
-              </Popover>
-
-              {(startDate || endDate) && (
-                <Button variant="ghost" size="icon" onClick={handleClearDates}>
-                  <X className="h-4 w-4" />
-                </Button>
-              )}
+          {/* Ligne 2: Statut, dates et bouton réinitialiser */}
+          <div className="flex flex-wrap gap-2 items-end">
+            {/* Filtre par statut */}
+            <div className="space-y-2">
+              <Label htmlFor="status">Statut</Label>
+              <Select
+                value={filters.status || 'all'}
+                onValueChange={handleStatusChange}
+              >
+                <SelectTrigger id="status" className="w-40">
+                  <SelectValue placeholder="Tous les statuts" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tous les statuts</SelectItem>
+                  <SelectItem value="PENDING">En attente</SelectItem>
+                  <SelectItem value="REFUSED">Refusées</SelectItem>
+                  <SelectItem value="ACTIVE">Actives</SelectItem>
+                  <SelectItem value="SUSPENDED">Suspendues</SelectItem>
+                  <SelectItem value="EXPIRED">Expirées</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
+
+            {/* Plage de dates */}
+            <div className="space-y-2">
+              <Label>Période</Label>
+              <div className="flex gap-2 items-center">
+                {/* Bouton calendrier début */}
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        'flex items-center justify-start text-left font-normal h-9 px-3 overflow-hidden w-40',
+                        !startDate && 'text-muted-foreground'
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4 shrink-0" />
+                      <span className="truncate block">
+                        {startDate ? format(startDate, 'dd/MM/yyyy', { locale: fr }) : 'Du'}
+                      </span>
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={startDate}
+                      onSelect={handleStartDateChange}
+                      locale={fr}
+                      disabled={(date: Date) => endDate ? date > endDate : false}
+                    />
+                  </PopoverContent>
+                </Popover>
+
+                {/* Bouton calendrier fin */}
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        'flex items-center justify-start text-left font-normal h-9 px-3 overflow-hidden w-40',
+                        !endDate && 'text-muted-foreground'
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4 shrink-0" />
+                      <span className="truncate block">
+                        {endDate ? format(endDate, 'dd/MM/yyyy', { locale: fr }) : 'Au'}
+                      </span>
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={endDate}
+                      onSelect={handleEndDateChange}
+                      locale={fr}
+                      disabled={(date: Date) => startDate ? date < startDate : false}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+            </div>
+
+            {/* Bouton réinitialiser les filtres */}
+            <Button variant="outline" onClick={handleResetFilters}>
+              Réinitialiser
+            </Button>
           </div>
         </div>
       </CardContent>
