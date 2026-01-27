@@ -114,19 +114,22 @@ export const SubscriptionRequestFilters = ({
                 )}
               </div>
             </div>
-            <Button onClick={handleSearch}>Rechercher</Button>
+            <Button onClick={handleSearch} className="sm:px-4 px-2">
+              <Search className="sm:hidden h-4 w-4" />
+              <span className="hidden sm:inline">Rechercher</span>
+            </Button>
           </div>
 
           {/* Ligne 2: Statut, dates et bouton réinitialiser */}
-          <div className="flex flex-wrap gap-2 items-end">
+          <div className="flex flex-col sm:flex-row flex-wrap gap-2 items-start sm:items-end">
             {/* Filtre par statut */}
-            <div className="space-y-2">
+            <div className="space-y-2 w-full sm:flex-shrink-0">
               <Label htmlFor="status">Statut</Label>
               <Select
                 value={filters.status || 'all'}
                 onValueChange={handleStatusChange}
               >
-                <SelectTrigger id="status" className="w-40">
+                <SelectTrigger id="status" className="w-full">
                   <SelectValue placeholder="Tous les statuts" />
                 </SelectTrigger>
                 <SelectContent>
@@ -141,16 +144,16 @@ export const SubscriptionRequestFilters = ({
             </div>
 
             {/* Plage de dates */}
-            <div className="space-y-2">
+            <div className="space-y-2 flex-shrink-0">
               <Label>Période</Label>
-              <div className="flex gap-2 items-center">
+              <div className="flex flex-col xs:flex-row gap-2 items-start xs:items-center">
                 {/* Bouton calendrier début */}
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
                       className={cn(
-                        'flex items-center justify-start text-left font-normal h-9 px-3 overflow-hidden w-40',
+                        'flex items-center justify-start text-left font-normal h-9 px-3 overflow-hidden w-full sm:w-40',
                         !startDate && 'text-muted-foreground'
                       )}
                     >
@@ -177,7 +180,7 @@ export const SubscriptionRequestFilters = ({
                     <Button
                       variant="outline"
                       className={cn(
-                        'flex items-center justify-start text-left font-normal h-9 px-3 overflow-hidden w-40',
+                        'flex items-center justify-start text-left font-normal h-9 px-3 overflow-hidden w-32 sm:w-40',
                         !endDate && 'text-muted-foreground'
                       )}
                     >
@@ -201,9 +204,11 @@ export const SubscriptionRequestFilters = ({
             </div>
 
             {/* Bouton réinitialiser les filtres */}
-            <Button variant="outline" onClick={handleResetFilters}>
-              Réinitialiser
-            </Button>
+            <div className="flex-shrink-0">
+              <Button variant="outline" onClick={handleResetFilters}>
+                Réinitialiser
+              </Button>
+            </div>
           </div>
         </div>
       </CardContent>
