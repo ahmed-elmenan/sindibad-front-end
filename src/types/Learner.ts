@@ -6,7 +6,7 @@ export interface Learner {
   firstName: string;
   lastName: string;
   email: string;
-  phone: string;
+  phoneNumber: string;
   avatar?: string;
   organisationId?: string;
 }

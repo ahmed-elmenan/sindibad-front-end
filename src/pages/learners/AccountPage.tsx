@@ -28,8 +28,6 @@ import {
   User,
   Mail,
   Phone,
-  MapPin,
-  Calendar,
   Edit2,
   Lock,
   LogOut,
@@ -57,7 +55,7 @@ const AccountPage: React.FC = () => {
       firstName: "",
       lastName: "",
       email: "",
-      phone: "",
+      phoneNumber: "",
     },
   });
 
@@ -70,7 +68,7 @@ const AccountPage: React.FC = () => {
           firstName: data.firstName,
           lastName: data.lastName,
           email: data.email,
-          phone: data.phone,
+          phoneNumber: data.phoneNumber,
           avatar: data.avatar,
         };
         setLearner(normalizedData);
@@ -78,7 +76,7 @@ const AccountPage: React.FC = () => {
           firstName: data.firstName,
           lastName: data.lastName,
           email: data.email,
-          phone: data.phone,
+          phoneNumber: data.phoneNumber,
         });
       } catch (err) {
         setError(t("account.errors.loadingFailed"));
@@ -99,7 +97,7 @@ const AccountPage: React.FC = () => {
         firstName: data.firstName,
         lastName: data.lastName,
         email: data.email,
-        phone: data.phone,
+        phoneNumber: data.phoneNumber,
       });
 
       const normalizedUpdatedLearner: Learner = {
@@ -107,7 +105,7 @@ const AccountPage: React.FC = () => {
         firstName: updatedLearner.firstName || learner.firstName,
         lastName: updatedLearner.lastName || learner.lastName,
         email: updatedLearner.email || learner.email,
-        phone: updatedLearner.phone || learner.phone,
+        phoneNumber: updatedLearner.phoneNumber || learner.phoneNumber,
         avatar: updatedLearner.avatar || learner.avatar,
       };
 
@@ -243,7 +241,7 @@ const AccountPage: React.FC = () => {
                     Téléphone
                   </p>
                   <p className="text-sm text-gray-900 dark:text-white">
-                    {learner.phone || "Non renseigné"}
+                    {learner.phoneNumber || "Non renseigné"}
                   </p>
                 </div>
               </div>
@@ -294,7 +292,7 @@ const AccountPage: React.FC = () => {
                         Téléphone
                       </Label>
                       <p className="mt-1 text-base font-medium text-gray-900 dark:text-white">
-                        {learner.phone || "Non renseigné"}
+                        {learner.phoneNumber || "Non renseigné"}
                       </p>
                     </div>
                   </div>
@@ -365,15 +363,15 @@ const AccountPage: React.FC = () => {
                     </div>
 
                     <div className="space-y-2 md:col-span-2">
-                      <Label htmlFor="phone">{t("account.fields.phone")}</Label>
+                      <Label htmlFor="phoneNumber">{t("account.fields.phoneNumber")}</Label>
                       <Input
-                        id="phone"
-                        {...form.register("phone")}
-                        placeholder={t("account.placeholders.phone")}
+                        id="phoneNumber"
+                        {...form.register("phoneNumber")}
+                        placeholder={t("account.placeholders.phoneNumber")}
                       />
-                      {form.formState.errors.phone && (
+                      {form.formState.errors.phoneNumber && (
                         <p className="text-red-600 text-xs">
-                          {t(form.formState.errors.phone.message || "")}
+                          {t(form.formState.errors.phoneNumber.message || "")}
                         </p>
                       )}
                     </div>
@@ -456,7 +454,7 @@ const AccountPage: React.FC = () => {
                       setIsLoggingOut(false);
                     }
                   }}
-                  className="border-gray-300 hover:bg-gray-50"
+                  className="border-gray-300 hover:bg-gray-50 hover:text-gray-900"
                 >
                   {isLoggingOut ? (
                     <div className="animate-spin rounded-full h-4 w-4 border-2 border-gray-400 border-t-transparent"></div>
