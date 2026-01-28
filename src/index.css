@@ -71,6 +71,7 @@
 
   /* Couleurs principales */
   --background: linear-gradient(135deg, #fffaf5 0%, #f8f5f1 100%);
+  --background-alt: linear-gradient(135deg, #fffbf5 0%, #fff5eb 50%, #fef3e7 100%);
   --foreground: #0b0607;
 
   --card: #ffffff;
