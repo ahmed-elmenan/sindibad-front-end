@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { Search } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
@@ -10,9 +11,18 @@ const ModernNavBar = () => {
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { isAuthenticated, user } = useAuth();
+  const [searchQuery, setSearchQuery] = useState("");
 
-  if (typeof window !== 'undefined') {
-    console.debug('ModernNavBar auth:', { isAuthenticated, role: user?.role });
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const q = searchQuery.trim();
+    if (!q) return;
+    navigate(`/courses?search=${encodeURIComponent(q)}`);
+    setSearchQuery("");
+  };
+
+  if (typeof window !== "undefined") {
+    console.debug("ModernNavBar auth:", { isAuthenticated, role: user?.role });
   }
 
   const handleNavClick = (sectionId: string) => {
@@ -48,7 +58,36 @@ const ModernNavBar = () => {
                 SindiBad
               </span>
             </div>
-            <div className="hidden md:flex items-center space-x-8 ml-auto">
+
+            {/* Center: search input (visible md+ only when authenticated) */}
+            {isAuthenticated && (
+              <div className="hidden md:flex flex-1 justify-center px-4">
+                <form onSubmit={handleSearchSubmit} className="w-full max-w-md">
+                  <label htmlFor="nav-course-search" className="sr-only">
+                    Rechercher un cours
+                  </label>
+                  <div className="relative">
+                    <input
+                      id="nav-course-search"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Que souhaitez-vous apprendre aujourd'hui?"
+                      className="h-10 w-full pl-4 pr-12 rounded-full border border-border bg-white/80 dark:bg-card/80 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+                    />
+                    <button
+                      type="submit"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 h-7 w-7 flex items-center justify-center bg-primary/10 text-primary rounded-full hover:bg-primary/20 transition-colors"
+                      aria-label="Rechercher"
+                    >
+                      <Search className="h-4 w-4" />
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
+
+            {/* Right: links and auth */}
+            <div className="hidden md:flex items-center space-x-8">
               <a
                 href="https://blackhole.sindibadacademy.com/"
                 target="_blank"
@@ -91,12 +130,6 @@ const ModernNavBar = () => {
                   Get Started
                 </Button>
               )}
-            </div>
-
-            {/* Right side: if user is authenticated and learner, show LearnerNav; otherwise keep Get Started */}
-            <div className="hidden md:flex items-center">
-              {/* useAuth is client-safe; render appropriate control */}
-              {/** Placeholder: will be rendered below inlined to avoid duplication of markup */}
             </div>
 
             {/* Mobile Menu Button */}
@@ -190,6 +223,5 @@ const ModernNavBar = () => {
     </div>
   );
 };
-
 
 export default ModernNavBar;

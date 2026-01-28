@@ -247,7 +247,7 @@ export default function CoursesPage() {
 
   return (
     <>
-      <div className="min-h-screen gradient-bg">
+      <div className="min-h-screen bg-gradient-to-b from-orange-50 to-orange-100 dark:from-slate-900 dark:to-slate-800 -mt-16 pt-16">
         <main className="container mx-auto px-2 sm:px-4 py-4 md:py-8 space-y-6 md:space-y-6 max-w-7xl">
           {/* Header Section */}
           <section className="flex flex-col items-center justify-center py-8 md:py-4 text-center px-4">

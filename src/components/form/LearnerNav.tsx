@@ -39,10 +39,13 @@ export default function LearnerNav() {
   return (
     <div className="hidden md:flex items-center space-x-4 rtl:space-x-reverse">
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
+          <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
-            className="flex items-center gap-2 px-2 py-1 border-0 bg-transparent hover:bg-primary/10 dark:hover:bg-primary/20 rounded-md transition-colors duration-200"
+            className={`flex items-center gap-2 px-2 py-1 border-0 bg-transparent hover:bg-primary/10 dark:hover:bg-primary/20 rounded-md transition-colors duration-200 ${isLoggingOut ? 'opacity-60 cursor-wait' : ''}`}
+            disabled={isLoggingOut}
+            aria-disabled={isLoggingOut}
+            aria-busy={isLoggingOut}
           >
             <Avatar className="h-8 w-8">
               <AvatarImage src={user?.avatar ?? undefined} alt={user?.name ?? ""} onError={(e) => { e.currentTarget.style.display = 'none'; }} />
@@ -53,7 +56,7 @@ export default function LearnerNav() {
             <span className="hidden sm:inline">{user?.name}</span>
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent side="bottom" align="end" className="min-w-[180px] border-0 shadow-none">
+        <DropdownMenuContent side="bottom" align="end" className="min-w-[180px] border-0 shadow-none" aria-busy={isLoggingOut}>
           <DropdownMenuLabel className="p-2">
             <div className="text-sm font-medium">{user?.name}</div>
             <div className="text-xs text-muted-foreground">{user?.email}</div>
@@ -75,8 +78,21 @@ export default function LearnerNav() {
             </Link>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={handleLogout} className="cursor-pointer hover:bg-primary/10 hover:text-primary">
-            {isLoggingOut ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <LogOut className="mr-2 h-4 w-4" />} Déconnexion
+          <DropdownMenuItem
+            onClick={handleLogout}
+            className={`cursor-pointer hover:bg-primary/10 hover:text-primary ${isLoggingOut ? 'pointer-events-none opacity-70' : ''}`}
+            disabled={isLoggingOut}
+            aria-disabled={isLoggingOut}
+          >
+            {isLoggingOut ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Déconnexion...
+              </>
+            ) : (
+              <>
+                <LogOut className="mr-2 h-4 w-4" /> Déconnexion
+              </>
+            )}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
