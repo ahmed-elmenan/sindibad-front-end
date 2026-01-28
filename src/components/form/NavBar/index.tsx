@@ -3,8 +3,16 @@ import { NavLinks } from "./NavLinks"
 import { AuthButtons } from "./AuthButtons"
 import { MobileMenu } from "./MobileMenu"
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import ModernNavBar from "@/components/form/ModernNavBar";
+import { useAuth } from "@/hooks/useAuth";
 
 export function NavBar() {
+    const { isAuthenticated, user } = useAuth();
+
+    // If authenticated learner, use the modern full-screen navbar
+    if (isAuthenticated && String(user?.role || "").toUpperCase() === "LEARNER") {
+        return <ModernNavBar />;
+    }
 
     return (
         <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">

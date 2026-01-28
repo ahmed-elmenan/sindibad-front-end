@@ -1,14 +1,16 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import type { Course } from "@/types";
 
 const CourseSection = ({ courses }: { courses: Course[] }) => {
+  const navigate = useNavigate();
   return (
     <section
       id="courses"
-      className="py-24 bg-gradient-to-br from-slate-50 to-blue-50/30 dark:from-slate-900 dark:to-blue-950/30"
+      className="py-24 bg-gradient-to-br from-slate-50 to-secondary/30 dark:from-slate-900 dark:to-secondary/30"
     >
       <div className="container mx-auto px-6 lg:px-8">
         <motion.div
@@ -18,7 +20,7 @@ const CourseSection = ({ courses }: { courses: Course[] }) => {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <Badge className="mb-4 bg-gradient-to-r from-blue-500/10 to-purple-600/10 text-blue-600 border-blue-200 dark:border-blue-800">
+          <Badge className="mb-4 bg-gradient-to-r from-primary/10 to-secondary/10 text-primary border-border dark:border-border">
             <svg
               className="w-4 h-4 mr-2"
               fill="none"
@@ -41,6 +43,14 @@ const CourseSection = ({ courses }: { courses: Course[] }) => {
             Dive deep into industry-relevant skills with our comprehensive
             courses designed by experts and loved by professionals worldwide.
           </p>
+          <div className="mt-6">
+            <Button
+              onClick={() => navigate("/courses")}
+              className="bg-gradient-to-r from-primary to-secondary text-primary-foreground border-0 rounded-xl px-6 py-3 shadow-lg hover:shadow-xl transition-all duration-200"
+            >
+              Voir le catalogue
+            </Button>
+          </div>
         </motion.div>
 
         <motion.div
@@ -61,7 +71,7 @@ const CourseSection = ({ courses }: { courses: Course[] }) => {
               className="group"
             >
               <Card className="relative h-full bg-white dark:bg-slate-800 border-0 shadow-xl shadow-slate-200/50 dark:shadow-slate-900/50 hover:shadow-2xl hover:shadow-blue-300/20 dark:hover:shadow-blue-900/20 transition-all duration-500 overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
                 <div className="relative overflow-hidden rounded-t-xl">
                   <img
@@ -77,7 +87,7 @@ const CourseSection = ({ courses }: { courses: Course[] }) => {
                 </div>
 
                 <CardContent className="relative p-6">
-                  <Badge className="mb-3 bg-gradient-to-r from-blue-500/10 to-purple-500/10 text-blue-600 border-blue-200">
+                  <Badge className="mb-3 bg-gradient-to-r from-primary/10 to-secondary/10 text-primary border-border">
                     {course.duration} Weeks
                   </Badge>
                   <h3 className="text-xl font-bold mb-3 text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-300">
@@ -89,7 +99,7 @@ const CourseSection = ({ courses }: { courses: Course[] }) => {
 
                   <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-700">
                     <div className="flex items-center space-x-2">
-                      <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-sm font-semibold">
+                      <div className="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center text-white text-sm font-semibold">
                         {course.id === "1"
                           ? "JS"
                           : course.id === "2"
@@ -106,7 +116,7 @@ const CourseSection = ({ courses }: { courses: Course[] }) => {
                     </div>
                     <Button
                       size="sm"
-                      className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white border-0"
+                      className="bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-primary-foreground border-0"
                     >
                       Enroll
                     </Button>

@@ -2,11 +2,18 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
+import LearnerNav from "@/components/form/LearnerNav";
 
 const ModernNavBar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { isAuthenticated, user } = useAuth();
+
+  if (typeof window !== 'undefined') {
+    console.debug('ModernNavBar auth:', { isAuthenticated, role: user?.role });
+  }
 
   const handleNavClick = (sectionId: string) => {
     if (location.pathname !== "/") {
@@ -41,7 +48,7 @@ const ModernNavBar = () => {
                 SindiBad
               </span>
             </div>
-            <div className="hidden md:flex items-center space-x-8">
+            <div className="hidden md:flex items-center space-x-8 ml-auto">
               <a
                 href="https://blackhole.sindibadacademy.com/"
                 target="_blank"
@@ -68,12 +75,28 @@ const ModernNavBar = () => {
               >
                 Contact
               </button>
-              <Button
-                className="bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-primary-foreground border-0 rounded-xl px-6 shadow-lg hover:shadow-xl transition-all duration-200"
-                onClick={() => navigate("/signin")}
-              >
-                Get Started
-              </Button>
+              {isAuthenticated ? (
+                String(user?.role || "").toUpperCase() === "LEARNER" ? (
+                  <LearnerNav />
+                ) : (
+                  <Button asChild variant="ghost">
+                    <a href="/learners/account">Mon compte</a>
+                  </Button>
+                )
+              ) : (
+                <Button
+                  className="bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-primary-foreground border-0 rounded-xl px-6 shadow-lg hover:shadow-xl transition-all duration-200"
+                  onClick={() => navigate("/signin")}
+                >
+                  Get Started
+                </Button>
+              )}
+            </div>
+
+            {/* Right side: if user is authenticated and learner, show LearnerNav; otherwise keep Get Started */}
+            <div className="hidden md:flex items-center">
+              {/* useAuth is client-safe; render appropriate control */}
+              {/** Placeholder: will be rendered below inlined to avoid duplication of markup */}
             </div>
 
             {/* Mobile Menu Button */}

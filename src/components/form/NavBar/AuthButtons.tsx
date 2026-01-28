@@ -4,12 +4,21 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "@/hooks/useAuth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User } from "lucide-react";
+import LearnerNav from "@/components/form/LearnerNav";
 
 export function AuthButtons() {
     const { t } = useTranslation();
     const { isAuthenticated, user } = useAuth(); // removed logout
+    console.log('AuthButtons - isAuthenticated:', isAuthenticated);
+
     
     if (isAuthenticated) {
+        console.log('User role:', user?.role);
+        // Show specialized learner navbar when role is LEARNER (case-insensitive)
+        if (String(user?.role || '').toUpperCase() === 'LEARNER') {
+            return <LearnerNav />;
+        }
+
         return (
             <div className="hidden md:flex items-center space-x-4 rtl:space-x-reverse">
                 <Button variant="ghost" asChild className="flex items-center gap-2 px-2">
@@ -30,6 +39,8 @@ export function AuthButtons() {
             </div>
         );
     }
+
+    console.log('Rendering AuthButtons for unauthenticated user');
     
     return (
         <div className="hidden md:flex items-center space-x-4 rtl:space-x-reverse">
