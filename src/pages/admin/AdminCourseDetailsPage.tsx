@@ -91,17 +91,17 @@ export default function AdminCourseDetailsPage() {
 
       // Optimistically remove the deleted review from the cached reviews for this course
       try {
-        queryClient.setQueryData(['course-reviews', courseId], (old: any) => {
+        queryClient.setQueryData(["course-reviews", courseId], (old: any) => {
           if (!old) return old;
           return old.filter((r: any) => r.id !== selectedReviewToDelete.id);
         });
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (e) {
         // ignore cache update errors
       }
 
       // Ensure the correct query is refetched (invalidate specific course key)
-      queryClient.invalidateQueries({ queryKey: ['course-reviews', courseId] });
+      queryClient.invalidateQueries({ queryKey: ["course-reviews", courseId] });
 
       toast.success("Avis supprimé");
     } catch (error: any) {
@@ -188,7 +188,10 @@ export default function AdminCourseDetailsPage() {
     if (!chapters || chapters.length === 0) return 0;
     return chapters.reduce((total: number, phase: any) => {
       if (!phase.lessons) return total;
-      const phaseSum = phase.lessons.reduce((s: number, lesson: any) => s + (lesson.duration || 0), 0);
+      const phaseSum = phase.lessons.reduce(
+        (s: number, lesson: any) => s + (lesson.duration || 0),
+        0,
+      );
       return total + phaseSum;
     }, 0);
   }, [chapters]);
@@ -307,9 +310,7 @@ export default function AdminCourseDetailsPage() {
   }
 
   if (isQuestionsManagement && course) {
-    return (
-      <QuestionManagementPage />
-    );
+    return <QuestionManagementPage />;
   }
 
   return (
@@ -321,9 +322,9 @@ export default function AdminCourseDetailsPage() {
             <Button
               variant="ghost"
               size="icon"
-              className="group rounded-full h-9 w-9 sm:h-10 sm:w-10 lg:h-11 lg:w-11 bg-gray-100 hover:bg-orange-50 border-2 border-gray-200 hover:border-orange-200 transition-all duration-300 hover:scale-105 shadow-sm flex-shrink-0"
+              className="group rounded-full h-11 w-11 bg-white border-2 border-white hover:scale-[1.02] hover:!bg-white shadow-sm hover:shadow-md backdrop-blur-sm flex-shrink-0 transition-all duration-300"
             >
-              <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5 text-gray-700 group-hover:text-orange-600 transition-colors duration-300" />
+              <ArrowLeft className="h-5 w-5 text-primary transition-colors duration-300" />
             </Button>
           </Link>
           <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-gray-800 line-clamp-2">
@@ -638,17 +639,28 @@ export default function AdminCourseDetailsPage() {
                               <div className="flex items-center justify-between gap-3">
                                 <div className="flex items-center gap-2 min-w-0">
                                   <span className="text-sm font-medium text-gray-900 truncate">
-                                    { review.name || "Anonyme"}
+                                    {review.name || "Anonyme"}
                                   </span>
                                   <span className="text-xs text-gray-500">
-                                    {new Date(review.createdAt).toLocaleDateString()}
+                                    {new Date(
+                                      review.createdAt,
+                                    ).toLocaleDateString()}
                                   </span>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                  <StarRating rating={review.rating} size="sm" />
+                                  <StarRating
+                                    rating={review.rating}
+                                    size="sm"
+                                  />
                                   <button
-                                    onClick={() => handleDeleteReview(review.id, review.name)}
-                                    title={deletingReviewId === review.id ? "Suppression..." : "Supprimer l'avis"}
+                                    onClick={() =>
+                                      handleDeleteReview(review.id, review.name)
+                                    }
+                                    title={
+                                      deletingReviewId === review.id
+                                        ? "Suppression..."
+                                        : "Supprimer l'avis"
+                                    }
                                     className={
                                       deletingReviewId === review.id
                                         ? "ml-2 px-3 py-1 rounded-md bg-red-600 text-white text-xs font-medium flex items-center gap-2"
@@ -882,7 +894,10 @@ export default function AdminCourseDetailsPage() {
       />
 
       {/* Delete Review Confirmation Dialog */}
-      <AlertDialog open={deleteReviewDialogOpen} onOpenChange={setDeleteReviewDialogOpen}>
+      <AlertDialog
+        open={deleteReviewDialogOpen}
+        onOpenChange={setDeleteReviewDialogOpen}
+      >
         <AlertDialogContent className="max-w-[95vw] sm:max-w-lg max-h-[90vh] overflow-y-auto">
           <AlertDialogHeader>
             <div className="flex items-center gap-2 sm:gap-3 mb-2">
@@ -896,7 +911,11 @@ export default function AdminCourseDetailsPage() {
             <AlertDialogDescription className="space-y-2 sm:space-y-3 text-sm sm:text-base">
               <p className="font-semibold text-gray-900 leading-relaxed break-words">
                 Vous êtes sur le point de supprimer définitivement cet avis de
-                <span className="font-bold"> {selectedReviewToDelete?.name || "l'utilisateur"}</span>.
+                <span className="font-bold">
+                  {" "}
+                  {selectedReviewToDelete?.name || "l'utilisateur"}
+                </span>
+                .
               </p>
               <p className="text-gray-700 font-medium text-sm sm:text-base">
                 Cette action est irréversible. Voulez-vous continuer ?

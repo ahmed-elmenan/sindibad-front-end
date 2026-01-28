@@ -675,9 +675,9 @@ export default function AddCoursePage() {
             <Button
               variant="ghost"
               size="icon"
-              className="group rounded-full h-11 w-11 bg-gray-100 hover:bg-orange-50 border-2 border-gray-200 hover:border-orange-200 transition-all duration-300 hover:scale-105 shadow-sm"
+              className="group rounded-full h-11 w-11 bg-white border-2 border-white hover:scale-[1.02] hover:!bg-white shadow-sm hover:shadow-md backdrop-blur-sm flex-shrink-0 transition-all duration-300"
             >
-              <ArrowLeft className="h-5 w-5 text-gray-700 group-hover:text-orange-600 transition-colors duration-300" />
+              <ArrowLeft className="h-5 w-5 text-primary transition-colors duration-300" />
             </Button>
           </Link>
           <div>

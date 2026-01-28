@@ -48,7 +48,7 @@ export default function QuestionManagementPage() {
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [pendingQuestions, setPendingQuestions] = useState<ExcelQuizQuestion[]>(
-    []
+    [],
   );
 
   // Add courseId validation
@@ -66,7 +66,7 @@ export default function QuestionManagementPage() {
       queryKey: ["saved-questions", courseId],
       queryFn: () => quizManagementService.getSavedQuestions(),
       enabled: !!courseId,
-    }
+    },
   );
 
   // Save Excel Data Mutation
@@ -106,7 +106,7 @@ export default function QuestionManagementPage() {
   };
 
   const handleExcelUpload = async (
-    event: React.ChangeEvent<HTMLInputElement>
+    event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -183,13 +183,12 @@ export default function QuestionManagementPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div className="flex items-center gap-3">
           <Button
-            variant="outline"
+            variant="ghost"
             size="icon"
             onClick={() => navigate(`/admin/courses/${courseId}`)}
-            className="rounded-full h-10 w-10"
-            title="Retour au cours"
+            className="group rounded-full h-11 w-11 bg-white border-2 border-white hover:scale-[1.02] hover:!bg-white shadow-sm hover:shadow-md backdrop-blur-sm flex-shrink-0 transition-all duration-300"
           >
-            <ArrowLeft className="h-5 w-5" />
+            <ArrowLeft className="h-5 w-5 text-primary transition-colors duration-300" />
           </Button>
 
           <h1 className="text-2xl font-bold">Quiz Management</h1>

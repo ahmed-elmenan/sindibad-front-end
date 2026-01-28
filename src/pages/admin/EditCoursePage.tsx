@@ -94,20 +94,22 @@ const useUpdateCourse = (courseId: string) => {
     onSuccess: (updatedCourse) => {
       // ✅ Mise à jour immédiate du cache avec les données reçues (200 response)
       queryClient.setQueryData(["course", courseId], updatedCourse);
-      
+
       // ✅ Mise à jour de la liste des cours admin
       queryClient.setQueryData(["admin-courses"], (oldData: any) => {
         if (!oldData) return oldData;
-        return oldData.map((course: any) => 
-          course.id === courseId ? updatedCourse : course
+        return oldData.map((course: any) =>
+          course.id === courseId ? updatedCourse : course,
         );
       });
-      
+
       // Invalider les autres caches liés (chapitres, reviews, packs)
-      queryClient.invalidateQueries({ queryKey: ["course-chapters", courseId] });
+      queryClient.invalidateQueries({
+        queryKey: ["course-chapters", courseId],
+      });
       queryClient.invalidateQueries({ queryKey: ["course-reviews", courseId] });
       queryClient.invalidateQueries({ queryKey: ["course-packs", courseId] });
-      
+
       toast.success("Cours mis à jour avec succès", {
         description: "Les modifications ont été enregistrées",
         duration: 4000,
@@ -199,7 +201,7 @@ const ImageUploader = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [dragActive, setDragActive] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(
-    currentImage || null
+    currentImage || null,
   );
 
   const handleFileSelect = useCallback(
@@ -235,7 +237,7 @@ const ImageUploader = ({
         onImageSelect(null);
       }
     },
-    [onImageSelect, currentImage]
+    [onImageSelect, currentImage],
   );
 
   const handleDrag = useCallback((e: React.DragEvent) => {
@@ -258,7 +260,7 @@ const ImageUploader = ({
         handleFileSelect(e.dataTransfer.files[0]);
       }
     },
-    [handleFileSelect]
+    [handleFileSelect],
   );
 
   const handleInputChange = useCallback(
@@ -267,7 +269,7 @@ const ImageUploader = ({
         handleFileSelect(e.target.files[0]);
       }
     },
-    [handleFileSelect]
+    [handleFileSelect],
   );
 
   const removeImage = useCallback(() => {
@@ -491,7 +493,7 @@ export default function EditCoursePage() {
         });
       }
     },
-    [setValue, watchedValues.currentImgUrl]
+    [setValue, watchedValues.currentImgUrl],
   );
 
   // Gestionnaire pour la sélection de catégorie
@@ -512,7 +514,7 @@ export default function EditCoursePage() {
         setValue("category", value, { shouldValidate: true });
       }
     },
-    [setValue, customCategory]
+    [setValue, customCategory],
   );
 
   // Gestionnaire pour la catégorie personnalisée
@@ -521,7 +523,7 @@ export default function EditCoursePage() {
       setCustomCategory(value);
       setValue("category", value, { shouldValidate: true });
     },
-    [setValue]
+    [setValue],
   );
 
   // Gestionnaire de soumission optimisé
@@ -575,7 +577,7 @@ export default function EditCoursePage() {
           // Ajouter les fonctionnalités si présentes
           if (data.features && data.features.length > 0) {
             const filteredFeatures = data.features.filter(
-              (f) => f.trim() !== ""
+              (f) => f.trim() !== "",
             );
             if (filteredFeatures.length > 0) {
               formData.append("features", JSON.stringify(filteredFeatures));
@@ -601,7 +603,7 @@ export default function EditCoursePage() {
           // Ajouter les fonctionnalités si présentes
           if (data.features && data.features.length > 0) {
             const filteredFeatures = data.features.filter(
-              (f) => f.trim() !== ""
+              (f) => f.trim() !== "",
             );
             if (filteredFeatures.length > 0) {
               formData.append("features", JSON.stringify(filteredFeatures));
@@ -614,7 +616,7 @@ export default function EditCoursePage() {
         console.error("Error in onSubmit:", error);
       }
     },
-    [updateCourseMutation, selectedImageFile]
+    [updateCourseMutation, selectedImageFile],
   );
 
   // Gestionnaire pour annuler avec confirmation si le formulaire a été modifié
@@ -622,7 +624,7 @@ export default function EditCoursePage() {
     if (isDirty) {
       if (
         window.confirm(
-          "Vous avez des modifications non sauvegardées. Êtes-vous sûr de vouloir quitter ?"
+          "Vous avez des modifications non sauvegardées. Êtes-vous sûr de vouloir quitter ?",
         )
       ) {
         navigate("/admin/courses");
@@ -718,9 +720,9 @@ export default function EditCoursePage() {
             <Button
               variant="ghost"
               size="icon"
-              className="group rounded-full h-11 w-11 bg-gray-100 hover:bg-orange-50 border-2 border-gray-200 hover:border-orange-200 transition-all duration-300 hover:scale-105 shadow-sm"
+              className="group rounded-full h-11 w-11 bg-white border-2 border-white hover:scale-[1.02] hover:!bg-white shadow-sm hover:shadow-md backdrop-blur-sm flex-shrink-0 transition-all duration-300"
             >
-              <ArrowLeft className="h-5 w-5 text-gray-700 group-hover:text-orange-600 transition-colors duration-300" />
+              <ArrowLeft className="h-5 w-5 text-primary transition-colors duration-300" />
             </Button>
           </Link>
           <div>
@@ -909,7 +911,7 @@ export default function EditCoursePage() {
                             shouldValidate: true,
                           });
                           setSelectedLevel(
-                            value as "BEGINNER" | "INTERMEDIATE" | "ADVANCED"
+                            value as "BEGINNER" | "INTERMEDIATE" | "ADVANCED",
                           );
                         }}
                         value={selectedLevel}
@@ -939,7 +941,7 @@ export default function EditCoursePage() {
                                   </div>
                                 </div>
                               </SelectItem>
-                            )
+                            ),
                           )}
                         </SelectContent>
                       </Select>
@@ -1016,13 +1018,13 @@ export default function EditCoursePage() {
                           minLearners:
                             currentPacks.length > 0
                               ? Math.max(
-                                  ...currentPacks.map((p) => p.maxLearners)
+                                  ...currentPacks.map((p) => p.maxLearners),
                                 ) + 1
                               : 5,
                           maxLearners:
                             currentPacks.length > 0
                               ? Math.max(
-                                  ...currentPacks.map((p) => p.maxLearners)
+                                  ...currentPacks.map((p) => p.maxLearners),
                                 ) + 10
                               : 10,
                           discountPercentage: 0,
@@ -1066,9 +1068,9 @@ export default function EditCoursePage() {
                                   setValue(
                                     "packs",
                                     currentPacks.filter(
-                                      (p) => p.id !== pack.id
+                                      (p) => p.id !== pack.id,
                                     ),
-                                    { shouldValidate: true }
+                                    { shouldValidate: true },
                                   );
                                 }}
                                 className="h-8 w-8 p-0 hover:bg-red-100 hover:text-red-600"
@@ -1093,7 +1095,7 @@ export default function EditCoursePage() {
                                       ...(watchedValues.packs || []),
                                     ];
                                     const packIndex = currentPacks.findIndex(
-                                      (p) => p.id === pack.id
+                                      (p) => p.id === pack.id,
                                     );
                                     if (packIndex !== -1) {
                                       currentPacks[packIndex].minLearners =
@@ -1123,7 +1125,7 @@ export default function EditCoursePage() {
                                       ...(watchedValues.packs || []),
                                     ];
                                     const packIndex = currentPacks.findIndex(
-                                      (p) => p.id === pack.id
+                                      (p) => p.id === pack.id,
                                     );
                                     if (packIndex !== -1) {
                                       currentPacks[packIndex].maxLearners =
@@ -1155,7 +1157,7 @@ export default function EditCoursePage() {
                                         ...(watchedValues.packs || []),
                                       ];
                                       const packIndex = currentPacks.findIndex(
-                                        (p) => p.id === pack.id
+                                        (p) => p.id === pack.id,
                                       );
                                       if (packIndex !== -1) {
                                         currentPacks[
@@ -1287,7 +1289,7 @@ export default function EditCoursePage() {
                               setValue(
                                 "features",
                                 currentFeatures.filter((_, i) => i !== index),
-                                { shouldValidate: true }
+                                { shouldValidate: true },
                               );
                             }}
                             className="h-8 w-8 p-0 hover:bg-red-100 hover:text-red-600 flex-shrink-0"
