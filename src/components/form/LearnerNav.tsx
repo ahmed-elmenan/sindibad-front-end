@@ -16,6 +16,7 @@ import { Loader2 } from "lucide-react";
 
 export default function LearnerNav() {
   const { user, logout } = useAuth();
+  console.log('LearnerNav user:', user);
   const [isLoggingOut, setIsLoggingOut] = React.useState(false);
   const navigate = useNavigate();
 
@@ -73,7 +74,7 @@ export default function LearnerNav() {
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild className="hover:bg-primary/10 hover:text-primary">
-            <Link to="/learners/progress">
+            <Link to={user?.id ? `/learners/${user.id}/profile` : "/signin"}>
               <Activity className="mr-2 h-4 w-4" />Progression
             </Link>
           </DropdownMenuItem>

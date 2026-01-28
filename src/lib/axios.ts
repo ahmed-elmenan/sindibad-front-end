@@ -40,21 +40,18 @@ const publicEndpoints = [
   '/auth/send-otp',
   '/auth/verify-otp',
   '/auth/reset-password',
-  '/auth/refresh-token'
+  '/auth/refresh-token',
+  '/courses',
 ]
 
 // Interceptor pour attacher le token JWT
 api.interceptors.request.use((config) => {
-  // Ne pas ajouter le token pour les endpoints publics
-  const isPublicEndpoint = publicEndpoints.some(endpoint => 
-    config.url?.includes(endpoint)
-  )
-  
-  if (!isPublicEndpoint) {
-    const token = localStorage.getItem('accessToken')
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
-    }
+  // Attach Authorization header if an access token exists.
+  // Previously we skipped adding headers for 'public' endpoints which caused
+  // authenticated users to send requests without the token (leading to 401).
+  const token = localStorage.getItem('accessToken')
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`
   }
   return config
 })

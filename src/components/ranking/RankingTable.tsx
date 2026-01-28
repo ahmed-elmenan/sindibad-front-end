@@ -236,11 +236,6 @@ export default function RankingTable({
                                 : userRole === "organisation" || userRole === "ORGANISATION"
                                   ? "/organisation"
                                   : "";
-                            console.log("userRole:", userRole);
-                            console.log(
-                              "Navigating to2:",
-                              `${basePath}/learners/${learner.id}/profile`,
-                            );
 
                             navigate(
                               `${basePath}/learners/${learner.id}/profile`,

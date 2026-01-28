@@ -58,7 +58,6 @@ export function getPopularCourses(): Promise<Course[]> {
 export const getCourseById = async (id: string): Promise<Course | null> => {
   try {
     const res = await api.get(`/courses/${id}`);
-    console.log("Course details:", res.data);
     return res.data;
   } catch (error) {
     console.error("Error fetching course:", error);
@@ -123,12 +122,6 @@ export const getCourseChapters = async (id: string): Promise<Chapter[]> => {
     // Ajouter un timestamp pour forcer un bypass du cache backend si nécessaire
     const timestamp = new Date().getTime();
     const res = await api.get(`/courses/${id}/chapters?_t=${timestamp}`);
-    console.log("Chapters details:", res.data.map((ch: any) => ({
-      id: ch.id,
-      title: ch.title,
-      lessonsCount: ch.lessons?.length || 0,
-      lessons: ch.lessons
-    })));
     return res.data;
   } catch (error) {
     console.error("Error fetching chapters:", error);

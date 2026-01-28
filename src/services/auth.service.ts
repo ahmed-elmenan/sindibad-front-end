@@ -89,7 +89,6 @@ export const registerLearner = async (learnerData: LearnerPayload & { profilePic
       formData.append('profilePicture', learnerData.profilePicture);
     }
 
-    console.log("Registering learner with FormData");
     const response = await api.post("/learners/register", formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
