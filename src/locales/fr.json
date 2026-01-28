@@ -1407,7 +1407,9 @@
     "managePhases": "Gérer les phases",
     "manageLearners": "Gérer les apprenants",
     "manageSubscriptions": "Gérer les abonnements",
-    "quizManagement": "Gestion des quiz"
+    "quizManagement": "Gestion des quiz",
+    "questionManagement": "Gestion des questions",
+    "courses_catalog": "Catalogue des cours"
   },
   "statistics": {
     "gender_distribution": "Répartition par genre",

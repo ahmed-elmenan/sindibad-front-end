@@ -1387,7 +1387,9 @@
     "managePhases": "إدارة المراحل",
     "manageLearners": "إدارة المتعلمين",
     "manageSubscriptions": "إدارة الاشتراكات",
-    "quizManagement": "إدارة الاختبارات"
+    "quizManagement": "إدارة الاختبارات",
+    "questionManagement": "إدارة الأسئلة",
+    "courses_catalog": "كتالوج الدورات"
   },
   "statistics": {
     "gender_distribution": "توزيع حسب النوع",

@@ -205,9 +205,9 @@ export default function QuestionManagementPage() {
           <Button
             variant="outline"
             onClick={() => document.getElementById("excel-upload")?.click()}
-            className="whitespace-nowrap"
+            className="whitespace-nowrap bg-white text-gray-800 border border-gray-200 hover:bg-gray-50 shadow-sm hover:text-gray-900"
           >
-            <Upload className="w-4 h-4 sm:mr-2" />
+            <Upload className="w-4 h-4 sm:mr-2 text-gray-700" />
             <span className="hidden sm:inline">Upload Excel</span>
           </Button>
           <input

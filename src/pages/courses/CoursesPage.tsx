@@ -33,6 +33,7 @@ import { useTranslation } from "react-i18next";
 import CourseCard from "@/components/course/CourseCard";
 
 import type { SubscriptionStatus } from "@/types/enum/SubscriptionStatus";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 interface FilterState {
   search: string;
@@ -44,6 +45,7 @@ interface FilterState {
 }
 
 export default function CoursesPage() {
+  usePageTitle("courses_catalog"); // Set the page title in English
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   
