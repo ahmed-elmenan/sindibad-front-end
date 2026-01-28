@@ -22,8 +22,9 @@ type SubscriptionRequestStatus =
 interface SubscriptionFilters {
   searchTerm?: string;
   status?: SubscriptionRequestStatus;
-  startDate?: Date;
-  endDate?: Date;
+  // Accept either a timestamp (number) or a Date here — UI may pass Date objects
+  startDate?: number | Date;
+  endDate?: number | Date;
   page?: number;
   size?: number;
 }
@@ -152,14 +153,15 @@ const RequestsPage = () => {
       ...prev,
       ...{
         ...newFilters,
+        // normalize Date -> timestamp if a Date was passed
         startDate:
-          typeof newFilters.startDate === "number"
-            ? new Date(newFilters.startDate)
-            : newFilters.startDate,
+          newFilters.startDate instanceof Date
+            ? newFilters.startDate.getTime()
+            : (newFilters.startDate as number | undefined),
         endDate:
-          typeof newFilters.endDate === "number"
-            ? new Date(newFilters.endDate)
-            : newFilters.endDate,
+          newFilters.endDate instanceof Date
+            ? newFilters.endDate.getTime()
+            : (newFilters.endDate as number | undefined),
       },
       page: 0,
     }));

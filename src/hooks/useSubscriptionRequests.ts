@@ -8,8 +8,8 @@ type SubscriptionRequestStatus = 'PENDING' | 'REFUSED' | 'ACTIVE' | 'SUSPENDED' 
 interface SubscriptionFilters {
   searchTerm?: string;
   status?: SubscriptionRequestStatus;
-  startDate?: Date;
-  endDate?: Date;
+  startDate?: number;
+  endDate?: number;
   page?: number;
   size?: number;
 }
