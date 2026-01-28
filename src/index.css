@@ -70,7 +70,7 @@
   --font-ar: "Cairo", "Segoe UI", Tahoma, Arial, sans-serif;
 
   /* Couleurs principales */
---background: linear-gradient(135deg, #fffaf5 0%, #f8f5f1 100%);
+  --background: linear-gradient(135deg, #fffaf5 0%, #f8f5f1 100%);
   --foreground: #0b0607;
 
   --card: #ffffff;
@@ -158,6 +158,12 @@
   --sidebar-accent-foreground: #0b0607;
   --sidebar-border: #3f3f46;
   --sidebar-ring: #94bf21;
+}
+
+/* Appliquer le background globalement pour couvrir la zone sous la barre de navigation */
+html, body, #root {
+  background: var(--background);
+  background-attachment: fixed;
 }
 
 .sheet-overlay {
