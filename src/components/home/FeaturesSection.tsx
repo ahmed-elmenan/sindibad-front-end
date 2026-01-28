@@ -32,7 +32,7 @@ const FeaturesSection = () => {
           <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-foreground via-muted-foreground to-foreground bg-clip-text text-transparent">
             Everything You Need to Succeed
           </h2>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+          <p className="text-xl text-gray-600 dark:text-slate-300 max-w-3xl mx-auto">
             Our platform combines cutting-edge technology with proven
             pedagogical methods to deliver an unparalleled learning experience.
           </p>

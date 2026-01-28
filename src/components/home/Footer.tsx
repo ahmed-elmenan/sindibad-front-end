@@ -3,20 +3,20 @@ import { useNavigate } from "react-router-dom";
 const Footer = () => {
   const navigate = useNavigate();
   return (
-    <footer className="bg-slate-900 dark:bg-black text-white py-16">
+    <footer className="bg-background2 dark:bg-black text-slate-800 dark:text-slate-200 py-16">
       <div className="container mx-auto px-6 lg:px-8">
         <div className="grid md:grid-cols-4 gap-8 mb-8">
           <div className="md:col-span-2">
             <div className="flex items-center space-x-2 mb-6">
               <div className="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-xl"></div>
               <span
-                className="text-xl font-bold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent cursor-pointer hover:scale-105 transition-transform duration-300"
+                className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent cursor-pointer hover:scale-105 transition-transform duration-300"
                 onClick={() => navigate("/")}
               >
                 SindiBad
               </span>
             </div>
-            <p className="text-slate-400 mb-6 max-w-md">
+            <p className="text-slate-600 mb-6 max-w-md">
               Empowering learners worldwide with premium education technology
               and expert-led courses.
             </p>
@@ -26,7 +26,7 @@ const Footer = () => {
                 href="https://www.facebook.com/tech57.ma"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-10 h-10 bg-slate-800 hover:bg-gradient-to-r hover:from-primary hover:to-secondary rounded-lg flex items-center justify-center transition-all duration-300 hover:scale-110"
+                className="w-10 h-10 bg-slate-800 text-white hover:bg-gradient-to-r hover:from-primary hover:to-secondary rounded-lg flex items-center justify-center transition-all duration-300 hover:scale-110"
                 aria-label="Facebook"
               >
                 <svg
@@ -43,7 +43,7 @@ const Footer = () => {
                 href="https://www.instagram.com/tech57.ma/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-10 h-10 bg-slate-800 hover:bg-gradient-to-r hover:from-primary hover:to-secondary rounded-lg flex items-center justify-center transition-all duration-300 hover:scale-110"
+                className="w-10 h-10 bg-slate-800 text-white hover:bg-gradient-to-r hover:from-primary hover:to-secondary rounded-lg flex items-center justify-center transition-all duration-300 hover:scale-110"
                 aria-label="Instagram"
               >
                 <svg
@@ -60,7 +60,7 @@ const Footer = () => {
                 href="https://www.linkedin.com/company/tech57ma/posts/?feedView=all"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-10 h-10 bg-slate-800 hover:bg-gradient-to-r hover:from-primary hover:to-secondary rounded-lg flex items-center justify-center transition-all duration-300 hover:scale-110"
+                className="w-10 h-10 bg-slate-800 text-white hover:bg-gradient-to-r hover:from-primary hover:to-secondary rounded-lg flex items-center justify-center transition-all duration-300 hover:scale-110"
                 aria-label="LinkedIn"
               >
                 <svg
@@ -75,25 +75,25 @@ const Footer = () => {
           </div>
 
           <div>
-            <h3 className="font-semibold mb-4 text-lg">Learning</h3>
-            <ul className="space-y-3 text-slate-400">
+            <h3 className="font-semibold mb-4 text-lg text-slate-900">Learning</h3>
+            <ul className="space-y-3 text-slate-700">
               <li>
-                <a href="#" className="hover:text-white transition-colors">
+                <a href="#" className="text-slate-700 hover:text-slate-900 transition-colors">
                   Browse Courses
                 </a>
               </li>
               <li>
-                <a href="#" className="hover:text-white transition-colors">
+                <a href="#" className="text-slate-700 hover:text-slate-900 transition-colors">
                   Learning Paths
                 </a>
               </li>
               <li>
-                <a href="#" className="hover:text-white transition-colors">
+                <a href="#" className="text-slate-700 hover:text-slate-900 transition-colors">
                   Certifications
                 </a>
               </li>
               <li>
-                <a href="#" className="hover:text-white transition-colors">
+                <a href="#" className="text-slate-700 hover:text-slate-900 transition-colors">
                   Free Resources
                 </a>
               </li>
@@ -101,25 +101,25 @@ const Footer = () => {
           </div>
 
           <div>
-            <h3 className="font-semibold mb-4 text-lg">Support</h3>
-            <ul className="space-y-3 text-slate-400">
+            <h3 className="font-semibold mb-4 text-lg text-slate-900">Support</h3>
+            <ul className="space-y-3 text-slate-700">
               <li>
-                <a href="#" className="hover:text-white transition-colors">
+                <a href="#" className="text-slate-700 hover:text-slate-900 transition-colors">
                   Help Center
                 </a>
               </li>
               <li>
-                <a href="#" className="hover:text-white transition-colors">
+                <a href="#" className="text-slate-700 hover:text-slate-900 transition-colors">
                   Contact Us
                 </a>
               </li>
               <li>
-                <a href="#" className="hover:text-white transition-colors">
+                <a href="#" className="text-slate-700 hover:text-slate-900 transition-colors">
                   Privacy Policy
                 </a>
               </li>
               <li>
-                <a href="#" className="hover:text-white transition-colors">
+                <a href="#" className="text-slate-700 hover:text-slate-900 transition-colors">
                   Terms of Service
                 </a>
               </li>
@@ -127,7 +127,7 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="pt-8 border-t border-slate-800 text-center text-slate-400">
+        <div className="pt-8 border-t border-slate-200 text-center text-slate-700">
           <p>&copy; 2025 TECH-57. All rights reserved</p>
         </div>
       </div>

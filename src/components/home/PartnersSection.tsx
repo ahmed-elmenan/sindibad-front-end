@@ -57,7 +57,7 @@ function PartnersAutoScroll() {
 
 const PartnersSection = () => {
   return (
-    <section className="py-24 bg-white dark:bg-slate-900">
+    <section className="py-24 bg-background2 dark:bg-slate-900">
       <div className="container mx-auto px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -91,7 +91,7 @@ const PartnersSection = () => {
           <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 dark:from-white dark:via-slate-100 dark:to-white bg-clip-text text-transparent">
             Industry Leaders Trust Us
           </h2>
-          <p className="text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto">
+          <p className="text-xl text-gray-600 dark:text-slate-300 max-w-3xl mx-auto">
             We're proud to partner with top companies that recognize the value
             of continuous learning and skill development.
           </p>

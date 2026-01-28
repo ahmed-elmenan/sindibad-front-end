@@ -115,7 +115,7 @@ const ContactSection = () => {
   ];
 
   return (
-    <section id="contact" className="py-20 bg-white dark:bg-background relative overflow-hidden">
+    <section id="contact" className="py-20 bg-background2 dark:bg-background relative overflow-hidden">
 
       <div className="container mx-auto px-4 relative z-10">
         <motion.div

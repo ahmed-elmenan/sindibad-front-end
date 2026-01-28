@@ -10,7 +10,7 @@ const CourseSection = ({ courses }: { courses: Course[] }) => {
   return (
     <section
       id="courses"
-      className="py-24 bg-gradient-to-br from-slate-50 to-secondary/30 dark:from-slate-900 dark:to-secondary/30"
+      className="py-24 bg-background2 dark:from-slate-900 dark:to-secondary/30"
     >
       <div className="container mx-auto px-6 lg:px-8">
         <motion.div
@@ -39,7 +39,7 @@ const CourseSection = ({ courses }: { courses: Course[] }) => {
           <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 dark:from-white dark:via-slate-100 dark:to-white bg-clip-text text-transparent">
             Master Skills That Matter
           </h2>
-          <p className="text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto">
+          <p className="text-xl text-gray-600 dark:text-slate-300 max-w-3xl mx-auto">
             Dive deep into industry-relevant skills with our comprehensive
             courses designed by experts and loved by professionals worldwide.
           </p>
