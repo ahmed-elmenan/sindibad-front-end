@@ -30,21 +30,21 @@ const processQueue = (error: unknown, token: string | null = null) => {
   failedQueue = []
 }
 
+// Liste des endpoints publics qui ne nécessitent pas d'authentification
+const publicEndpoints = [
+  '/auth/login',
+  '/auth/signup',
+  '/auth/activate-account',
+  '/auth/activate-account-reset-password',
+  '/auth/activate-and-reset-password',
+  '/auth/send-otp',
+  '/auth/verify-otp',
+  '/auth/reset-password',
+  '/auth/refresh-token'
+]
+
 // Interceptor pour attacher le token JWT
 api.interceptors.request.use((config) => {
-  // Liste des endpoints publics qui ne nécessitent pas d'authentification
-  const publicEndpoints = [
-    '/auth/login',
-    '/auth/signup',
-    '/auth/activate-account',
-    '/auth/activate-account-reset-password',
-    '/auth/activate-and-reset-password',
-    '/auth/send-otp',
-    '/auth/verify-otp',
-    '/auth/reset-password',
-    '/auth/refresh-token'
-  ]
-  
   // Ne pas ajouter le token pour les endpoints publics
   const isPublicEndpoint = publicEndpoints.some(endpoint => 
     config.url?.includes(endpoint)
@@ -64,6 +64,18 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config
+
+    // If the failing request is to a public endpoint (like /auth/login),
+    // do not attempt refresh-token flow or redirect — just surface the error
+    try {
+      const isPublic = originalRequest && publicEndpoints.some((ep) => originalRequest.url?.includes(ep));
+      if (isPublic) {
+        return Promise.reject(error)
+      }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (e) {
+      // ignore
+    }
 
     if (error.response?.status === 401 && !originalRequest._retry) {
       if (isRefreshing) {
