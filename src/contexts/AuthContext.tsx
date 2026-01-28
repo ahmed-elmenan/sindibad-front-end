@@ -2,6 +2,7 @@
 import React, { createContext, useState, useEffect, useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { getToken, removeToken, handleLogoutUser } from '@/services/auth.service';
+import { getSummaryProfile } from '@/services/auth.service';
 import type { User, AuthContextType } from '@/types/Auth';
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -9,7 +10,8 @@ export const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [initialized, setInitialized] = useState(false);
   const queryClient = useQueryClient();
 
   const updateUser = useCallback((userData: User | null) => {
@@ -26,22 +28,49 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   useEffect(() => {
-    // Vérifier seulement si un token existe, sans appeler l'API
-    const token = getToken();
-    if (token) {
-      setIsAuthenticated(true);
-      
-      // Récupérer les données utilisateur depuis localStorage
+    const init = async () => {
+      const token = getToken();
+      if (!token) {
+        setIsAuthenticated(false);
+        setUser(null);
+        setIsLoading(false);
+        return;
+      }
+
+      setIsLoading(true);
+
       try {
-        const storedUser = localStorage.getItem('user');
-        if (storedUser) {
-          const userData = JSON.parse(storedUser);
+        // Try to fetch the latest user profile from the API
+        const profile = await getSummaryProfile();
+        if (profile) {
+          const userData = profile as unknown as User;
           setUser(userData);
+          localStorage.setItem('user', JSON.stringify(userData));
+          setIsAuthenticated(true);
+        } else {
+          // Fallback to localStorage if API returns nothing
+          const storedUser = localStorage.getItem('user');
+          if (storedUser) {
+            setUser(JSON.parse(storedUser));
+            setIsAuthenticated(true);
+          } else {
+            setIsAuthenticated(true); // token exists but no profile — keep authenticated state
+          }
         }
       } catch (error) {
-        console.error('Error loading user data from localStorage:', error);
+        console.error('Error fetching profile on init:', error);
+        // If fetching profile fails, clear auth to force re-login
+        removeToken();
+        localStorage.removeItem('user');
+        setUser(null);
+        setIsAuthenticated(false);
+      } finally {
+        setIsLoading(false);
+        setInitialized(true);
       }
-    }
+    };
+
+    init();
   }, []);
 
   const logout = useCallback(async () => {
@@ -73,7 +102,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUser: updateUser, // Use the new updateUser function
         isAuthenticated,
         logout,
-        isLoading
+        isLoading,
+        initialized
       }}
     >
       {children}

@@ -63,13 +63,29 @@ const AccountPage: React.FC = () => {
     const fetchLearner = async () => {
       try {
         const data = await learnerService.getLearnerProfile();
+        const calculateAge = (dob?: string | null) => {
+          if (!dob) return undefined;
+          const birth = new Date(dob);
+          if (isNaN(birth.getTime())) return undefined;
+          const today = new Date();
+          let age = today.getFullYear() - birth.getFullYear();
+          const m = today.getMonth() - birth.getMonth();
+          if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+            age--;
+          }
+          return age;
+        };
+
         const normalizedData: Learner = {
           id: data.id,
           firstName: data.firstName,
           lastName: data.lastName,
           email: data.email,
           phoneNumber: data.phoneNumber,
-          avatar: data.avatar,
+          profilePicture: data.profilePicture || data.avatar || undefined,
+          age: calculateAge(data.dateOfBirth),
+          isActive: data.isActive,
+          dateOfBirth: data.dateOfBirth || ""
         };
         setLearner(normalizedData);
         form.reset({
@@ -205,7 +221,7 @@ const AccountPage: React.FC = () => {
                     {`${learner.firstName} ${learner.lastName}`}
                   </h2>
                   <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                    {learner.email}
+                    {learner.age} {t("account.yearsOld")}
                   </p>
                 </div>
               </div>
@@ -300,7 +316,7 @@ const AccountPage: React.FC = () => {
                   <div className="flex justify-end">
                     <Button
                       onClick={() => setShowUpdateForm(true)}
-                      className="bg-blue-600 hover:bg-blue-700 text-white"
+                      className="bg-accent hover:bg-accent-dark text-white"
                     >
                       <Edit2 className="h-4 w-4 mr-2" />
                       Modifier mes informations

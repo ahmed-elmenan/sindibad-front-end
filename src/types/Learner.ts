@@ -8,6 +8,10 @@ export interface Learner {
   email: string;
   phoneNumber: string;
   avatar?: string;
+  age?: number;
+  isActive: boolean;
+  dateOfBirth: string;
+  profilePicture?: string;
   organisationId?: string;
 }
 

@@ -6,15 +6,13 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import {
   Card,
-  CardHeader,
-  CardTitle,
   CardContent,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Form, FormField, FormItem, FormControl, FormMessage } from "@/components/ui/form";
-import { Eye, EyeOff, Save, Shield, Edit3, X } from "lucide-react";
+import { Eye, EyeOff, Save, Edit3, X } from "lucide-react";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { passwordService } from "@/services/password.service";
 import { Separator } from "@/components/ui/separator";
@@ -32,7 +30,7 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({ onPasswordChang
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
-  const [showUpdateForm, setShowUpdateForm] = useState(false);
+  const [showUpdateForm, setShowUpdateForm] = useState(true);
 
   // Memoize the schema for better performance
   const changePasswordSchema = useMemo(() => getChangePasswordSchema(t), [t]);
@@ -87,12 +85,6 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({ onPasswordChang
 
   return (
     <Card className={isRTL ? "rtl" : "ltr"}>
-      <CardHeader>
-        <CardTitle className="flex items-center space-x-2">
-          <Shield className="h-5 w-5" />
-          <span>{t("accountPage.passwordChange.title")}</span>
-        </CardTitle>
-      </CardHeader>
       <CardContent className="space-y-4">
         {!showUpdateForm ? (
           <Button

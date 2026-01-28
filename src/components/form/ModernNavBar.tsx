@@ -118,8 +118,11 @@ const ModernNavBar = () => {
                 String(user?.role || "").toUpperCase() === "LEARNER" ? (
                   <LearnerNav />
                 ) : (
-                  <Button asChild variant="ghost">
-                    <a href="/learners/account">Mon compte</a>
+                  <Button
+                    className="bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-primary-foreground border-0 rounded-xl px-6 shadow-lg hover:shadow-xl transition-all duration-200"
+                    onClick={() => navigate("/signin")}
+                  >
+                    Get Started
                   </Button>
                 )
               ) : (

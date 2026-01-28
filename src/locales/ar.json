@@ -221,6 +221,9 @@
       "fullName": "الاسم الكامل",
       "email": "البريد الإلكتروني",
       "phone": "رقم الهاتف",
+      "phoneNumber": "رقم الهاتف",
+      "firstName": "الاسم الأول",
+      "lastName": "اسم العائلة",
       "phoneNotSet": "غير محدد"
     },
     "placeholders": {
@@ -272,7 +275,8 @@
     "success": {
       "profileUpdated": "تم تحديث الملف الشخصي بنجاح",
       "accountDeleted": "تم حذف الحساب بنجاح"
-    }
+    },
+    "yearsOld": "سنة"
   },
   "home": "الرئيسية",
   "accountPage": {
@@ -281,6 +285,10 @@
       "currentPassword": {
         "label": "كلمة المرور الحالية",
         "placeholder": "أدخل كلمة المرور الحالية"
+      },
+      "confirmPassword": {
+        "label": "تأكيد كلمة المرور",
+        "placeholder": "أدخل تأكيد كلمة المرور"
       },
       "newPassword": {
         "label": "كلمة المرور الجديدة",

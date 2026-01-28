@@ -198,8 +198,11 @@
     },
     "fields": {
       "fullName": "Nom complet",
+      "firstName": "Prénom",
+      "lastName": "Nom",
       "email": "Email",
       "phone": "Téléphone",
+      "phoneNumber": "Numéro de téléphone",
       "phoneNotSet": "Non défini"
     },
     "placeholders": {
@@ -251,7 +254,8 @@
     "success": {
       "profileUpdated": "Profil mis à jour avec succès",
       "accountDeleted": "Compte supprimé avec succès"
-    }
+    },
+    "yearsOld": "ans"
   },
   "accountPage": {
     "buttons": {
@@ -263,9 +267,17 @@
         "label": "Mot de passe actuel",
         "placeholder": "Entrez votre mot de passe actuel"
       },
+      "confirmPassword": {
+        "label": "Confirmer le mot de passe",
+        "placeholder": "Confirmez votre nouveau mot de passe"
+      },
       "newPassword": {
         "label": "Nouveau mot de passe",
         "placeholder": "Entrez votre nouveau mot de passe"
+      },
+      "confirmNewPassword": {
+        "label": "Confirmer le nouveau mot de passe",
+        "placeholder": "Confirmez votre nouveau mot de passe"
       },
       "changePassword": "Changer le mot de passe",
       "submitButton": "Changer le mot de passe",

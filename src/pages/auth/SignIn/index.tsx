@@ -1,10 +1,9 @@
 "use client";
 
-import type React from "react";
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { loginUser } from "@/services/auth.service"; // Add setToken to imports
+import { loginUser, getToken } from "@/services/auth.service"; // Add setToken to imports
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,7 +19,7 @@ import { Eye, EyeOff, AlertCircle } from "lucide-react";
 import { toast } from "@/components/ui/sonner";
 
 export default function LoginPage() {
-  const { setUser } = useAuth();
+  const { setUser, isAuthenticated, isLoading: authIsLoading, user, initialized } = useAuth();
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -28,10 +27,13 @@ export default function LoginPage() {
     password: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   const isRTL = i18n.language === "ar";
+
+  // Synchronous token check to avoid flashing the sign-in form
+  const localToken = typeof window !== "undefined" ? getToken() : null;
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -55,8 +57,7 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
-
-    setIsLoading(true);
+    setIsSubmitting(true);
     try {
       const result = await loginUser(formData.email, formData.password);
 
@@ -96,7 +97,7 @@ export default function LoginPage() {
       console.error("Erreur lors de l'authentification:", error);
       toast.error(t("login2.login_error"));
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -106,6 +107,56 @@ export default function LoginPage() {
       setErrors((prev) => ({ ...prev, [field]: "" }));
     }
   };
+
+  // Redirect if already authenticated (wait for initialization)
+  useEffect(() => {
+    if (!authIsLoading && initialized && isAuthenticated) {
+      // Redirect user based on role
+      const role = (user?.role || "LEARNER").toUpperCase();
+      if (role === "ORGANISATION") {
+        navigate("/organisation/dashboard");
+      } else if (role === "LEARNER") {
+        navigate("/courses");
+      } else if (role === "ADMIN" || role === "SUPER_ADMIN") {
+        navigate("/admin/dashboard");
+      } else {
+        navigate("/");
+      }
+    }
+  }, [authIsLoading, isAuthenticated, user, navigate, initialized]);
+
+  // If a token exists locally, show loader immediately and redirect based on stored user role
+  useEffect(() => {
+    if (!localToken) return;
+    try {
+      const stored = localStorage.getItem("user");
+      const role = stored ? (JSON.parse(stored).role || "LEARNER") : "LEARNER";
+      const r = String(role).toUpperCase();
+      if (r === "ORGANISATION") navigate("/organisation/dashboard");
+      else if (r === "LEARNER") navigate("/courses");
+      else if (r === "ADMIN" || r === "SUPER_ADMIN") navigate("/admin/dashboard");
+      else navigate("/");
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (e) {
+      navigate("/");
+    }
+  }, [localToken, navigate]);
+
+  if (localToken) {
+    return (
+      <div className="flex items-center justify-center p-4 min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-primary"></div>
+      </div>
+    );
+  }
+
+  if (authIsLoading || !initialized) {
+    return (
+      <div className="flex items-center justify-center p-4 min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -127,14 +178,14 @@ export default function LoginPage() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email">{t("login2.email")}</Label>
-                <Input
+                  <Input
                   id="email"
                   type="email"
                   value={formData.email}
                   onChange={(e) => handleInputChange("email", e.target.value)}
                   className={`${errors.email ? "border-destructive" : ""} h-11`}
                   placeholder={t("login2.email")}
-                  disabled={isLoading}
+                  disabled={isSubmitting}
                 />
                 {errors.email && (
                   <p className="text-sm text-destructive flex items-center gap-1">
@@ -158,15 +209,15 @@ export default function LoginPage() {
                       errors.password ? "border-destructive" : ""
                     } pr-10 h-11`}
                     placeholder={t("login2.password")}
-                    disabled={isLoading}
+                    disabled={isSubmitting}
                   />
                   <Button
                     type="button"
                     variant="ghost"
                     size="sm"
                     className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                    onClick={() => setShowPassword(!showPassword)}
-                    disabled={isLoading}
+                          onClick={() => setShowPassword(!showPassword)}
+                          disabled={isSubmitting}
                   >
                     {showPassword ? (
                       <EyeOff className="h-4 w-4 text-gray-700" />
@@ -188,7 +239,7 @@ export default function LoginPage() {
                   type="button"
                   variant="link"
                   className="text-primary p-0 h-auto"
-                  disabled={isLoading}
+                  disabled={isSubmitting}
                   onClick={() => navigate("/forgetPassword")}
                 >
                   {t("login2.forgot_password")}
@@ -199,9 +250,9 @@ export default function LoginPage() {
                 <Button
                   type="submit"
                   className="w-full h-11"
-                  disabled={isLoading}
+                  disabled={isSubmitting}
                 >
-                  {isLoading ? (
+                  {isSubmitting ? (
                     <div className="flex items-center justify-center gap-2">
                       <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                       {t("login2.loading")}
