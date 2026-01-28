@@ -22,12 +22,18 @@ type SubscriptionRequestStatus =
 interface SubscriptionFilters {
   searchTerm?: string;
   status?: SubscriptionRequestStatus;
-  // Accept either a timestamp (number) or a Date here — UI may pass Date objects
-  startDate?: number | Date;
-  endDate?: number | Date;
+  // Stored as timestamps (numbers) throughout the app
+  startDate?: number;
+  endDate?: number;
   page?: number;
   size?: number;
 }
+
+// Input type for handlers/ui: allows passing Date or number (UI components may pass Date)
+type SubscriptionFiltersInput = Omit<SubscriptionFilters, 'startDate' | 'endDate'> & {
+  startDate?: number | Date;
+  endDate?: number | Date;
+};
 
 import { SubscriptionRequestsTable } from "../../components/admin/SubscriptionRequestsTable";
 import { SubscriptionRequestFilters } from "../../components/admin/SubscriptionRequestFilters";
@@ -148,20 +154,16 @@ const RequestsPage = () => {
     }
   };
 
-  const handleFilterChange = (newFilters: Partial<SubscriptionFilters>) => {
+  const handleFilterChange = (newFilters: Partial<SubscriptionFiltersInput>) => {
+    const toTimestamp = (v?: number | Date) =>
+      v instanceof Date ? v.getTime() : (v as number | undefined);
+
     setFilters((prev) => ({
       ...prev,
       ...{
         ...newFilters,
-        // normalize Date -> timestamp if a Date was passed
-        startDate:
-          newFilters.startDate instanceof Date
-            ? newFilters.startDate.getTime()
-            : (newFilters.startDate as number | undefined),
-        endDate:
-          newFilters.endDate instanceof Date
-            ? newFilters.endDate.getTime()
-            : (newFilters.endDate as number | undefined),
+        startDate: toTimestamp(newFilters.startDate),
+        endDate: toTimestamp(newFilters.endDate),
       },
       page: 0,
     }));
@@ -170,6 +172,46 @@ const RequestsPage = () => {
   const handlePageChange = (newPage: number) => {
     setFilters((prev) => ({ ...prev, page: newPage }));
   };
+
+  // Map service response to the table's expected shape to avoid duplicate type-name collisions
+  const tableData = data
+    ? {
+        content: (data.content || []).map((r: any) => ({
+          id: r.id,
+          organisationName: r.organisationName || r.organisationName || '',
+          responsibleFullName: [r.responsibleFirstName, r.responsibleLastName].filter(Boolean).join(' ') || '',
+          responsibleEmail: r.responsibleEmail || r.organisationEmail || '',
+          responsiblePhone: r.responsiblePhone || r.organisationPhone || '',
+          courseId: r.courseId || '',
+          courseName: r.courseName || '',
+          packId: r.packId || '',
+          packName: r.packName || r.packName || '',
+          minLearners: r.minLearners || r.maxStudents || 0,
+          maxLearners: r.maxLearners || r.maxStudents || 0,
+          unitPrice: r.packPrice || r.unitPrice || 0,
+          discountPercentage: r.discountPercentage || 0,
+          amount: r.amount || r.packPrice || 0,
+          status: r.status,
+          createdAt: r.requestDate || r.createdAt || '',
+          receiptUrl: r.receiptPath || null,
+          receiptFileName: r.receiptFileName || null,
+          refusedReason: r.refusedReason || null,
+          processedBy: r.processedBy || null,
+          processedAt: r.processedAt || null,
+          startDate: r.startDate || null,
+          endDate: r.expirationDate || null,
+        })),
+        totalElements: (data as any).totalElements || 0,
+        totalPages: (data as any).totalPages || 0,
+        size: (data as any).pageSize ?? (data as any).size ?? 0,
+        number: (data as any).currentPage ?? (data as any).number ?? 0,
+        first: ((data as any).currentPage ?? (data as any).number ?? 0) === 0,
+        last:
+          (((data as any).currentPage ?? (data as any).number ?? 0) ===
+            (((data as any).totalPages ?? 1) - 1)) || !(data as any).hasNext,
+        empty: (data as any).isEmpty ?? ((data as any).totalElements ?? 0) === 0,
+      }
+    : undefined;
 
   return (
     <div className="container mx-auto py-8 space-y-6 p-8">
@@ -268,7 +310,7 @@ const RequestsPage = () => {
         </CardHeader>
         <CardContent>
           <SubscriptionRequestsTable
-            data={data}
+            data={tableData}
             isLoading={isLoading}
             onAccept={handleAccept}
             onRefuse={handleRefuse}
@@ -298,7 +340,7 @@ const RequestsPage = () => {
       <ManageSubscriptionDialog
         open={manageDialogOpen}
         onOpenChange={setManageDialogOpen}
-        subscription={data?.content?.find((r) => r.id === selectedRequestId) ?? null}
+        subscription={tableData?.content?.find((r) => r.id === selectedRequestId) ?? null}
         onStatusChange={handleStatusChange}
         onReceiptUpload={handleReceiptUpload}
         onReceiptDelete={handleReceiptDelete}
