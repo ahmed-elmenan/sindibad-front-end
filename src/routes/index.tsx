@@ -24,6 +24,7 @@ import DashboardOrganisation from "@/pages/organisation/dashboard";
 import DashboardAdmin from "@/pages/admin/dashboard";
 import LearnerProfilePage from "@/pages/learners/LearnerProfilePage";
 import LearnerProfileAnalyticsPage from "@/pages/LearnerProfileAnalyticsPage";
+import LearnerCoursesRedirect from "@/pages/learners/LearnerCoursesRedirect";
 
 import MotivationRace from "@/pages/motivation/MotivationPage";
 import AdminCoursesPage from "@/pages/admin/AdminCoursesPage";
@@ -98,6 +99,10 @@ export const router = createBrowserRouter([
           {
             path: "ranking",
             element: <LearnerRankingPage />,
+          },
+          {
+            path: "courses",
+            element: <LearnerCoursesRedirect />,
           },
           {
             path: ":id/profile",
