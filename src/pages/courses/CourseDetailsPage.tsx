@@ -114,12 +114,13 @@ export default function CourseDetailsPage() {
     }
 
     if (CourseSubscription.subscription) {
-      // If subscription is active, show view course button
+      // If subscription is active, show view course button.
+      // Use `Eye` icon only for organisations; learners get a different icon.
       return {
         text: t("courseDetails.viewCourses"),
         disabled: false,
         action: "viewCourses",
-        icon: Eye,
+        icon: isOrganisation ? Eye : Video,
         colorClass:
           "bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white",
       };

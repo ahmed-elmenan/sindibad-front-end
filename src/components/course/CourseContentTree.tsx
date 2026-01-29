@@ -9,6 +9,7 @@ import {
   FileText,
   Clock,
 } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 import {
   getCourseContent,
   type CourseContentDTO,
@@ -26,18 +27,16 @@ interface CourseContentTreeProps {
 
 const CourseContentTree = ({ courseId }: CourseContentTreeProps) => {
   const { t } = useTranslation();
+  const { user } = useAuth();
+  const isOrganisation = user?.role === "ORGANISATION";
   
   // États pour gérer l'expansion des phases et chapitres
   const [expandedPhases, setExpandedPhases] = useState<Record<string, boolean>>({});
   const [expandedChapters, setExpandedChapters] = useState<Record<string, boolean>>({});
-  
-  const [selectedVideo, setSelectedVideo] = useState<LessonContentDTO | null>(
-    null
-  );
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [previewTitle, setPreviewTitle] = useState<string>("");
-  const [isLoadingVideo, setIsLoadingVideo] = useState(false);
+  const [, setIsLoadingVideo] = useState(false);
 
   const { data, isLoading, error } = useQuery<CourseContentDTO>({
     queryKey: ["courseContent", courseId],
@@ -247,17 +246,19 @@ const CourseContentTree = ({ courseId }: CourseContentTreeProps) => {
                                             <Lock className="w-4 h-4" />
                                           </div>
                                         ) : (
-                                          <button
-                                            onClick={(e: React.MouseEvent) => {
-                                              e.stopPropagation();
-                                              handleLessonClick(lesson);
-                                            }}
-                                            className="p-2 rounded-md bg-primary/5 text-primary hover:bg-primary hover:text-white transition-all"
-                                            title="Visualiser la vidéo"
-                                            aria-label={`Prévisualiser la vidéo: ${lesson.title}`}
-                                          >
-                                            <Eye className="w-4 h-4" />
-                                          </button>
+                                          isOrganisation ? (
+                                            <button
+                                              onClick={(e: React.MouseEvent) => {
+                                                e.stopPropagation();
+                                                handleLessonClick(lesson);
+                                              }}
+                                              className="p-2 rounded-md bg-primary/5 text-primary hover:bg-primary hover:text-white transition-all"
+                                              title="Visualiser la vidéo"
+                                              aria-label={`Prévisualiser la vidéo: ${lesson.title}`}
+                                            >
+                                              <Eye className="w-4 h-4" />
+                                            </button>
+                                          ) : null
                                         )
                                       )}
                                     </div>
