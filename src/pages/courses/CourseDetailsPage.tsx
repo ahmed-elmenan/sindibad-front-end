@@ -71,7 +71,8 @@ export default function CourseDetailsPage() {
   const { data: reviews = [], isLoading: reviewsLoading } =
     useCourseReviews(courseId);
   const { data: chapters = [] } = useCourseChapters(courseId);
-  const { data: CourseSubscription, isLoading: subscriptionLoading } = useCourseSubscription(courseId);
+  const { data: CourseSubscription, isLoading: subscriptionLoading } =
+    useCourseSubscription(courseId);
 
   const { data: courseStats, isLoading: statsLoading } = useQuery({
     queryKey: ["course-stats", courseId],
@@ -97,7 +98,11 @@ export default function CourseDetailsPage() {
       };
     }
 
-    if (justEnrolled || (CourseSubscription.subscription && CourseSubscription.subscription.status === "PENDING")) {
+    if (
+      justEnrolled ||
+      (CourseSubscription.subscription &&
+        CourseSubscription.subscription.status === "PENDING")
+    ) {
       return {
         text: t("courseDetails.paymentInfo"),
         disabled: false,
@@ -121,7 +126,9 @@ export default function CourseDetailsPage() {
     }
 
     return {
-      text: isOrganisation ? t("courseDetails.enrollNow") : t("courseDetails.enrollNow"),
+      text: isOrganisation
+        ? t("courseDetails.enrollNow")
+        : t("courseDetails.enrollNow"),
       disabled: false,
       action: "enroll",
       icon: ShoppingCart,
@@ -173,64 +180,62 @@ export default function CourseDetailsPage() {
     const loadingToast = toast.loading(t("courseDetails.enrolling"));
 
     try {
-          if (!courseId) {
-            toast.error({
-              title: t("courseDetails.enrollmentError"),
-              description: t("courseDetails.courseIdMissing"),
-            });
-            setIsEnrolling(false);
-            return;
-          }
-          const enrollmentData = {
-            courseId: courseId
-          };
+      if (!courseId) {
+        toast.error({
+          title: t("courseDetails.enrollmentError"),
+          description: t("courseDetails.courseIdMissing"),
+        });
+        setIsEnrolling(false);
+        return;
+      }
+      const enrollmentData = {
+        courseId: courseId,
+      };
 
-          const response = await enrollInCourse(enrollmentData);
+      const response = await enrollInCourse(enrollmentData);
 
-          // Dismiss the loading toast
-          toast.dismiss(loadingToast);
+      // Dismiss the loading toast
+      toast.dismiss(loadingToast);
 
-          if (response.success) {
-            // Enrollment success
-            toast.success({
-              title: t("courseDetails.enrollmentSuccess"),
-              description: t("courseDetails.enrollmentSuccessDescription"),
-            });
+      if (response.success) {
+        // Enrollment success
+        toast.success({
+          title: t("courseDetails.enrollmentSuccess"),
+          description: t("courseDetails.enrollmentSuccessDescription"),
+        });
 
-            // Set just enrolled to show payment button
-            setJustEnrolled(true);
+        // Set just enrolled to show payment button
+        setJustEnrolled(true);
 
-            // Refetch query to get new subscription information
-            // Use the same key as in useCourseSubscription
-            await queryClient.refetchQueries({
-              queryKey: ["user-data", courseId],
-            });
+        // Refetch query to get new subscription information
+        // Use the same key as in useCourseSubscription
+        await queryClient.refetchQueries({
+          queryKey: ["user-data", courseId],
+        });
 
-            // Also force cache update to be sure
-            await queryClient.invalidateQueries({
-              queryKey: ["user-data", courseId],
-            });
-
-          } else {
-            // Enrollment failed
-            toast.error({
-              title: t("courseDetails.enrollmentError"),
-              description:
-                response.message ||
-                t("courseDetails.enrollmentErrorDescription"),
-            });
-          }
-        } catch (error: any) {
-          console.error("Error during enrollment:", error);
-          toast.dismiss(loadingToast);
-          toast.error({
-            title: t("courseDetails.enrollmentError"),
-            description:
-              error.message || t("courseDetails.enrollmentErrorDescription"),
-          });
-        } finally {
-          setIsEnrolling(false);
-        }
+        // Also force cache update to be sure
+        await queryClient.invalidateQueries({
+          queryKey: ["user-data", courseId],
+        });
+      } else {
+        // Enrollment failed
+        toast.error({
+          title: t("courseDetails.enrollmentError"),
+          description:
+            response.message || t("courseDetails.enrollmentErrorDescription"),
+        });
+      }
+    } catch (error: any) {
+      console.error("Error during enrollment:", error);
+      toast.dismiss(loadingToast);
+      toast.error({
+        title: t("courseDetails.enrollmentError"),
+        description:
+          error.message || t("courseDetails.enrollmentErrorDescription"),
+      });
+    } finally {
+      setIsEnrolling(false);
+    }
   };
 
   // Function to determine if user can create/edit reviews
@@ -249,11 +254,11 @@ export default function CourseDetailsPage() {
       (chapterTotal, lesson) => {
         return chapterTotal + lesson.duration;
       },
-      0
+      0,
     );
     return total + chapterDuration;
   }, 0);
-  
+
   // Convert seconds to minutes
   const totalCourseDuration = Math.round(totalCourseDurationInSeconds / 60);
 
@@ -266,11 +271,11 @@ export default function CourseDetailsPage() {
         return `${hours} ${t("courseDetails.chapterAccordion.hours")}`;
       } else if (hours === 0) {
         return `${remainingMinutes} ${t(
-          "courseDetails.chapterAccordion.minutes"
+          "courseDetails.chapterAccordion.minutes",
         )}`;
       } else {
         return `${hours} ${t(
-          "courseDetails.chapterAccordion.hours"
+          "courseDetails.chapterAccordion.hours",
         )} ${remainingMinutes} ${t("courseDetails.chapterAccordion.minutes")}`;
       }
     } else {
@@ -341,9 +346,7 @@ export default function CourseDetailsPage() {
               <div className="space-y-4 px-2 md:px-0">
                 <div className="aspect-[16/9] md:aspect-[2/1] overflow-hidden rounded-lg md:rounded-xl shadow-lg max-h-60 md:max-h-80">
                   <img
-                    src={
-                      course.imgUrl || "/react.png"
-                    }
+                    src={course.imgUrl || "/react.png"}
                     alt={course.title}
                     className="w-full h-full object-cover"
                   />
@@ -484,20 +487,35 @@ export default function CourseDetailsPage() {
                     ) : (
                       (() => {
                         // If organisation and course is purchased, show a dedicated info panel
-                        if (CourseSubscription?.subscription && isOrganisation) {
+                        if (
+                          CourseSubscription?.subscription &&
+                          isOrganisation
+                        ) {
                           return (
                             <div className="w-full bg-white border border-green-100 rounded-lg p-4 flex items-center gap-3">
                               <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0" />
                               <div>
-                                <div className="text-sm font-semibold text-gray-800">Cours acheté</div>
-                                <div className="text-xs text-gray-600">Ce cours a été acquis pour votre organisation. Les apprenants peuvent accéder aux leçons.</div>
+                                <div className="text-sm font-semibold text-gray-800">
+                                  Cours acheté
+                                </div>
+                                <div className="text-xs text-gray-600">
+                                  Ce cours a été acquis pour votre organisation.
+                                  Les apprenants peuvent accéder aux leçons.
+                                </div>
                               </div>
                             </div>
                           );
                         }
 
                         // Otherwise, render the normal action button(s)
-                        if (!CourseSubscription?.subscription || CourseSubscription?.subscription?.status === "ACTIVE" || buttonState.action === "payment" || buttonState.action === "login" || buttonState.action === "enroll") {
+                        if (
+                          !CourseSubscription?.subscription ||
+                          CourseSubscription?.subscription?.status ===
+                            "ACTIVE" ||
+                          buttonState.action === "payment" ||
+                          buttonState.action === "login" ||
+                          buttonState.action === "enroll"
+                        ) {
                           return (
                             <Button
                               ref={enrollButtonRef}
@@ -506,7 +524,9 @@ export default function CourseDetailsPage() {
                               className={`w-full py-3 md:py-4 text-sm md:text-base font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2 min-h-[3rem] ${buttonState.colorClass}`}
                             >
                               <buttonState.icon className="h-4 w-4 md:h-5 md:w-5 flex-shrink-0" />
-                              <span className="text-center leading-tight">{buttonState.text}</span>
+                              <span className="text-center leading-tight">
+                                {buttonState.text}
+                              </span>
                             </Button>
                           );
                         }
@@ -548,98 +568,6 @@ export default function CourseDetailsPage() {
                         )}
 
                         <div className="space-y-3">
-                          {/* Price information - only show if not organisation */}
-                          {!isOrganisation && (
-                            <>
-                              {/* Unit price */}
-                              <div className="flex items-center justify-between">
-                                <span className="text-sm text-gray-600">
-                                  {t("courseDetails.subscriptionUnitPrice")}
-                                </span>
-                                <span className="font-medium text-gray-800">
-                                  {CourseSubscription.subscription.unitPrice} MAD
-                                </span>
-                              </div>
-
-                              {/* Discount */}
-                              {CourseSubscription.subscription.discountPercentage >
-                                0 && (
-                                <div className="flex items-center justify-between">
-                                  <span className="text-sm text-gray-600">
-                                    {t("courseDetails.subscriptionDiscount")}
-                                  </span>
-                                  <span className="font-medium text-green-600">
-                                    {
-                                      CourseSubscription.subscription
-                                        .discountPercentage
-                                    }
-                                    %
-                                  </span>
-                                </div>
-                              )}
-
-                              {/* Price calculations */}
-                              <div className="space-y-2 text-sm border-t pt-3">
-                                <div className="flex justify-between">
-                                  <span className="text-gray-600">
-                                    {t("courseDetails.subscriptionSubtotal")}
-                                  </span>
-                                  <span className="font-medium">
-                                    {(
-                                      CourseSubscription.subscription.unitPrice *
-                                      CourseSubscription.learnersCount
-                                    ).toFixed(2)}{" "}
-                                    MAD
-                                  </span>
-                                </div>
-                                {CourseSubscription.subscription
-                                  .discountPercentage > 0 && (
-                                  <div className="flex justify-between">
-                                    <span className="text-green-600">
-                                      {t(
-                                        "courseDetails.subscriptionDiscountAmount"
-                                      )}{" "}
-                                      (
-                                      {
-                                        CourseSubscription.subscription
-                                          .discountPercentage
-                                      }
-                                      %)
-                                    </span>
-                                    <span className="font-medium text-green-600">
-                                      -
-                                      {(
-                                        (CourseSubscription.subscription.unitPrice *
-                                          CourseSubscription.learnersCount *
-                                          CourseSubscription.subscription
-                                            .discountPercentage) /
-                                        100
-                                      ).toFixed(2)}{" "}
-                                      MAD
-                                    </span>
-                                  </div>
-                                )}
-                                <div className="flex justify-between text-lg font-bold border-t pt-2">
-                                  <span className="text-gray-800">
-                                    {t("courseDetails.subscriptionTotal")}
-                                  </span>
-                                  <span className="bg-gradient-to-r from-blue-500 to-blue-600 bg-clip-text text-transparent">
-                                    {(
-                                      CourseSubscription.subscription.unitPrice *
-                                        CourseSubscription.learnersCount -
-                                      (CourseSubscription.subscription.unitPrice *
-                                        CourseSubscription.learnersCount *
-                                        CourseSubscription.subscription
-                                          .discountPercentage) /
-                                        100
-                                    ).toFixed(2)}{" "}
-                                    MAD
-                                  </span>
-                                </div>
-                              </div>
-                            </>
-                          )}
-
                           {/* Dates */}
                           {CourseSubscription.subscription.startDate && (
                             <div className="flex items-center justify-between">
@@ -648,7 +576,7 @@ export default function CourseDetailsPage() {
                               </span>
                               <span className="font-medium text-gray-800">
                                 {new Date(
-                                  CourseSubscription.subscription.startDate
+                                  CourseSubscription.subscription.startDate,
                                 ).toLocaleDateString()}
                               </span>
                             </div>
@@ -661,7 +589,7 @@ export default function CourseDetailsPage() {
                               </span>
                               <span className="font-medium text-gray-800">
                                 {new Date(
-                                  CourseSubscription.subscription.endDate
+                                  CourseSubscription.subscription.endDate,
                                 ).toLocaleDateString()}
                               </span>
                             </div>
@@ -671,11 +599,15 @@ export default function CourseDetailsPage() {
                           {statsLoading ? (
                             <div className="mt-2 border-t pt-2 text-sm space-y-2">
                               <div className="flex items-center justify-between">
-                                <span className="text-gray-600">Bénéficiaires (votre organisation)</span>
+                                <span className="text-gray-600">
+                                  Bénéficiaires (votre organisation)
+                                </span>
                                 <span className="inline-block h-4 w-16 bg-gray-200 rounded animate-pulse" />
                               </div>
                               <div className="flex items-center justify-between">
-                                <span className="text-gray-600">Apprenants ayant terminé</span>
+                                <span className="text-gray-600">
+                                  Apprenants ayant terminé
+                                </span>
                                 <span className="inline-block h-4 w-16 bg-gray-200 rounded animate-pulse" />
                               </div>
                             </div>
@@ -683,12 +615,20 @@ export default function CourseDetailsPage() {
                             courseStats && (
                               <div className="mt-2 border-t pt-2 text-sm space-y-1">
                                 <div className="flex items-center justify-between">
-                                  <span className="text-gray-600">Bénéficiaires (votre organisation)</span>
-                                  <span className="font-medium text-gray-800">{courseStats.organisationBeneficiariesCount}</span>
+                                  <span className="text-gray-600">
+                                    Bénéficiaires (votre organisation)
+                                  </span>
+                                  <span className="font-medium text-gray-800">
+                                    {courseStats.organisationBeneficiariesCount}
+                                  </span>
                                 </div>
                                 <div className="flex items-center justify-between">
-                                  <span className="text-gray-600">Apprenants ayant terminé</span>
-                                  <span className="font-medium text-gray-800">{courseStats.completedLearnersCount}</span>
+                                  <span className="text-gray-600">
+                                    Apprenants ayant terminé
+                                  </span>
+                                  <span className="font-medium text-gray-800">
+                                    {courseStats.completedLearnersCount}
+                                  </span>
                                 </div>
                               </div>
                             )
@@ -704,7 +644,9 @@ export default function CourseDetailsPage() {
                             className={`w-full px-4 py-3 md:py-4 text-sm md:text-base font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2 min-h-[3rem] ${buttonState.colorClass}`}
                           >
                             <buttonState.icon className="h-4 w-4 md:h-5 md:w-5 flex-shrink-0" />
-                            <span className="text-center leading-tight">{buttonState.text}</span>
+                            <span className="text-center leading-tight">
+                              {buttonState.text}
+                            </span>
                           </Button>
                         )}
                       </div>
@@ -761,24 +703,31 @@ export default function CourseDetailsPage() {
               Veuillez vérifier les informations avant de confirmer
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="space-y-4 py-4">
             <div className="bg-gradient-to-r from-orange-50 to-orange-100/50 rounded-lg p-4 space-y-3">
               <div>
-                <p className="text-sm text-gray-600 font-medium">Organisation</p>
-                <p className="text-base font-semibold text-gray-900">{user?.name || user?.email}</p>
+                <p className="text-sm text-gray-600 font-medium">
+                  Organisation
+                </p>
+                <p className="text-base font-semibold text-gray-900">
+                  {user?.name || user?.email}
+                </p>
               </div>
-              
+
               <div>
                 <p className="text-sm text-gray-600 font-medium">Cours</p>
-                <p className="text-base font-semibold text-gray-900">{course?.title}</p>
+                <p className="text-base font-semibold text-gray-900">
+                  {course?.title}
+                </p>
               </div>
             </div>
 
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
               <p className="text-sm text-blue-800">
-                <strong>Note :</strong> Après confirmation, votre demande sera en attente de validation. 
-                Vous recevrez les instructions de paiement.
+                <strong>Note :</strong> Après confirmation, votre demande sera
+                en attente de validation. Vous recevrez les instructions de
+                paiement.
               </p>
             </div>
           </div>
@@ -813,19 +762,25 @@ export default function CourseDetailsPage() {
               Effectuez le virement bancaire avec les coordonnées ci-dessous
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="space-y-4 py-4">
             <div className="bg-gradient-to-r from-blue-50 to-blue-100/50 rounded-lg p-4 space-y-4">
               <div>
                 <p className="text-sm text-gray-600 font-medium">Banque</p>
-                <p className="text-base font-semibold text-gray-900">{ribInfo.bankName}</p>
+                <p className="text-base font-semibold text-gray-900">
+                  {ribInfo.bankName}
+                </p>
               </div>
-              
+
               <div>
-                <p className="text-sm text-gray-600 font-medium">Bénéficiaire</p>
-                <p className="text-base font-semibold text-gray-900">{ribInfo.accountHolder}</p>
+                <p className="text-sm text-gray-600 font-medium">
+                  Bénéficiaire
+                </p>
+                <p className="text-base font-semibold text-gray-900">
+                  {ribInfo.accountHolder}
+                </p>
               </div>
-              
+
               <div>
                 <p className="text-sm text-gray-600 font-medium">RIB</p>
                 <div className="flex items-center gap-2 mt-1">
@@ -850,8 +805,9 @@ export default function CourseDetailsPage() {
 
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
               <p className="text-sm text-yellow-800">
-                <strong>Important :</strong> Après avoir effectué le virement, 
-                veuillez conserver votre reçu. Votre souscription sera activée après validation du paiement.
+                <strong>Important :</strong> Après avoir effectué le virement,
+                veuillez conserver votre reçu. Votre souscription sera activée
+                après validation du paiement.
               </p>
             </div>
           </div>
