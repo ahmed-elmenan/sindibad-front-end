@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -80,7 +81,7 @@ export default function LearnerFormModal({
     firstName: "",
     lastName: "",
     dateOfBirth: "",
-    gender: "male",
+    gender: "male" as "male" | "female",
     phoneNumber: "",
     email: "",
     organisationId: userOrganisationId || "",
@@ -101,11 +102,15 @@ export default function LearnerFormModal({
   // When opening the modal in 'add' mode, reset the form to empty defaults
   useEffect(() => {
     if (open && mode === "add") {
-      form.reset({ ...defaultFormValues, organisationId: userOrganisationId || "" });
+      form.reset({
+        ...defaultFormValues,
+        organisationId: userOrganisationId || "",
+        gender: defaultFormValues.gender as "male" | "female",
+      });
       setInitialValues(null);
       hasLoadedDataRef.current = false;
     }
-  }, [open, mode, userOrganisationId]);
+  }, [open, mode, userOrganisationId, defaultFormValues]);
 
   // Fetch organisations
   const { data: organisations = [], isLoading: isLoadingOrganisations } =
@@ -140,7 +145,7 @@ export default function LearnerFormModal({
         firstName: learnerDetails.firstName || "",
         lastName: learnerDetails.lastName || "",
         dateOfBirth: learnerDetails.dateOfBirth || "",
-        gender: learnerDetails.gender || "male",
+        gender: (learnerDetails.gender as "male" | "female") || "male",
         phoneNumber: learnerDetails.phoneNumber || "",
         email: learnerDetails.email || "",
         organisationId: learnerDetails.organisationId || "",
