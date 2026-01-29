@@ -163,8 +163,47 @@ export default function LearnersRankingPage({
     }
   };
 
-  const handleFormSuccess = () => {
-    // Toujours invalider le cache pour garantir des données fraîches
+  const handleFormSuccess = (updatedLearner?: any) => {
+    // If we have the updated learner from the form modal, update the cached
+    // learnersRanking entries directly to avoid an immediate refetch that
+    // could overwrite the just-updated image with stale server data.
+    if (updatedLearner && updatedLearner.id) {
+      try {
+        const qc = (queryClient as any).getQueryCache();
+        const matches = qc.findAll((q: any) => q.queryKey && q.queryKey[0] === "learnersRanking");
+
+        matches.forEach((q: any) => {
+          const key = q.queryKey;
+          const cached = queryClient.getQueryData<any>(key);
+          if (!cached) return;
+
+          const mergeLearner = (l: LearnerRanking) => (l.id === updatedLearner.id ? { ...l, ...updatedLearner } : l);
+
+          if (cached.content && Array.isArray(cached.content)) {
+            const newContent = cached.content.map(mergeLearner);
+            queryClient.setQueryData(key, { ...cached, content: newContent });
+            console.log("[LearnersRankingPage] merged updated learner into cached paginated learnersRanking", key);
+          } else if (Array.isArray(cached)) {
+            const newArr = cached.map(mergeLearner);
+            queryClient.setQueryData(key, newArr);
+            console.log("[LearnersRankingPage] merged updated learner into cached learnersRanking array", key);
+          }
+        });
+
+        // Also update single-learner cache if present
+        const singleKey = ["learner", updatedLearner.id];
+        const singleCached = queryClient.getQueryData<any>(singleKey);
+        if (singleCached) {
+          queryClient.setQueryData(singleKey, { ...singleCached, ...updatedLearner });
+        }
+
+        return;
+      } catch (err) {
+        console.error("Error merging updated learner into caches:", err);
+      }
+    }
+
+    // Fallback: invalidate so data is refetched
     queryClient.invalidateQueries({ queryKey: ["learnersRanking"] });
   };
 
