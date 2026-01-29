@@ -75,6 +75,21 @@ export default function LearnerFormModal({
   const isOrganisationUser = user?.role === "ORGANISATION";
   const userOrganisationId = isOrganisationUser ? user?.id : null;
 
+  // Default form values (reused for useForm and reset on add)
+  const defaultFormValues = {
+    firstName: "",
+    lastName: "",
+    dateOfBirth: "",
+    gender: "male",
+    phoneNumber: "",
+    email: "",
+    organisationId: userOrganisationId || "",
+    profilePicture: "",
+    organisationName: "",
+    acceptTerms: true,
+    isActive: true,
+  };
+
   // Reset initial values and ref when modal is closed
   useEffect(() => {
     if (!open) {
@@ -82,6 +97,15 @@ export default function LearnerFormModal({
       hasLoadedDataRef.current = false;
     }
   }, [open]);
+
+  // When opening the modal in 'add' mode, reset the form to empty defaults
+  useEffect(() => {
+    if (open && mode === "add") {
+      form.reset({ ...defaultFormValues, organisationId: userOrganisationId || "" });
+      setInitialValues(null);
+      hasLoadedDataRef.current = false;
+    }
+  }, [open, mode, userOrganisationId]);
 
   // Fetch organisations
   const { data: organisations = [], isLoading: isLoadingOrganisations } =
@@ -106,19 +130,7 @@ export default function LearnerFormModal({
     resolver: zodResolver(signUpLearnerSchema),
     mode: "onSubmit",
     reValidateMode: "onChange",
-    defaultValues: {
-      firstName: "",
-      lastName: "",
-      dateOfBirth: "",
-      gender: "male",
-      phoneNumber: "",
-      email: "",
-      organisationId: userOrganisationId || "",
-      profilePicture: "",
-      organisationName: "",
-      acceptTerms: true,
-      isActive: true,
-    },
+    defaultValues: defaultFormValues,
   });
 
   // Load learner data into form when available

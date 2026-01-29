@@ -264,7 +264,8 @@ export default function RankingTable({
                             <Avatar className="h-10 w-10 mx-auto">
                               <AvatarImage
                                 src={
-                                  learner.profilePicture || "/placeholder.svg"
+                                  learner.profilePicture ||
+                                  "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&s=200"
                                 }
                                 alt={learner.fullName}
                               />

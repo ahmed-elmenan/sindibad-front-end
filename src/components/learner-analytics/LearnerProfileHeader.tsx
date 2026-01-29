@@ -56,7 +56,13 @@ export function LearnerProfileHeader({ profile }: LearnerProfileHeaderProps) {
         <div className="flex flex-col items-center lg:items-start gap-4">
           <div className="relative">
             <Avatar className="h-32 w-32 border-4 border-primary/20">
-              <AvatarImage src={profile.profilePicture} alt={`${profile.firstName} ${profile.lastName}`} />
+              <AvatarImage
+                src={
+                  profile.profilePicture ||
+                  "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&s=200"
+                }
+                alt={`${profile.firstName} ${profile.lastName}`}
+              />
               <AvatarFallback className="text-3xl font-bold">
                 {getInitials()}
               </AvatarFallback>
