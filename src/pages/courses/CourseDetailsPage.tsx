@@ -323,17 +323,32 @@ export default function CourseDetailsPage() {
     return <CourseDetailsSkeleton />;
   }
 
+  const normalizeLevelKey = (level: string) => {
+    const v = (level || "").toString().trim().toLowerCase();
+    if (!v) return "";
+    if (v.includes("begin") || v.includes("début")) return "beginner";
+    if (v.includes("inter")) return "intermediate";
+    if (v.includes("adv") || v.includes("avanc")) return "advanced";
+    return "";
+  };
+
   const getLevelColor = (level: string) => {
-    switch (level.toLowerCase()) {
-      case "débutant":
+    switch (normalizeLevelKey(level)) {
+      case "beginner":
         return "badge-level-beginner";
-      case "intermédiaire":
+      case "intermediate":
         return "badge-level-intermediate";
-      case "avancé":
+      case "advanced":
         return "badge-level-advanced";
       default:
         return "bg-gray-50 text-gray-700 border border-gray-200";
     }
+  };
+
+  const getLevelLabel = (level: string) => {
+    const key = normalizeLevelKey(level);
+    if (key) return t(`courses.filter.levels.${key}`);
+    return level;
   };
 
   return (
@@ -356,7 +371,7 @@ export default function CourseDetailsPage() {
                 <div className="space-y-3">
                   <div className="flex flex-wrap items-center gap-2">
                     <Badge className={getLevelColor(course.level)}>
-                      {course.level}
+                      {getLevelLabel(course.level)}
                     </Badge>
                     <Badge
                       variant="outline"
