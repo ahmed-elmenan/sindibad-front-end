@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { RotateCcw } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getAllOrganisations } from "@/services/organisation.service";
 import {
   getLearnerFormData,
@@ -62,6 +62,7 @@ export default function LearnerFormModal({
 }: LearnerFormModalProps) {
   const { t } = useTranslation();
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isResettingPassword, setIsResettingPassword] = useState(false);
   const [initialValues, setInitialValues] = useState<any>(null);
@@ -169,8 +170,13 @@ export default function LearnerFormModal({
             const k = key as keyof SignUpLearnerFormValues;
 
             // Special handling for profilePicture - File object means new upload
+            // or a different URL/string
             if (k === "profilePicture") {
-              return data[k] instanceof File;
+              const newVal = data[k];
+              const oldVal = initialValues.profilePicture;
+              if (newVal instanceof File) return true;
+              if (typeof newVal === "string" && newVal !== oldVal) return true;
+              return false;
             }
 
             // For other fields, use strict equality
@@ -206,11 +212,49 @@ export default function LearnerFormModal({
               learner.id,
               data.profilePicture,
             );
+            // Append cache-buster to force browser to re-fetch if URL didn't change
+            const cacheBusted =
+              imageUrl + (imageUrl.includes("?") ? "&" : "?") + `v=${Date.now()}`;
+
             // Mettre à jour l'objet avec la nouvelle URL d'image (préserver tous les autres champs)
             updatedLearner = {
               ...updatedLearner,
-              profilePicture: imageUrl,
+              profilePicture: cacheBusted,
             };
+
+            // Also update any cached queries that may reference this learner
+            try {
+              // Update single learner cache
+              const singleKey = ["learner", learner.id];
+              const singleCached = queryClient.getQueryData<any>(singleKey);
+              if (singleCached) {
+                queryClient.setQueryData(singleKey, { ...singleCached, ...updatedLearner });
+                console.log("[LearnerFormModal] updated single learner cache", singleKey);
+              }
+
+              // Update learnersRanking caches (paginated or array)
+              const qc = (queryClient as any).getQueryCache();
+              const matches = qc.findAll((q: any) => q.queryKey && q.queryKey[0] === "learnersRanking");
+              matches.forEach((q: any) => {
+                const key = q.queryKey;
+                const cached = queryClient.getQueryData<any>(key);
+                if (!cached) return;
+
+                const mergeLearner = (l: LearnerRanking) => (l.id === updatedLearner.id ? { ...l, ...updatedLearner } : l);
+
+                if (cached.content && Array.isArray(cached.content)) {
+                  const newContent = cached.content.map(mergeLearner);
+                  queryClient.setQueryData(key, { ...cached, content: newContent });
+                  console.log("[LearnerFormModal] updated learnersRanking paginated cache", key);
+                } else if (Array.isArray(cached)) {
+                  const newArr = cached.map(mergeLearner);
+                  queryClient.setQueryData(key, newArr);
+                  console.log("[LearnerFormModal] updated learnersRanking array cache", key);
+                }
+              });
+            } catch (err) {
+              console.error("Error updating caches after upload:", err);
+            }
           } catch (error) {
             console.error("Error uploading profile picture:", error);
             toast.error(t("common.error"), {
@@ -220,6 +264,36 @@ export default function LearnerFormModal({
             setIsSubmitting(false);
             return;
           }
+        }
+
+        // If profile picture wasn't a File but was changed as a string value,
+        // still attempt to update ranking caches with the returned updatedLearner
+        try {
+          const singleKey2 = ["learner", learner.id];
+          const singleCached2 = queryClient.getQueryData<any>(singleKey2);
+          if (singleCached2) {
+            queryClient.setQueryData(singleKey2, { ...singleCached2, ...updatedLearner });
+          }
+
+          const qc2 = (queryClient as any).getQueryCache();
+          const matches2 = qc2.findAll((q: any) => q.queryKey && q.queryKey[0] === "learnersRanking");
+          matches2.forEach((q: any) => {
+            const key = q.queryKey;
+            const cached = queryClient.getQueryData<any>(key);
+            if (!cached) return;
+
+            const mergeLearner = (l: LearnerRanking) => (l.id === updatedLearner.id ? { ...l, ...updatedLearner } : l);
+
+            if (cached.content && Array.isArray(cached.content)) {
+              const newContent = cached.content.map(mergeLearner);
+              queryClient.setQueryData(key, { ...cached, content: newContent });
+            } else if (Array.isArray(cached)) {
+              const newArr = cached.map(mergeLearner);
+              queryClient.setQueryData(key, newArr);
+            }
+          });
+        } catch (err) {
+          console.error("Error updating caches:", err);
         }
 
         toast.success(t("common.success"), {
