@@ -182,11 +182,9 @@ export default function LearnersRankingPage({
           if (cached.content && Array.isArray(cached.content)) {
             const newContent = cached.content.map(mergeLearner);
             queryClient.setQueryData(key, { ...cached, content: newContent });
-            console.log("[LearnersRankingPage] merged updated learner into cached paginated learnersRanking", key);
           } else if (Array.isArray(cached)) {
             const newArr = cached.map(mergeLearner);
             queryClient.setQueryData(key, newArr);
-            console.log("[LearnersRankingPage] merged updated learner into cached learnersRanking array", key);
           }
         });
 
